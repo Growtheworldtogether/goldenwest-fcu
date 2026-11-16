@@ -62,11 +62,11 @@ An admin with the permission starts it from the member's page with the button **
 
 ## 3. Tech stack
 
-Laravel 11 on PHP 8.3 with Livewire, so one developer can build both portals without a separate front-end project.
+Laravel 13 on PHP 8.3 with Livewire 4, so one developer can build both portals without a separate front-end project.
 
 | Need | Choice | Note |
 | --- | --- | --- |
-| Framework | Laravel 11, PHP 8.3 | Policies, queues, scheduler and encryption are built in |
+| Framework | Laravel 13, PHP 8.3 | Policies, queues, scheduler and encryption are built in |
 | UI | Breeze with Livewire and Tailwind | Own Blade layouts for member and admin |
 | 2FA | Laravel Fortify (TOTP and recovery codes) | Mandatory for admins |
 | Permissions | `spatie/laravel-permission` | Admin titles map to permission presets |
@@ -75,7 +75,7 @@ Laravel 11 on PHP 8.3 with Livewire, so one developer can build both portals wit
 | Database | MySQL 8 (InnoDB) or Postgres | Row locks and transactions are required |
 | Jobs | Database queue and Laravel Scheduler | Dividends, autopay, scheduled transfers, settlement, auto-close tickets |
 | Files | Private disk with signed, expiring URLs | KYC documents, check images, ticket attachments |
-| QR codes | `simplesoftwareio/simple-qrcode` | Crypto fund page |
+| QR codes | `endroid/qr-code` | Crypto fund page |
 | PDF | `barryvdh/laravel-dompdf` | Statements and loan schedules |
 | Mail | SMTP2GO or Mailtrap | Verification codes, notifications, ticket replies |
 | Tests | Pest | Ledger concurrency, policies, impersonation |

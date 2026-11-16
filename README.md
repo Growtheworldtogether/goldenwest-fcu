@@ -26,7 +26,7 @@ The full specification is in [`docs/SPEC.md`](docs/SPEC.md). Read it before chan
 | --- | --- |
 | Specification | Done (`docs/SPEC.md`) |
 | `Money`, loan `AmortizationSchedule`, fake `CardNumber` | Done, checked by `php scripts/verify-domain.php` (37 checks) |
-| Laravel application (migrations, services, portals) | Not started: needs Composer to install Laravel (see below) |
+| Laravel application (migrations, services, portals) | M0 scaffold done (Laravel 13, Pest 4, spec packages installed); M1 ledger core is next |
 
 Build order and the check for each step are in the spec under **Build plan** (M0 to M11).
 
