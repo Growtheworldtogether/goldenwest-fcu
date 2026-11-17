@@ -9,6 +9,7 @@
     <h2>Two-step verification</h2>
     @if ($confirmed)
         <p>Two-step verification is <strong>on</strong>. You will be asked for a code from your authenticator app when you sign in.</p>
+        @if (request()->routeIs('admin.*'))<p><a class="btn" href="{{ route('admin.home') }}">Continue to the staff console</a></p>@endif
         <h3 style="font-size:1rem;margin:1rem 0 .3rem">Recovery codes</h3>
         <p class="fine">Keep these somewhere safe. Each one works once if you lose your phone.</p>
         <ul class="codes">@foreach ($recoveryCodes as $c)<li>{{ $c }}</li>@endforeach</ul>

@@ -83,7 +83,7 @@ Route::post('/exit-member', [Admin\ImpersonationController::class, 'stop'])->mid
 // Staff console. Needs a staff title, two-step verification on, and a short idle timeout.
 Route::middleware(['auth', 'staff'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', Admin\DashboardController::class)->name('home');
-    Route::get('/security', Portal\SecurityController::class)->name('security');
+    Route::get('/security', Portal\SecurityController::class)->middleware('password.confirm')->name('security');
     Route::get('/members', [Admin\MemberController::class, 'index'])->name('members.index');
     Route::get('/members/{user}', [Admin\MemberController::class, 'show'])->whereNumber('user')->name('members.show');
     Route::post('/members/{user}/locks', [Admin\RestrictionController::class, 'store'])->whereNumber('user')->name('locks.store');
