@@ -1,0 +1,29 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\ReasonCode;
+use Illuminate\Database\Seeder;
+
+class ReasonCodeSeeder extends Seeder
+{
+    public function run(): void
+    {
+        foreach ([
+            ['unusual_activity', 'Activity differs from your usual pattern', 'decision'],
+            ['verification_required', 'We need to verify your identity or the payee', 'decision'],
+            ['suspected_fraud', 'Possible fraud on the account', 'all'],
+            ['over_limit', 'The amount is over your limit', 'decision'],
+            ['insufficient_documentation', 'We need more documentation', 'decision'],
+            ['account_review', 'The account is under review', 'all'],
+            ['regulatory_review', 'Required review', 'all'],
+            ['duplicate_request', 'This looks like a duplicate request', 'decision'],
+            ['member_request', 'Requested by the member', 'all'],
+            ['error_correction', 'Correction of an error', 'adjustment'],
+            ['goodwill', 'Goodwill credit', 'adjustment'],
+            ['deceased_member', 'Member reported deceased', 'restriction'],
+        ] as [$code, $label, $applies]) {
+            ReasonCode::updateOrCreate(['code' => $code], ['label' => $label, 'applies_to' => $applies]);
+        }
+    }
+}

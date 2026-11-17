@@ -26,7 +26,7 @@ The full specification is in [`docs/SPEC.md`](docs/SPEC.md). Read it before chan
 | --- | --- |
 | Specification | Done (`docs/SPEC.md`) |
 | `Money`, loan `AmortizationSchedule`, fake `CardNumber` | Done, checked by `php scripts/verify-domain.php` (37 checks) |
-| Laravel application (migrations, services, portals) | M0 scaffold done (Laravel 13, Pest 4, spec packages installed); M1 ledger core is next |
+| Laravel application (migrations, services, portals) | M0 scaffold and public site done; M1 ledger core done (TransferService, ledger, decisions, overdraft, seeded members); M2 member portal is next |
 
 Build order and the check for each step are in the spec under **Build plan** (M0 to M11).
 
@@ -62,3 +62,16 @@ php scripts/verify-domain.php
 - Virtual card numbers use a fake range (prefix `999999`) with a valid check digit.
 - Crypto is simulated: addresses are set by admins, balances are bookkeeping only.
 - No real identity verification.
+
+## Local setup and demo data
+
+```sh
+composer install
+cp .env.example .env && php artisan key:generate
+touch database/database.sqlite        # Windows PowerShell: New-Item database\database.sqlite -ItemType File
+php artisan migrate --seed            # prints the admin password
+php artisan ledger:verify             # recomputes every balance from the ledger
+./vendor/bin/pest
+```
+
+The seeder creates ten members (`<first>.<last>@example.com`, password `GoldenWest2026!` unless `SEED_MEMBER_PASSWORD` is set) with checking, savings and some money market accounts, and about 75 days of history posted through `TransferService`. It never runs in production.
