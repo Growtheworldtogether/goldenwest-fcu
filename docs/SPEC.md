@@ -458,3 +458,11 @@ Every success, error and info message in the interface appears as a **toast**, n
 - New device: `login_devices` (migration `2026_11_30_000021`) keeps a hash of the browser per member; the first sign-in is recorded silently, a later unseen browser sends the alert. Staff accounts are not tracked.
 - Terms: `php artisan members:notify-terms 2027-01-15` emails every active member.
 - Tests: `tests/Feature/Notifications/NoticeTest.php`, plus assertions in the Joint, Loan and Crypto tests.
+
+## 10m. Opening history for a new account (as built)
+
+- Staff with the adjust permission see **Add account history** on Member 360 when the member has an open account with no activity. They enter the balance the account should reach, a start date and an end date (up to today, at most five years back), a note, and whether the account shows as opened on the start date.
+- `HistoryBuilder` makes the activity from a seed: payroll deposits every two weeks, card purchases, bills and ATM withdrawals on checking; monthly deposits and dividends on savings. The balance never goes below zero and ends on exactly the chosen amount. The same inputs and seed always give the same rows.
+- `TransferService::postHistory` writes it, so the ledger stays the only thing that changes a balance. Rows are completed transactions and ledger entries stamped with their past dates in date order, so `ledger:verify` passes. It refuses any account that already has activity, so it can run once per account.
+- Limits: $50 to $500,000. A Manager is held to the normal adjustment limit. Each transaction is marked "Opening history added by staff" in its internal memo, and the audit log records the target, dates, count and seed.
+- Tests: `tests/Feature/Admin/AccountHistoryTest.php`.

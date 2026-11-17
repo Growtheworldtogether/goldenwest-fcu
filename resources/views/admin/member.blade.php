@@ -17,7 +17,7 @@
     <div class="macts">
         @can('staff.impersonate', $member)<button type="button" class="btn-s gold" data-open="dlg-act">Log in as member</button>@endcan
         @can('staff.postDeposits')<button type="button" class="btn-s plain" data-open="dlg-cash">Cash deposit</button>@endcan
-        @can('staff.canAdjust')<button type="button" class="btn-s plain" data-open="dlg-adjust">Adjust balance</button>@endcan
+        @can('staff.canAdjust')<button type="button" class="btn-s plain" data-open="dlg-adjust">Adjust balance</button>@if ($emptyAccounts->isNotEmpty()) <button type="button" class="btn-s plain" data-open="dlg-history">Add account history</button>@endif @endcan
         @if ($member->status !== 'deceased')@can('staff.lockAccounts')<button type="button" class="btn-s plain" data-open="dlg-deceased">Mark as deceased</button>@endcan @endif
         @can('staff.lockAccounts')<button type="button" class="btn-s plain" data-open="dlg-lock">Lock</button>@endcan
     </div>
@@ -268,6 +268,24 @@
         <button type="submit">Post adjustment</button>
         <p class="fine" style="margin:0">{{ \App\Support\Money::cents(config('bank.review_threshold'))->format() }} or more waits for another staff member. {{ \App\Support\Money::cents(config('bank.dual_approval_threshold'))->format() }} or more needs two.</p>
     </form></dialog>
+@endcan
+
+@can('staff.canAdjust')
+@if ($emptyAccounts->isNotEmpty())
+<dialog id="dlg-history"><div class="dh"><h3>Add account history</h3><button type="button" class="x" data-close aria-label="Close">&times;</button></div>
+    <form class="sform" method="post" action="{{ route('admin.history.store', $member) }}">@csrf
+        <label>Account<select name="account_id">@foreach ($emptyAccounts as $a)<option value="{{ $a->id }}" @selected(old('account_id') == $a->id)>{{ $a->nickname }} {{ $a->masked() }}</option>@endforeach</select></label>
+        <label>Balance the account should reach<input name="target" inputmode="decimal" placeholder="0.00" value="{{ old('target') }}" required>@error('target')<span class="err">{{ $message }}</span>@enderror</label>
+        <div class="two2">
+            <label>History starts<input type="date" name="from" value="{{ old('from', now()->subMonths(6)->toDateString()) }}" max="{{ now()->toDateString() }}" required>@error('from')<span class="err">{{ $message }}</span>@enderror</label>
+            <label>History ends<input type="date" name="to" value="{{ old('to', now()->subDay()->toDateString()) }}" max="{{ now()->toDateString() }}" required>@error('to')<span class="err">{{ $message }}</span>@enderror</label>
+        </div>
+        <label style="display:flex;gap:.5rem;align-items:center"><input type="checkbox" name="backdate_open" value="1" @checked(old('backdate_open', '1'))> Show the account as opened on the start date</label>
+        <label>Internal note<textarea name="note" rows="2" required>{{ old('note') }}</textarea></label>
+        <button type="submit">Add history</button>
+        <p class="fine" style="margin:0">Payroll deposits, card purchases, bills and cash withdrawals (or deposits and dividends on savings) are made up between the two dates. They end on exactly this balance. This can only be done once, on an account with no activity. It is recorded in the audit log.</p>
+    </form></dialog>
+@endif
 @endcan
 
 @push('scripts')

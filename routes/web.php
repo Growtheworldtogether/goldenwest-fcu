@@ -189,6 +189,7 @@ Route::middleware(['auth', 'staff'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/members/{user}/locks', [Admin\RestrictionController::class, 'store'])->whereNumber('user')->name('locks.store');
     Route::post('/locks/{restriction}/unlock', [Admin\RestrictionController::class, 'unlock'])->whereNumber('restriction')->name('locks.unlock');
     Route::post('/members/{user}/adjustments', [Admin\AdjustmentController::class, 'store'])->whereNumber('user')->name('adjustments.store');
+    Route::post('/members/{user}/history', [Admin\AccountHistoryController::class, 'store'])->whereNumber('user')->name('history.store');
     Route::post('/members/{user}/act-as', [Admin\ImpersonationController::class, 'start'])->whereNumber('user')->name('impersonate.start');
     Route::get('/queue', [Admin\QueueController::class, 'index'])->name('queue.index');
     Route::get('/queue/{transaction:reference}', [Admin\QueueController::class, 'show'])->name('queue.show');

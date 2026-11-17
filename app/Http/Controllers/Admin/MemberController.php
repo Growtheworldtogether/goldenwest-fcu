@@ -48,6 +48,7 @@ class MemberController extends Controller
         return view('admin.member', [
             'member' => $user->load('profile'),
             'accounts' => $accounts,
+            'emptyAccounts' => $accounts->where('type', 'standard')->where('status', 'active')->reject(fn ($a) => \App\Models\LedgerEntry::where('account_id', $a->id)->exists())->values(),
             'restrictions' => AccountRestriction::active()->with(['account', 'user'])
                 ->where(fn ($q) => $q->where('user_id', $user->id)->orWhereIn('account_id', $ids))->latest('id')->get(),
             'transactions' => Transaction::with(['fromAccount', 'toAccount'])

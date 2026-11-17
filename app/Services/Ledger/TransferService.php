@@ -74,6 +74,57 @@ final class TransferService
     }
 
     /** Set money aside on an account for a card authorization. Refuses if the account is restricted or the funds are not there. */
+    /**
+     * Write past, already-settled activity into an account that has never had any, so a new account opens with history.
+     * Rows must be in date order and never take the balance below zero. The ledger stays append-only and in date order.
+     *
+     * @param  list<array{type: TransactionType, direction: string, amount: int, at: CarbonInterface, description: string}>  $rows
+     */
+    public function postHistory(int $accountId, array $rows, User|int $staff): int
+    {
+        $staffId = $staff instanceof User ? $staff->id : $staff;
+
+        return $this->atomic(function () use ($accountId, $rows, $staffId) {
+            $account = Account::lockForUpdate()->findOrFail($accountId);
+            if ($account->type !== 'standard' || $account->status !== 'active') {
+                throw TransferException::because('not_eligible', 'History can only be added to an open account.');
+            }
+            if (LedgerEntry::where('account_id', $account->id)->exists() || $account->balance->cents !== 0) {
+                throw TransferException::because('not_new', 'This account already has activity. History can only be added to an account that has none.');
+            }
+
+            $balance = 0;
+            $last = null;
+            foreach ($rows as $i => $row) {
+                $at = $row['at'];
+                if ($last && $at->lessThan($last)) {
+                    throw TransferException::because('bad_order', 'History rows must be in date order.');
+                }
+                $last = $at;
+                $credit = $row['direction'] === 'credit';
+                $balance += $credit ? $row['amount'] : -$row['amount'];
+                if ($balance < 0 || $row['amount'] <= 0) {
+                    throw TransferException::because('bad_row', 'History cannot take the balance below zero.');
+                }
+                $tx = new Transaction;
+                $tx->forceFill([
+                    'reference' => (string) Str::ulid(), 'idempotency_key' => 'history:'.$account->id.':'.$i, 'type' => $row['type'],
+                    'from_account_id' => $credit ? null : $account->id, 'to_account_id' => $credit ? $account->id : null,
+                    'amount' => Money::cents($row['amount']), 'fee' => Money::zero(), 'status' => TransactionStatus::Completed,
+                    'initiated_by' => $staffId, 'effective_date' => $at->toDateString(), 'memo' => 'Opening history added by staff',
+                    'member_description' => $row['description'], 'posted_at' => $at, 'created_at' => $at, 'updated_at' => $at,
+                ])->save();
+                LedgerEntry::create(['transaction_id' => $tx->id, 'account_id' => $account->id, 'direction' => $row['direction'], 'amount' => $row['amount'], 'balance_after' => $balance, 'created_at' => $at, 'updated_at' => $at]);
+            }
+
+            $account->balance = $balance;
+            $account->available_balance = $balance;
+            $account->save();
+
+            return $balance;
+        });
+    }
+
     public function holdFunds(int $accountId, Money $amount): void
     {
         $this->atomic(function () use ($accountId, $amount) {
