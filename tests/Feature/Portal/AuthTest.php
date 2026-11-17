@@ -145,10 +145,10 @@ it('accepts a recovery code once', function () {
 });
 
 it('shows the join form as five steps and keeps the sign-in and join photos', function () {
-    $html = $this->get('/register')->assertOk()->assertSee('Open my accounts')->assertSee('images/join.jpg', false)->getContent();
+    $html = $this->get('/register')->assertOk()->assertSee('Open my accounts')->assertSee('images/branch.jpg', false)->getContent();
     foreach (['Eligibility', 'About you', 'Contact', 'Password', 'Review'] as $i => $title) {
         expect($html)->toContain('data-step="'.($i + 1).'" data-title="'.$title.'"');
     }
-    $this->get('/login')->assertOk()->assertSee('images/signin.jpg', false);
-    $this->get('/forgot-password')->assertOk()->assertSee('images/signin.jpg', false);
+    $this->get('/login')->assertOk()->assertSee('images/branch.jpg', false);
+    $this->get('/forgot-password')->assertOk()->assertSee('images/branch.jpg', false);
 });

@@ -1,7 +1,7 @@
 @extends('layouts.auth')
 @section('title', 'Become a member | '.brand('name'))
 @section('box-class', 'wide')
-@section('art', 'join.jpg')
+@section('art', 'branch.jpg')
 @section('art-title', 'Join in about five minutes')
 @section('art-text', 'Free savings and checking, no opening deposit, and a team that knows your name.')
 @section('heading', 'Become a member')
