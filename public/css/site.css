@@ -2,7 +2,7 @@
    Layout follows the structure of a large retail bank home page.
    Colors: navy, royal blue and gold. Gold text on white is never used (contrast). */
 
-@font-face { font-family: "Roboto"; src: url("../fonts/roboto.woff2") format("woff2"); font-weight: 100 900; font-style: normal; font-display: swap; }
+@font-face { font-family: "Montserrat"; src: url("../fonts/montserrat.woff2") format("woff2"); font-weight: 100 900; font-style: normal; font-display: swap; }
 
 :root {
   --navy: #1f2869;
@@ -16,7 +16,7 @@
   --line: #cfd6e6;
   --dark: #202226;
   --pad: clamp(1.25rem, 5.5vw, 5rem);
-  --sans: "Roboto", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --sans: "Montserrat", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
   --grad: linear-gradient(90deg, var(--navy) 0%, var(--navy) 62%, var(--blue) 100%);
 }
 
@@ -88,7 +88,7 @@ h1, h2, h3 { margin: 0; line-height: 1.08; }
 .slide > .photo { position: absolute; inset: 0; }
 .panel { position: absolute; top: 0; bottom: 0; right: 0; width: 63%; background: var(--grad); clip-path: polygon(28.6% 0, 100% 0, 100% 100%, 0 100%); }
 .panel-body { position: absolute; top: 50%; transform: translateY(-50%); left: 33%; right: 7%; display: grid; gap: 1.5rem; justify-items: start; color: #fff; }
-.panel-body h2 { font-size: clamp(2.4rem, 5vw, 4.5rem); line-height: 1.04; }
+.panel-body h2 { font-size: clamp(2rem, 3.9vw, 3.5rem); line-height: 1.04; }
 .panel-body p { margin: 0; padding-left: .9rem; border-left: 4px solid var(--gold); font-size: 1.1875rem; color: #eef1ff; max-width: 36rem; }
 .hero-ctrl { position: absolute; right: 1rem; bottom: 1.25rem; display: flex; align-items: center; gap: .6rem; z-index: 5; }
 .hero-ctrl button { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #fff; background: transparent; padding: 0; cursor: pointer; }
@@ -125,12 +125,12 @@ h1, h2, h3 { margin: 0; line-height: 1.08; }
 .band-body { position: absolute; top: 50%; transform: translateY(-50%); display: grid; gap: 1.4rem; justify-items: start; }
 .band.photo-right .band-body { left: 14.3%; width: min(34%, 520px); }
 .band.photo-left .band-body { left: 56%; right: var(--pad); }
-.band h2 { font-size: clamp(2rem, 4vw, 3.6rem); }
+.band h2 { font-size: clamp(1.75rem, 3.1vw, 2.9rem); }
 .band p { margin: 0; padding-left: .9rem; border-left: 4px solid var(--gold); font-size: 1.0625rem; color: #eef1ff; }
 
 /* ---------- Articles ---------- */
 .articles { padding: clamp(3rem, 6vw, 5rem) 2rem clamp(3rem, 6vw, 4.5rem); }
-.articles h2 { text-align: center; color: var(--navy); font-size: clamp(1.9rem, 4vw, 3.5rem); margin-bottom: 2.5rem; }
+.articles h2 { text-align: center; color: var(--navy); font-size: clamp(1.6rem, 3.1vw, 2.9rem); margin-bottom: 2.5rem; }
 .acard { display: flex; flex-direction: column; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: .7rem .7rem 1.4rem; text-decoration: none; }
 .acard .photo { aspect-ratio: 4 / 3; border-radius: 8px; }
 .acard-body { padding: 1.1rem .6rem 0; display: grid; gap: .8rem; }
