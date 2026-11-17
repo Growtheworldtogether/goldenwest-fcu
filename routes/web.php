@@ -90,6 +90,12 @@ Route::middleware(['auth', 'verified', 'member.area'])->group(function () {
     Route::get('/transfers/external', [Portal\PayeeController::class, 'create'])->name('transfers.external');
     Route::post('/transfers/external', [Portal\PayeeController::class, 'send'])->middleware('throttle:10,1')->name('transfers.external.store');
 
+    Route::middleware('feature:wires')->group(function () {
+        Route::get('/wires', [Portal\WireController::class, 'index'])->name('wires.index');
+        Route::get('/wires/new', [Portal\WireController::class, 'create'])->name('wires.create');
+        Route::post('/wires', [Portal\WireController::class, 'store'])->middleware('throttle:10,1')->name('wires.store');
+    });
+
     Route::get('/verification', [Portal\KycController::class, 'show'])->name('kyc.show');
     Route::post('/verification', [Portal\KycController::class, 'store'])->middleware('throttle:10,1')->name('kyc.store');
     Route::post('/transactions/{transaction:reference}/contest', [Portal\TransactionController::class, 'contest'])->middleware('throttle:10,1')->name('transactions.contest');
@@ -124,6 +130,7 @@ Route::middleware(['auth', 'staff'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/queue/{transaction:reference}/{action}', [Admin\QueueController::class, 'act'])->where('action', 'approve|reject|hold|release|reverse')->name('queue.act');
     Route::post('/members/{user}/cash-deposits', [Admin\DepositController::class, 'cash'])->whereNumber('user')->name('deposits.cash');
     Route::post('/members/{user}/payees/{payee}/waive', [Admin\DepositController::class, 'waive'])->whereNumber(['user', 'payee'])->name('payees.waive');
+    Route::post('/members/{user}/features/{feature}', [Admin\FeatureController::class, 'toggle'])->whereNumber('user')->name('features.toggle');
     Route::get('/identity', [Admin\KycController::class, 'index'])->name('kyc.index');
     Route::get('/identity/{document}', [Admin\KycController::class, 'show'])->whereNumber('document')->name('kyc.show');
     Route::post('/identity/{document}/{action}', [Admin\KycController::class, 'decide'])->whereNumber('document')->where('action', 'approve|reject')->name('kyc.decide');

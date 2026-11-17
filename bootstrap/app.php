@@ -12,7 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->alias(['staff' => \App\Http\Middleware\EnsureStaff::class, 'member.area' => \App\Http\Middleware\EnsureMemberArea::class]);
+        $middleware->alias(['staff' => \App\Http\Middleware\EnsureStaff::class, 'member.area' => \App\Http\Middleware\EnsureMemberArea::class, 'feature' => \App\Http\Middleware\EnsureFeature::class]);
         $middleware->appendToGroup('web', \App\Http\Middleware\ApplyImpersonation::class);
         $middleware->redirectUsersTo(fn () => auth()->user()?->isAdmin() ? '/admin' : '/dashboard');
     })

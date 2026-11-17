@@ -123,7 +123,12 @@ class DemoMemberSeeder extends Seeder
 
             // Staff-queue examples so the admin area has something real to review.
             if ($i === 3) {
-                $post(TransactionType::WireOut, 820_000, $mm->id, null, 'Wire to Las Vegas Title & Escrow', 'Home purchase');
+                $tx = $post(TransactionType::WireOut, 820_000, $mm->id, null, 'Wire to Las Vegas Title & Escrow', 'Home purchase');
+                \App\Models\UserFeature::create(['user_id' => $user->id, 'feature' => 'wires', 'enabled_at' => now(), 'note' => 'Home purchase']);
+                if ($tx instanceof Transaction) {
+                    $payee = \App\Models\Payee::create(['user_id' => $user->id, 'name' => 'Las Vegas Title & Escrow', 'bank_name' => 'Silver State Bank', 'routing_number' => '021000021', 'account_number' => '4400118827', 'last4' => '8827', 'account_type' => 'checking', 'activates_at' => now()->subDay()]);
+                    \App\Models\WireTransfer::create(['user_id' => $user->id, 'transaction_id' => $tx->id, 'payee_id' => $payee->id, 'recipient_address' => '3960 Howard Hughes Pkwy, Las Vegas, NV 89169', 'purpose' => 'Home purchase closing', 'process_on' => now()->toDateString()]);
+                }
             }
             if ($i === 4 && $admin) {
                 $tx = $post(TransactionType::AchOut, 600_000, $chk->id, null, 'ACH to external account');

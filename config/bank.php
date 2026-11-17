@@ -12,5 +12,8 @@ return [
     'ach_pull_limit' => 1_000_000,          // $10,000 per transfer from another bank
     'cash_review_threshold' => 1_000_000,   // cash at the counter of $10,000 or more waits for a second person
     'payee_cooling_hours' => 24,            // a new external account cannot be used until this many hours pass
+    'wire_fee' => 2_500,                    // $25 per outgoing wire, charged to the sending account
+    'wire_cutoff' => '14:00',               // wires reviewed and sent before this time go out the same business day
+    'wire_timezone' => 'America/Los_Angeles',
     'overdraft_transfer_fee' => 0,          // charged to the checking account when protection is used
 ];

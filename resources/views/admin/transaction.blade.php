@@ -55,6 +55,23 @@
 </div>
 @endif
 
+@if ($wire)
+<div class="panel-card" style="margin-top:1.25rem">
+    <h3>Wire details</h3>
+    <dl class="kv">
+        <dt>Recipient</dt><dd>{{ $wire->payee->name }}</dd>
+        <dt>Address</dt><dd>{{ $wire->recipient_address }}</dd>
+        <dt>Bank</dt><dd>{{ $wire->payee->bank_name ?? 'Not given' }}</dd>
+        <dt>Routing</dt><dd>{{ $wire->payee->routing_number }}</dd>
+        <dt>Account</dt><dd>{{ $wire->payee->account_type }} ending {{ $wire->payee->last4 }} @if ($wire->payee->waived_by)<span class="tag lock">waiting period waived</span>@endif</dd>
+        <dt>Purpose</dt><dd>{{ $wire->purpose }}</dd>
+        <dt>Send on</dt><dd>{{ $wire->process_on->format('l, F j, Y') }}</dd>
+        <dt>Fee</dt><dd>{{ $tx->fee->format() }}</dd>
+    </dl>
+    <p class="fine">Confirm the purpose and recipient with the member if anything looks unusual. A wire cannot be taken back once it is sent.</p>
+</div>
+@endif
+
 @foreach ($tickets as $t)
 <div class="panel-card" style="margin-top:1.25rem">
     <h3>Member contested this decision</h3>

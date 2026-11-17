@@ -60,6 +60,7 @@ class MemberController extends Controller
             'actingReasons' => ReasonCode::where('applies_to', 'impersonation')->orderBy('label')->pluck('label', 'code'),
             'payees' => \App\Models\Payee::where('user_id', $user->id)->where('status', 'active')->orderBy('name')->get(),
             'kycDocs' => \App\Models\KycDocument::where('user_id', $user->id)->where('status', '!=', 'replaced')->latest('id')->get(),
+            'features' => \App\Models\UserFeature::where('user_id', $user->id)->whereNull('disabled_at')->pluck('feature')->all(),
             'token' => (string) Str::ulid(),
         ]);
     }

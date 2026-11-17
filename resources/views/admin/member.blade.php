@@ -76,6 +76,19 @@
         </div>
 
         <div class="panel-card">
+            <h3>Features</h3>
+            @foreach (\App\Services\Features::ALL as $key => $label)
+                @php($on = in_array($key, $features, true))
+                <div class="item">{{ $label }} <span class="chip {{ $on ? 'completed' : 'pending' }}">{{ $on ? 'on' : 'off' }}</span>
+                    @can('staff.toggleFeatures')
+                    <form method="post" action="{{ route('admin.features.toggle', [$member, $key]) }}" style="margin-top:.35rem">@csrf
+                        <input type="hidden" name="enabled" value="{{ $on ? 0 : 1 }}"><button type="submit" class="linkbtn">{{ $on ? 'Turn off' : 'Turn on' }}</button></form>
+                    @endcan
+                </div>
+            @endforeach
+        </div>
+
+        <div class="panel-card">
             <h3>Identity documents</h3>
             @forelse ($kycDocs as $d)
                 <p class="item">@can('staff.reviewKyc')<a class="plink" href="{{ route('admin.kyc.show', $d) }}">{{ $d->typeLabel() }}</a>@else{{ $d->typeLabel() }}@endcan <span class="chip {{ ['approved' => 'completed', 'rejected' => 'rejected'][$d->status] ?? 'pending' }}">{{ $d->status }}</span></p>

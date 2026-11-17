@@ -729,3 +729,5 @@ details.more .filters { margin: .75rem 0 0; }
 .checkimgs figcaption{font-size:.85rem;color:var(--muted);margin-top:.3rem}
 .kycimg{max-width:100%;height:auto;border:1px solid var(--line);border-radius:4px;display:block}
 .msg{padding:.75rem 0;border-bottom:1px solid var(--line)}.msg:last-of-type{border-bottom:0}
+.form .chk input[type=checkbox],.panel-card .chk input[type=checkbox]{width:1.1rem;height:1.1rem;padding:0;flex:none;accent-color:var(--navy)}
+.form .chk{font-weight:400;color:var(--ink)}
