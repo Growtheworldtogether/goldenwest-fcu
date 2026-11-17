@@ -464,3 +464,8 @@ h1, h2, h3 { margin: 0; line-height: 1.08; }
   .feed li { padding-inline: .9rem; }
 }
 @media (prefers-reduced-motion: reduce) { .js .side, .quick a { transition: none; } }
+
+/* Filter fields stay inside their grid cells */
+.filters { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+.filters label { min-width: 0; }
+.filters input, .filters select { width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; text-overflow: ellipsis; }
