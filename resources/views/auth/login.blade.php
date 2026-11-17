@@ -1,5 +1,5 @@
 @extends('layouts.auth')
-@section('title', 'Log in | Golden West Federal Credit Union')
+@section('title', 'Log in | '.brand('name'))
 @section('heading', 'Log in')
 @section('lede', 'Access your accounts securely, 24 hours a day.')
 @section('form')
@@ -11,5 +11,5 @@
     <button class="btn" type="submit">Log in</button>
 </form>
 <p class="fine" style="margin-top:1.25rem"><a href="{{ route('password.request') }}" style="color:var(--blue)">Forgot your password?</a> &nbsp;|&nbsp; New here? <a href="{{ route('register') }}" style="color:var(--blue)">Become a member</a></p>
-<p class="fine">Golden West will never ask for your password or a one-time code by phone, text or email.</p>
+<p class="fine">{{ brand('short_name') }} will never ask for your password or a one-time code by phone, text or email.</p>
 @endsection

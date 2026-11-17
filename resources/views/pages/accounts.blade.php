@@ -1,5 +1,5 @@
 @extends('layouts.inner')
-@section('title', 'Checking and Savings Accounts | Golden West Federal Credit Union')
+@section('title', 'Checking and Savings Accounts | '.brand('name'))
 @section('description', 'Everyday checking, savings, money market and certificates with no fee to join and no minimum balance on checking.')
 @section('crumb', 'Checking & Savings')
 @section('heading', 'Checking and savings')
@@ -10,7 +10,7 @@
 <section class="sec">
     <div class="wrap">
         <h2>Choose the account that fits</h2>
-        <p class="lead">Every Golden West account comes with online and mobile banking, a debit card, and free access to member service seven days a week.</p>
+        <p class="lead">Every {{ brand('short_name') }} account comes with online and mobile banking, a debit card, and free access to member service seven days a week.</p>
         <div class="grid-3">
             <article class="tile">
                 <svg class="ico" viewBox="0 0 64 48" aria-hidden="true"><rect x="6" y="8" width="52" height="32" rx="4"/><path d="M6 18h52M14 30h14"/></svg>

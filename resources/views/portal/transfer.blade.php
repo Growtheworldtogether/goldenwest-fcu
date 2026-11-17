@@ -2,7 +2,7 @@
 @section('title', 'Transfer')
 @section('band')
 <h1>Transfer money</h1>
-<p class="psub">Move money between your own Golden West accounts. It is free and takes effect right away.</p>
+<p class="psub">Move money between your own {{ brand('short_name') }} accounts. It is free and takes effect right away.</p>
 @endsection
 @section('content')
 @if ($accounts->count() < 2)

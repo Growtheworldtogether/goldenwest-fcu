@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\InquiryController;
+use App\Http\Controllers\MediaController;
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\Portal;
 use Illuminate\Http\Request;
@@ -54,6 +55,10 @@ Route::get('/search', function (Request $request) {
     return view('pages.search', ['q' => $q, 'results' => $results]);
 })->name('search');
 
+// Uploaded images and the favicon. Files live in private storage and are served here, so no storage link is needed.
+Route::get('/media/{filename}', [MediaController::class, 'show'])->where('filename', '[A-Za-z0-9]{40}\.(png|jpg|webp)')->name('media.show');
+Route::get('/brand/favicon', [MediaController::class, 'favicon'])->name('brand.favicon');
+
 Route::post('/contact', [InquiryController::class, 'contact'])->middleware('throttle:6,1')->name('contact.send');
 Route::post('/appointments', [InquiryController::class, 'appointment'])->middleware('throttle:6,1')->name('appointments.send');
 
@@ -96,6 +101,16 @@ Route::middleware(['auth', 'staff'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/audit', Admin\AuditController::class)->name('audit');
     Route::get('/inquiries', [Admin\InquiryController::class, 'index'])->name('inquiries.index');
     Route::post('/inquiries/{inquiry}/handle', [Admin\InquiryController::class, 'handle'])->whereNumber('inquiry')->name('inquiries.handle');
+    Route::get('/branding', [Admin\BrandingController::class, 'edit'])->name('branding');
+    Route::put('/branding', [Admin\BrandingController::class, 'update'])->name('branding.update');
+    Route::get('/site', [Admin\SiteContentController::class, 'index'])->name('site.index');
+    Route::get('/site/{page}', [Admin\SiteContentController::class, 'edit'])->name('site.edit');
+    Route::put('/site/{page}/draft', [Admin\SiteContentController::class, 'saveDraft'])->name('site.draft');
+    Route::get('/site/{page}/preview', [Admin\SiteContentController::class, 'preview'])->name('site.preview');
+    Route::post('/site/{page}/publish', [Admin\SiteContentController::class, 'publish'])->name('site.publish');
+    Route::delete('/site/{page}/draft', [Admin\SiteContentController::class, 'discard'])->name('site.discard');
+    Route::post('/site/{page}/rollback/{revision}', [Admin\SiteContentController::class, 'rollback'])->whereNumber('revision')->name('site.rollback');
+    Route::post('/site/{page}/reset', [Admin\SiteContentController::class, 'reset'])->name('site.reset');
     Route::get('/settings', [Admin\SettingsController::class, 'edit'])->name('settings');
     Route::put('/settings', [Admin\SettingsController::class, 'update'])->name('settings.update');
 });

@@ -1,15 +1,15 @@
 @extends('layouts.inner')
-@section('title', 'Security & Fraud Center | Golden West Federal Credit Union')
-@section('description', 'How Golden West protects your accounts, how to spot common scams, and what to do if you think you have been targeted.')
+@section('title', 'Security & Fraud Center | '.brand('name'))
+@section('description', 'How '.brand('short_name').' protects your accounts, how to spot common scams, and what to do if you think you have been targeted.')
 @section('crumb', 'Security & Fraud Center')
 @section('heading', 'Security & Fraud Center')
 @section('intro', 'Protecting your money is our most important job. Learn how we help, and how you can stay a step ahead of fraud.')
-@section('hero-action')<a class="btn" href="tel:8005550147">Report fraud: 800-555-0147</a>@endsection
+@section('hero-action')<a class="btn" href="tel:{{ brand('tel') }}">Report fraud: {{ brand('support_phone') }}</a>@endsection
 
 @section('body')
 <section class="sec">
     <div class="wrap">
-        <div class="notice"><p><strong>Golden West will never</strong> call, text or email to ask for your password, PIN, full card number or the one-time code we send you. If someone asks, hang up and call us at <a href="tel:8005550147">800-555-0147</a>.</p></div>
+        <div class="notice"><p><strong>{{ brand('short_name') }} will never</strong> call, text or email to ask for your password, PIN, full card number or the one-time code we send you. If someone asks, hang up and call us at <a href="tel:{{ brand('tel') }}">{{ brand('support_phone') }}</a>.</p></div>
         <h2>How we protect you</h2>
         <div class="grid-3">
             <article class="tile"><h3>24/7 monitoring</h3><p>Our systems review card and account activity around the clock and flag unusual transactions for review.</p></article>
@@ -34,7 +34,7 @@
         <div>
             <h2>If something looks wrong</h2>
             <ol class="checks" style="list-style:none">
-                <li>Call Customer Care at <a href="tel:8005550147">800-555-0147</a> right away.</li>
+                <li>Call Customer Care at <a href="tel:{{ brand('tel') }}">{{ brand('support_phone') }}</a> right away.</li>
                 <li>Lock your card in the mobile app, or tell us to do it.</li>
                 <li>Change your online banking password.</li>
                 <li>Review recent transactions and tell us about any you do not recognize.</li>

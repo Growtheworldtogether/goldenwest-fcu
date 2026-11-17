@@ -1,5 +1,5 @@
 @extends('layouts.inner')
-@section('title', 'Personal and Auto Loans | Golden West Federal Credit Union')
+@section('title', 'Personal and Auto Loans | '.brand('name'))
 @section('description', 'Fixed-rate personal and auto loans with clear terms, no prepayment penalty and decisions you can understand.')
 @section('crumb', 'Loans')
 @section('heading', 'Loans with clear terms')
@@ -42,7 +42,7 @@
         <ol class="steps">
             <li><b>Apply online</b>It takes about ten minutes and checking your options will not affect your credit score.</li>
             <li><b>Get a decision</b>Most applications are reviewed the same business day. If we cannot approve, we tell you why in plain language.</li>
-            <li><b>Receive your funds</b>Approved funds go to your Golden West account or directly to the seller, usually within one business day.</li>
+            <li><b>Receive your funds</b>Approved funds go to your {{ brand('short_name') }} account or directly to the seller, usually within one business day.</li>
         </ol>
     </div>
 </section>

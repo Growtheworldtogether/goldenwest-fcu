@@ -1,9 +1,9 @@
 @extends('layouts.inner')
-@section('title', 'Community | Golden West Federal Credit Union')
-@section('description', 'How Golden West invests in the communities it serves through lending, scholarships, volunteering and financial education.')
+@section('title', 'Community | '.brand('name'))
+@section('description', 'How '.brand('short_name').' invests in the communities it serves through lending, scholarships, volunteering and financial education.')
 @section('crumb', 'Community')
 @section('heading', 'Investing where we live')
-@section('intro', 'Strong communities make strong members. Here is how Golden West gives back across the West.')
+@section('intro', 'Strong communities make strong members. Here is how '.brand('short_name').' gives back across the West.')
 
 @section('body')
 <section class="sec">
@@ -23,7 +23,7 @@
             <p>Each spring we award scholarships to members who are headed to college or trade school. Applications open in January, and awards are based on service, leadership and financial need.</p>
             <a class="btn" href="{{ url('/contact') }}">Ask about scholarships</a>
         </div>
-        <aside class="aside on-dark"><h3>Community Reinvestment</h3><p>Golden West is committed to meeting the credit needs of the communities we serve, including low- and moderate-income neighborhoods. Ask any branch for our current Community Reinvestment statement.</p></aside>
+        <aside class="aside on-dark"><h3>Community Reinvestment</h3><p>{{ brand('short_name') }} is committed to meeting the credit needs of the communities we serve, including low- and moderate-income neighborhoods. Ask any branch for our current Community Reinvestment statement.</p></aside>
     </div>
 </section>
 @endsection

@@ -1,5 +1,5 @@
 @extends('layouts.inner')
-@section('title', 'Sitemap | Golden West Federal Credit Union')
+@section('title', 'Sitemap | '.brand('name'))
 @section('crumb', 'Sitemap')
 @section('heading', 'Sitemap')
 @section('intro', 'Every page on our site in one place.')

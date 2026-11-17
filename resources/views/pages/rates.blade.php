@@ -1,6 +1,6 @@
 @extends('layouts.inner')
-@section('title', 'Rates | Golden West Federal Credit Union')
-@section('description', 'Current deposit and loan rates at Golden West Federal Credit Union.')
+@section('title', 'Rates | '.brand('name'))
+@section('description', 'Current deposit and loan rates at '.brand('name').'.')
 @section('crumb', 'Rates')
 @section('heading', 'Today\'s rates')
 @section('intro', 'Current rates on savings, certificates and loans. Rates as of '.now()->format('F j, Y').'.')

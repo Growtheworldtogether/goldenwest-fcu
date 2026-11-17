@@ -1,5 +1,5 @@
 @extends('layouts.auth')
-@section('title', 'Choose a new password | Golden West Federal Credit Union')
+@section('title', 'Choose a new password | '.brand('name'))
 @section('heading', 'Choose a new password')
 @section('form')
 <form class="form" method="post" action="{{ route('password.update') }}">

@@ -19,6 +19,7 @@ class StaffPolicy
     public function viewAudit(User $u): bool { return $this->has($u, 'audit.view'); }
     public function answerInquiries(User $u): bool { return $this->has($u, 'tickets.answer'); }
     public function toggleFeatures(User $u): bool { return $this->has($u, 'features.toggle'); }
+    public function editSite(User $u): bool { return $this->has($u, 'site.edit'); }
     public function manageAdmin(User $u): bool { return $this->has($u, 'admin.manage'); }
 
     /** Tellers decide small amounts only. Managers, Compliance and Super Admin decide any amount. */

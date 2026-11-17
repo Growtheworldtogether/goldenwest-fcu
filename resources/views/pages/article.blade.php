@@ -1,5 +1,5 @@
 @extends('layouts.inner')
-@section('title', $article['title'].' | Golden West Federal Credit Union')
+@section('title', $article['title'].' | '.brand('name'))
 @section('description', $article['intro'])
 @section('crumbs')<li><a href="{{ url('/learn') }}">Insights &amp; Stories</a></li>@endsection
 @section('crumb', $article['cat'])

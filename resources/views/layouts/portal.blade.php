@@ -3,12 +3,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Online Banking') | Golden West Federal Credit Union</title>
+    <title>@yield('title', 'Online Banking') | {{ brand('name') }}</title>
     <meta name="robots" content="noindex">
-    <meta name="theme-color" content="#14403a">
+    <meta name="theme-color" content="{{ brand('brand_color') }}">
     <link rel="preload" href="{{ asset('fonts/SourceSans3.woff2') }}" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="{{ asset('fonts/Oswald.woff2') }}" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="{{ asset('css/site.css') }}">
+    <style>{!! \App\Services\Brand::cssVars() !!}</style>
+    <link rel=\"icon\" href=\"{{ route('brand.favicon') }}\">
     <script>document.documentElement.classList.add('js')</script>
 </head>
 @php
@@ -29,6 +31,8 @@
         'inbox' => '<path d="M3 13l3-8h12l3 8v6H3z"/><path d="M3 13h5l1 3h6l1-3h5"/>',
         'audit' => '<path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h7"/>',
         'settings' => '<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.600 5.600l2.100 2.100M16.300 16.300l2.100 2.100M5.600 18.400l2.100-2.100M16.300 7.700l2.100-2.100"/>',
+        'palette' => '<path d="M12 3a9 9 0 1 0 0 18c1.500 0 2-1 1.500-2-.5-1.200.2-2.500 1.700-2.500H17a4 4 0 0 0 4-4C21 6.500 17 3 12 3z"/><circle cx="7.500" cy="11" r="1"/><circle cx="10" cy="7.500" r="1"/><circle cx="14.500" cy="7.500" r="1"/>',
+        'pages' => '<rect x="4" y="3" width="16" height="18" rx="1.500"/><path d="M8 8h8M8 12h8M8 16h5"/>',
         'phone' => '<path d="M5 4h4l2 5-2.500 1.500a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
     ];
     $staffMode = request()->routeIs('admin.*');
@@ -38,6 +42,8 @@
         ['admin.members.index', 'Members', 'members', ['admin.members.*'], 'staff.lookupMembers'],
         ['admin.inquiries.index', 'Inquiries', 'inbox', ['admin.inquiries.*'], 'staff.answerInquiries'],
         ['admin.audit', 'Audit log', 'audit', ['admin.audit'], 'staff.viewAudit'],
+        ['admin.branding', 'Branding', 'palette', ['admin.branding*'], 'staff.editSite'],
+        ['admin.site.index', 'Site content', 'pages', ['admin.site.*'], 'staff.editSite'],
         ['admin.settings', 'Settings', 'settings', ['admin.settings*'], 'staff.manageAdmin'],
         ['admin.security', 'My security', 'security', ['admin.security'], null],
     ];
@@ -55,9 +61,8 @@
 <div class="shell">
     <aside class="side" id="side" aria-label="Online banking">
         <div class="side-head">
-            <a class="pbrand" href="{{ route($staffMode ? 'admin.home' : 'dashboard') }}" aria-label="Golden West Federal Credit Union, online banking home">
-                @include('partials.brand-mark')
-                <span>Golden West<small>{{ $staffMode ? 'Staff console' : 'Online banking' }}</small></span>
+            <a class="pbrand" href="{{ route($staffMode ? 'admin.home' : 'dashboard') }}" aria-label="{{ brand('name') }}, online banking home">
+                @include('partials.brand-logo', ['variant' => 'dark', 'caption' => $staffMode ? 'Staff console' : 'Online banking'])
             </a>
             <button class="side-close" type="button" data-side-close aria-label="Close menu">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
@@ -71,7 +76,7 @@
             @endforeach
         </nav>
         <div class="side-foot">
-            <a class="side-help" href="tel:8005550147"><svg viewBox="0 0 24 24" aria-hidden="true">{!! $icons['phone'] !!}</svg><span>Customer Care<b>800-555-0147</b></span></a>
+            <a class="side-help" href="tel:{{ brand('tel') }}"><svg viewBox="0 0 24 24" aria-hidden="true">{!! $icons['phone'] !!}</svg><span>Customer Care<b>{{ brand('support_phone') }}</b></span></a>
             <div class="side-user">
                 <span class="avatar" aria-hidden="true">{{ $initials }}</span>
                 <span class="who">{{ $user->name }}<small>{{ $staffMode ? $user->adminTitle() : 'Member #'.$user->member_number }}</small></span>
@@ -110,9 +115,9 @@
 
         <footer class="pfoot">
             <div class="pwrap">
-                <p>Customer Care <a href="tel:8005550147">800-555-0147</a> &middot; Mon-Fri 7am - 8pm PT, Sat 8am - 5pm PT &middot; Routing number 121478906</p>
+                <p>Customer Care <a href="tel:{{ brand('tel') }}">{{ brand('support_phone') }}</a> &middot; {{ brand('support_hours') }} &middot; Routing number 121478906</p>
                 <p><a href="{{ url('/privacy') }}">Privacy</a> &middot; <a href="{{ url('/terms') }}">Terms</a> &middot; <a href="{{ url('/disclosures') }}">Disclosures</a> &middot; <a href="{{ url('/security') }}">Security &amp; Fraud Center</a></p>
-                <p class="fine">Golden West will never ask for your password or a one-time code by phone, text or email.</p>
+                <p class="fine">{{ brand('short_name') }} will never ask for your password or a one-time code by phone, text or email.</p>
             </div>
         </footer>
     </div>

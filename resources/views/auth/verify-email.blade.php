@@ -1,5 +1,5 @@
 @extends('layouts.auth')
-@section('title', 'Verify your email | Golden West Federal Credit Union')
+@section('title', 'Verify your email | '.brand('name'))
 @section('heading', 'Check your email')
 @section('lede', 'We sent a link to confirm your email address. Open it to finish setting up online banking.')
 @section('form')

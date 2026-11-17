@@ -1,6 +1,6 @@
 @extends('layouts.inner')
-@section('title', 'Contact Us | Golden West Federal Credit Union')
-@section('description', 'Reach Golden West Customer Care by phone or send us a message.')
+@section('title', 'Contact Us | '.brand('name'))
+@section('description', 'Reach '.brand('short_name').' Customer Care by phone or send us a message.')
 @section('crumb', 'Contact Us')
 @section('heading', 'Contact us')
 @section('intro', 'We are here to help. Call, send a message or schedule time with a banker.')
@@ -33,7 +33,7 @@
         </div>
         <aside class="aside on-dark">
             <h3>Customer Care</h3>
-            <p><a href="tel:8005550147" style="font-size:1.4rem;font-weight:700">800-555-0147</a></p>
+            <p><a href="tel:{{ brand('tel') }}" style="font-size:1.4rem;font-weight:700">{{ brand('support_phone') }}</a></p>
             <p>Mon-Fri: 7am - 8pm PT<br>Sat: 8am - 5pm PT</p>
             <p>Lost or stolen card? Call any time, day or night.</p>
             <a class="btn" href="{{ url('/appointments') }}">Schedule an appointment</a>

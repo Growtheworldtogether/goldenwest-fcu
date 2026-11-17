@@ -1,6 +1,7 @@
 @extends('layouts.site')
 
 @section('content')
+    @php($cp = site_page())
     <section class="phero on-dark">
         <div class="phero-in">
             <ol class="crumbs" aria-label="Breadcrumb">
@@ -8,8 +9,8 @@
                 @yield('crumbs')
                 <li aria-current="page">@yield('crumb')</li>
             </ol>
-            <h1>@yield('heading')</h1>
-            <p class="intro">@yield('intro')</p>
+            <h1>{{ site_content($cp.'.heading', trim($__env->yieldContent('heading'))) }}</h1>
+            <p class="intro">{{ site_content($cp.'.intro', trim($__env->yieldContent('intro'))) }}</p>
             @yield('hero-action')
         </div>
     </section>
@@ -17,8 +18,13 @@
     @hasSection('cta')
         <section class="cta on-dark">
             <div class="wrap">
-                <div>@yield('cta')</div>
-                <a class="btn" href="@yield('cta-url', url('/join'))">@yield('cta-label', 'Open an account')</a>
+                @php($ctaButton = site_content($cp.'.cta_button'))
+                @if (site_content($cp.'.cta_title'))
+                    <div><h2>{{ site_content($cp.'.cta_title') }}</h2>@if (site_content($cp.'.cta_text'))<p>{{ site_content($cp.'.cta_text') }}</p>@endif</div>
+                @else
+                    <div>@yield('cta')</div>
+                @endif
+                <a class="btn" href="{{ $ctaButton ? url($ctaButton['url']) : trim($__env->yieldContent('cta-url', url('/join'))) }}">{{ $ctaButton['label'] ?? trim($__env->yieldContent('cta-label', 'Open an account')) }}</a>
             </div>
         </section>
     @endif

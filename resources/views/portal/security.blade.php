@@ -80,7 +80,7 @@
 @if ($staffAccess->count())
 <div class="table-title"><h2>Staff accessed or acted on your account</h2></div>
 <div class="panel-card flush">
-    <p class="fine" style="margin:0;padding:1rem 1.25rem 0">Sometimes a Golden West team member signs in as you to help with a request. Each time is listed here.</p>
+    <p class="fine" style="margin:0;padding:1rem 1.25rem 0">Sometimes a {{ brand('short_name') }} team member signs in as you to help with a request. Each time is listed here.</p>
     <table class="dtable">
         <tbody>
         @foreach ($staffAccess as $s)
@@ -90,7 +90,7 @@
     </table>
 </div>
 @endif
-<p class="fine" style="margin-top:1.25rem">Don't recognize something? Call Customer Care at <a class="plink" href="tel:8005550147">800-555-0147</a> right away.</p>
+<p class="fine" style="margin-top:1.25rem">Don't recognize something? Call Customer Care at <a class="plink" href="tel:{{ brand('tel') }}">{{ brand('support_phone') }}</a> right away.</p>
 
 <dialog id="dlg-password">
     <div class="dh"><h3>Change your password</h3><button type="button" class="x" data-close aria-label="Close">&times;</button></div>

@@ -6,19 +6,20 @@
 @endsection
 @section('content')
 
-<h2 class="group-title" style="margin-top:0">Acting as a member</h2>
-<form method="post" action="{{ route('admin.settings.update') }}" class="panel-card flush srows">
+<form method="post" action="{{ route('admin.settings.update') }}" class="panel-card" style="max-width:760px;display:grid;gap:1.25rem">
     @csrf @method('PUT')
-    <div class="srow">
-        <div><h3>Allow money actions</h3><p>Staff acting as a member can move money. Each one still asks for the staff member's own two-step code or password.</p></div>
-        <div class="ctl">
-            <label class="switch"><input type="checkbox" name="impersonation_allow_money_actions" value="1" @checked($moneyActions) aria-label="Allow money actions while acting as a member"><i></i></label>
-            <button type="submit" class="btn-s sm">Save</button>
-        </div>
+    <div>
+        <h2 style="margin:0 0 .6rem">Acting as a member</h2>
+        <label class="chk" style="display:flex;gap:.6rem;align-items:flex-start;font-weight:700;color:var(--navy)"><input type="checkbox" name="impersonation_allow_money_actions" value="1" @checked($moneyActions) style="margin-top:.3rem"><span>Allow money actions<small style="display:block;font-weight:400;color:var(--muted)">Staff acting as a member can move money. Each one still asks for the staff member's own two-step code or password.</small></span></label>
     </div>
+    <div>
+        <h2 style="margin:0 0 .6rem">Branding and site content</h2>
+        <label class="chk" style="display:flex;gap:.6rem;align-items:flex-start;font-weight:700;color:var(--navy)"><input type="checkbox" name="managers_edit_site" value="1" @checked($managersEditSite) style="margin-top:.3rem"><span>Managers can edit branding and public pages<small style="display:block;font-weight:400;color:var(--muted)">Super Admin can always do this. Turn this on to let Managers do it too.</small></span></label>
+    </div>
+    <div><button type="submit" class="btn-s">Save settings</button></div>
 </form>
 
-<h2 class="group-title">Staff</h2>
+<div class="table-title"><h2>Staff</h2></div>
 <div class="panel-card flush">
     <table class="dtable">
         <thead><tr><th>Name</th><th>Title</th><th class="hide-s">Email</th><th>Two-step</th></tr></thead>

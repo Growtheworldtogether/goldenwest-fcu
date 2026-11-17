@@ -1,6 +1,6 @@
 @extends('layouts.inner')
-@section('title', 'Join Golden West | Golden West Federal Credit Union')
-@section('description', 'Become a Golden West member. Joining is free and opening an account takes about ten minutes.')
+@section('title', 'Join '.brand('short_name').' | '.brand('name'))
+@section('description', 'Become a '.brand('short_name').' member. Joining is free and opening an account takes about ten minutes.')
 @section('crumb', 'Join')
 @section('heading', 'Become a member')
 @section('intro', 'Joining is free and opening an account takes about ten minutes. No opening deposit is needed for checking.')
@@ -25,7 +25,7 @@
             <a class="btn" href="{{ route('register') }}">Open my accounts</a>
             <p class="fine" style="margin-top:1rem">Already a member? <a href="{{ route('login') }}" style="color:var(--blue)">Log in</a>.</p>
         </div>
-        <aside class="aside on-dark"><h3>Member benefits</h3><ul class="checks"><li>No fee to join</li><li>No minimum balance on checking</li><li>Fixed-rate loans</li><li>Online and mobile banking</li></ul><p>Questions? Call <a href="tel:8005550147">800-555-0147</a>.</p></aside>
+        <aside class="aside on-dark"><h3>Member benefits</h3><ul class="checks"><li>No fee to join</li><li>No minimum balance on checking</li><li>Fixed-rate loans</li><li>Online and mobile banking</li></ul><p>Questions? Call <a href="tel:{{ brand('tel') }}">{{ brand('support_phone') }}</a>.</p></aside>
     </div>
 </section>
 @endsection

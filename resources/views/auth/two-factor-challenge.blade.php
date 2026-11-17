@@ -1,5 +1,5 @@
 @extends('layouts.auth')
-@section('title', 'Verify it is you | Golden West Federal Credit Union')
+@section('title', 'Verify it is you | '.brand('name'))
 @section('heading', 'Verify it is you')
 @section('lede', 'Enter the 6-digit code from your authenticator app, or use a recovery code.')
 @section('form')

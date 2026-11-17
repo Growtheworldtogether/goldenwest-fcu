@@ -1,6 +1,6 @@
 @extends('layouts.inner')
-@section('title', 'Insights & Stories | Golden West Federal Credit Union')
-@section('description', 'Practical guides on saving, borrowing and staying safe from Golden West.')
+@section('title', 'Insights & Stories | '.brand('name'))
+@section('description', 'Practical guides on saving, borrowing and staying safe from '.brand('short_name').'.')
 @section('crumb', 'Insights & Stories')
 @section('heading', 'Insights & stories')
 @section('intro', 'Practical guidance on money, loans and staying safe, written by the people who help our members every day.')

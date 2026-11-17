@@ -12,6 +12,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        require_once app_path('Support/helpers.php');
         //
     }
 
@@ -20,8 +21,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        foreach (['lookupMembers', 'postDeposits', 'lockAccounts', 'viewAudit', 'answerInquiries', 'toggleFeatures', 'manageAdmin', 'decideTransaction', 'viewQueue', 'adjustBalance', 'canAdjust', 'impersonate'] as $ability) {
+        foreach (['lookupMembers', 'postDeposits', 'lockAccounts', 'viewAudit', 'answerInquiries', 'toggleFeatures', 'manageAdmin', 'editSite', 'decideTransaction', 'viewQueue', 'adjustBalance', 'canAdjust', 'impersonate'] as $ability) {
             \Illuminate\Support\Facades\Gate::define('staff.'.$ability, [\App\Policies\StaffPolicy::class, $ability]);
+        }
+
+        // The credit union's name drives the app name (2FA app label, mail footers) and the mail sender name.
+        try {
+            config(['app.name' => brand('name'), 'mail.from.name' => brand('sender_name')]);
+        } catch (\Throwable) {
+            // Before the first migration the defaults in config apply.
         }
 
         // The portal top bar shows the previous sign-in, like a bank does.

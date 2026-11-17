@@ -15,7 +15,7 @@
         <dt>Mobile phone</dt><dd>{{ $user->phone }}</dd>
         <dt>Home address</dt><dd>{{ $user->address_line1 }}, {{ $user->city }}, {{ $user->state }} {{ $user->postal_code }}</dd>
     </dl>
-    <p class="fine" style="margin:0;padding:0 1.25rem 1.1rem">To change your name or email, call Customer Care at 800-555-0147 so we can verify it is you.</p>
+    <p class="fine" style="margin:0;padding:0 1.25rem 1.1rem">To change your name or email, call Customer Care at {{ brand('support_phone') }} so we can verify it is you.</p>
 </div>
 
 <div class="table-title"><h2>Alerts</h2></div>

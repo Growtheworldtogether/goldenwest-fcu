@@ -1,5 +1,5 @@
 @extends('layouts.inner')
-@section('title', 'Digital Banking | Golden West Federal Credit Union')
+@section('title', 'Digital Banking | '.brand('name'))
 @section('description', 'Online and mobile banking with deposits, transfers, bill pay, card controls and instant alerts.')
 @section('crumb', 'Digital banking')
 @section('heading', 'Bank anywhere, any time')
@@ -27,7 +27,7 @@
             <ul class="checks"><li>Two-step verification on every sign-in from a new device</li><li>Fingerprint and face unlock on supported phones</li><li>Automatic sign-out after a period of inactivity</li><li>Real-time monitoring for unusual activity</li></ul>
             <a class="btn" href="{{ url('/security') }}">Visit the Security &amp; Fraud Center</a>
         </div>
-        <aside class="aside on-dark"><h3>New to online banking?</h3><p>Choose Log in, then select <em>Enroll</em>. You will need your account number and Social Security number. Need help? Call <a href="tel:8005550147">800-555-0147</a>.</p></aside>
+        <aside class="aside on-dark"><h3>New to online banking?</h3><p>Choose Log in, then select <em>Enroll</em>. You will need your account number and Social Security number. Need help? Call <a href="tel:{{ brand('tel') }}">{{ brand('support_phone') }}</a>.</p></aside>
     </div>
 </section>
 @endsection

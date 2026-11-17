@@ -18,7 +18,8 @@ return [
         'approvals.manage' => 'Approve cards, loans and crypto sends',
         'features.toggle' => 'Toggle per-user features',
         'impersonate' => 'Log in as member',
-        'admin.manage' => 'Manage admins, settings, announcements, branding and site content',
+        'site.edit' => 'Edit branding and public site content',
+        'admin.manage' => 'Manage admins, settings and announcements',
     ],
 
     'titles' => [

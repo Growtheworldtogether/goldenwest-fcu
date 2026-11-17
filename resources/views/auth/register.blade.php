@@ -1,5 +1,5 @@
 @extends('layouts.auth')
-@section('title', 'Become a member | Golden West Federal Credit Union')
+@section('title', 'Become a member | '.brand('name'))
 @section('box-class', 'wide')
 @section('heading', 'Become a member')
 @section('lede', 'Joining is free. You will have a savings and a checking account as soon as you finish, with no opening deposit.')

@@ -18,6 +18,10 @@ final class StaffDirectory
             Permission::findOrCreate($name, 'web');
         }
         foreach (config('admin.titles') as $title => $perms) {
+            // A Super Admin can grant branding and content editing to Managers from Settings.
+            if ($title === 'Manager' && \App\Models\Setting::bool('managers_edit_site', false)) {
+                $perms[] = 'site.edit';
+            }
             Role::findOrCreate($title, 'web')->syncPermissions($perms === ['*'] ? $all : $perms);
         }
         app(PermissionRegistrar::class)->forgetCachedPermissions();

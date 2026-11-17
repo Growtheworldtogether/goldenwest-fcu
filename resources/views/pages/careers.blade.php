@@ -1,6 +1,6 @@
 @extends('layouts.inner')
-@section('title', 'Careers | Golden West Federal Credit Union')
-@section('description', 'Build a career at Golden West. Meaningful work, strong benefits and room to grow.')
+@section('title', 'Careers | '.brand('name'))
+@section('description', 'Build a career at '.brand('short_name').'. Meaningful work, strong benefits and room to grow.')
 @section('crumb', 'Careers')
 @section('heading', 'Build a career that matters')
 @section('intro', 'Join a team of more than 2,400 people who help members reach their goals every day.')
@@ -8,7 +8,7 @@
 @section('body')
 <section class="sec">
     <div class="wrap">
-        <h2>Why Golden West</h2>
+        <h2>Why {{ brand('short_name') }}</h2>
         <div class="grid-4">
             <article class="tile"><h3>Health coverage</h3><p>Medical, dental and vision plans that start on your first day.</p></article>
             <article class="tile"><h3>Retirement</h3><p>A 401(k) with a generous company match.</p></article>
@@ -29,7 +29,7 @@
                 <tr><td>Lending and operations</td><td>Underwriter, loan processor, payments specialist</td><td>Oakland, CA and Phoenix, AZ</td></tr>
             </tbody>
         </table></div>
-        <p class="fine">Golden West is an equal opportunity employer. We do not discriminate on the basis of race, color, religion, sex, national origin, age, disability, veteran status or any other protected characteristic.</p>
+        <p class="fine">{{ brand('short_name') }} is an equal opportunity employer. We do not discriminate on the basis of race, color, religion, sex, national origin, age, disability, veteran status or any other protected characteristic.</p>
     </div>
 </section>
 @endsection

@@ -1,5 +1,5 @@
 @extends('layouts.inner')
-@section('title', 'Search | Golden West Federal Credit Union')
+@section('title', 'Search | '.brand('name'))
 @section('crumb', 'Search')
 @section('heading', 'Search')
 @section('intro', 'Find accounts, loans, help topics and articles.')
@@ -9,7 +9,7 @@
     <div class="wrap">
         <form class="form" method="get" action="{{ url('/search') }}" role="search">
             <div class="row" style="grid-template-columns:1fr auto;align-items:end">
-                <label>Search Golden West<input type="search" name="q" value="{{ $q }}" autofocus></label>
+                <label>Search {{ brand('short_name') }}<input type="search" name="q" value="{{ $q }}" autofocus></label>
                 <button class="btn" type="submit">Search</button>
             </div>
         </form>
@@ -18,7 +18,7 @@
             @forelse ($results as $r)
                 <p><a href="{{ url($r['url']) }}" style="color:var(--blue);font-weight:700;font-size:1.125rem">{{ $r['title'] }}</a><br><span class="fine">{{ $r['area'] }}</span></p>
             @empty
-                <p>We could not find a match. Try a different word, or call Customer Care at <a href="tel:8005550147">800-555-0147</a>.</p>
+                <p>We could not find a match. Try a different word, or call Customer Care at <a href="tel:{{ brand('tel') }}">{{ brand('support_phone') }}</a>.</p>
             @endforelse
         @endif
     </div>

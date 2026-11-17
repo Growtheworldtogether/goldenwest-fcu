@@ -3,15 +3,19 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Golden West Federal Credit Union | Banking built around you')</title>
-    <meta name="description" content="@yield('description', 'Golden West Federal Credit Union has served members across the West since 1958. Joining and opening an account is free.')">
-    <meta name="theme-color" content="#14403a">
+    <title>@yield('title', brand('name').' | '.brand('tagline'))</title>
+    <meta name="description" content="@yield('description', brand('name').' has served members across the West since 1958. Joining and opening an account is free.')">
+    <meta name="theme-color" content="{{ brand('brand_color') }}">
     <link rel="preload" href="{{ asset('fonts/SourceSans3.woff2') }}" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="{{ asset('fonts/Oswald.woff2') }}" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="{{ asset('css/site.css') }}">
+    <style>{!! \App\Services\Brand::cssVars() !!}</style>
+    <link rel="icon" href="{{ route('brand.favicon') }}">
+    <link rel="apple-touch-icon" href="{{ route('brand.favicon') }}">
 </head>
 <body id="top">
 <a class="skip" href="#main">Skip to content</a>
+@if (\App\Services\SiteContent::$preview)<div class="preview-bar" role="status">Preview of unpublished changes. Visitors do not see this.</div>@endif
 
 <div class="idstrip">
     <details class="idnote">
@@ -20,15 +24,14 @@
             <em>Security notice: we will never ask for your password or a one-time code by phone, text or email.</em>
             <svg viewBox="0 0 12 8" width="12" height="8" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m1 1 5 5 5-5"/></svg>
         </summary>
-        <p><strong>Protect your account.</strong> Golden West will never call, text or email you to ask for your online banking password, PIN, card number, or the one-time code we send to verify a sign-in. Fraudsters often fake caller ID and sound urgent, so do not trust a call just because it appears to come from us.<br><br>If someone contacts you claiming to be from Golden West and asks for any of these, do not share anything. Hang up and call Customer Care at <a href="tel:8005550147">800-555-0147</a>, or visit your nearest branch. If you already shared information, call us right away so we can secure your accounts. You can also report suspicious messages in the <a href="{{ url('/security') }}">Security &amp; Fraud Center</a>.</p>
+        <p><strong>Protect your account.</strong> {{ brand('short_name') }} will never call, text or email you to ask for your online banking password, PIN, card number, or the one-time code we send to verify a sign-in. Fraudsters often fake caller ID and sound urgent, so do not trust a call just because it appears to come from us.<br><br>If someone contacts you claiming to be from {{ brand('short_name') }} and asks for any of these, do not share anything. Hang up and call Customer Care at <a href="tel:{{ brand('tel') }}">{{ brand('support_phone') }}</a>, or visit your nearest branch. If you already shared information, call us right away so we can secure your accounts. You can also report suspicious messages in the <a href="{{ url('/security') }}">Security &amp; Fraud Center</a>.</p>
     </details>
 </div>
 
 <header class="site-head">
     <div class="head-in">
-        <a class="brand" href="{{ url('/') }}" aria-label="Golden West Federal Credit Union, home">
-            <svg class="brand-mark" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="23" fill="#14403a"/><circle cx="23" cy="26" r="9" fill="#f5bd02"/><path d="M6 36h34" stroke="#f5bd02" stroke-width="3" stroke-linecap="round"/><path d="M23 7v5M10 13l3.500 3.500M36 13l-3.500 3.500" stroke="#f5bd02" stroke-width="2.600" stroke-linecap="round"/></svg>
-            <span class="brand-name">Golden West<small>FEDERAL CREDIT UNION</small></span>
+        <a class="brand" href="{{ url('/') }}" aria-label="{{ brand('name') }}, home">
+            @include('partials.brand-logo', ['variant' => 'light'])
         </a>
 
         <div class="head-right" id="site-nav">
@@ -102,10 +105,9 @@
         <div class="foot-grid">
             <div>
                 <a class="brand" href="{{ url('/') }}">
-                    <svg class="brand-mark" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="23" fill="#14403a"/><circle cx="23" cy="26" r="9" fill="#f5bd02"/><path d="M6 36h34" stroke="#f5bd02" stroke-width="3" stroke-linecap="round"/><path d="M23 7v5M10 13l3.500 3.500M36 13l-3.500 3.500" stroke="#f5bd02" stroke-width="2.600" stroke-linecap="round"/></svg>
-                    <span class="brand-name">Golden West<small>FEDERAL CREDIT UNION</small></span>
+                    @include('partials.brand-logo', ['variant' => 'light'])
                 </a>
-                <p class="lede">Golden West Federal Credit Union has served California and the West since 1958. With 46 branches across five states, personal and business banking, and secure digital tools, we help more than 280,000 members save, borrow and plan with confidence.</p>
+                <p class="lede">{{ brand('name') }} has served California and the West since 1958. With 46 branches across five states, personal and business banking, and secure digital tools, we help more than 280,000 members save, borrow and plan with confidence.</p>
                 <p class="badges"><span class="badge">Secure online banking</span><span class="badge">24/7 fraud monitoring</span></p>
             </div>
             <div>
@@ -123,12 +125,13 @@
             </div>
             <div>
                 <h3>Contact Us</h3>
-                <p class="contact">Customer Care: <a href="tel:8005550147">800-555-0147</a><br>Mon-Fri: 7am - 8pm PT | Sat: 8am - 5pm PT<br>Routing number: 121478906<br>NMLS number: 482915</p>
+                <p class="contact">Customer Care: <a href="tel:{{ brand('tel') }}">{{ brand('support_phone') }}</a><br>{{ brand('support_hours') }}<br>Routing number: 121478906<br>NMLS number: 482915</p>
                 <p class="apps"><a class="app" href="#"><img src="{{ asset('images/app-store-badge.png') }}" alt="Download on the App Store" width="130" height="39"></a><a class="app" href="#"><img src="{{ asset('images/google-play-badge.png') }}" alt="Get it on Google Play" width="131" height="39"></a></p>
-                <p class="contact">&copy; {{ date('Y') }} Golden West Federal Credit Union</p>
+                <p class="contact">&copy; {{ date('Y') }} {{ brand('name') }}</p>
             </div>
         </div>
-        <p class="legal">Golden West Federal Credit Union is an independent portfolio project and is not a licensed financial institution. No deposits are accepted and no accounts are insured.</p>
+        @if (brand('footer_text'))<p class="contact">{{ brand('footer_text') }}</p>@endif
+        <p class="legal">{{ brand('name') }} is an independent portfolio project and is not a licensed financial institution. No deposits are accepted and no accounts are insured.</p>
         <a class="totop" href="#top" aria-label="Back to top"><svg viewBox="0 0 20 12" width="20" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 10 8-8 8 8"/></svg></a>
     </div>
 </footer>

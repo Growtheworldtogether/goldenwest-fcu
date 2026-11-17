@@ -79,7 +79,7 @@
         </ul>
     </div>
     <div class="panel-card flush">
-        <div class="railnote"><b>Customer Care</b>800-555-0147<br>Mon-Fri 7am - 8pm PT<br>Sat 8am - 5pm PT</div>
+        <div class="railnote"><b>Customer Care</b>{{ brand('support_phone') }}<br>Mon-Fri 7am - 8pm PT<br>Sat 8am - 5pm PT</div>
     </div>
 </aside>
 </div>

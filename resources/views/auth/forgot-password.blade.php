@@ -1,5 +1,5 @@
 @extends('layouts.auth')
-@section('title', 'Reset your password | Golden West Federal Credit Union')
+@section('title', 'Reset your password | '.brand('name'))
 @section('heading', 'Reset your password')
 @section('lede', 'Enter the email address on your account and we will send you a link that expires in one hour.')
 @section('form')

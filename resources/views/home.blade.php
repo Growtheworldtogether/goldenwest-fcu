@@ -3,34 +3,18 @@
 @section('content')
     {{-- Hero: three slides. Photos load from public/images/hero-N.jpg when present. --}}
     <section class="hero on-dark" aria-roledescription="carousel" aria-label="Featured">
-        <div class="slide on" aria-label="1 of 3">
-            <div class="photo" data-img="{{ asset('images/hero-1.jpg') }}"></div>
+        @foreach (site_content('home.slides', []) as $i => $slide)
+        <div class="slide{{ $loop->first ? ' on' : '' }}" aria-label="{{ $i + 1 }} of {{ count(site_content('home.slides', [])) }}">
+            <div class="photo" data-img="{{ $slide['image']['url'] ?? asset('images/hero-'.min($i + 1, 3).'.jpg') }}"></div>
             <div class="panel"><div class="panel-body">
-                <h2 class="caps">Banking built around your life.</h2>
-                <p>Open a checking or savings account in about ten minutes, with no opening deposit and no fee to join.</p>
-                <a class="btn" href="{{ url('/join') }}">Open an account</a>
+                <h2 class="caps">{{ $slide['title'] }}</h2>
+                <p>{{ $slide['text'] }}</p>
+                <a class="btn" href="{{ url($slide['button']['url']) }}">{{ $slide['button']['label'] }}</a>
             </div></div>
         </div>
-        <div class="slide" aria-label="2 of 3">
-            <div class="photo" data-img="{{ asset('images/hero-2.jpg') }}"></div>
-            <div class="panel"><div class="panel-body">
-                <h2 class="caps">Save toward what matters most.</h2>
-                <p>Set a goal with a target and a date, and watch every deposit move you closer to it.</p>
-                <a class="btn" href="{{ url('/accounts#savings') }}">Explore savings</a>
-            </div></div>
-        </div>
-        <div class="slide" aria-label="3 of 3">
-            <div class="photo" data-img="{{ asset('images/hero-3.jpg') }}"></div>
-            <div class="panel"><div class="panel-body">
-                <h2 class="caps">Borrow with the full picture.</h2>
-                <p>See your rate, every monthly payment and the total cost of your loan before you apply.</p>
-                <a class="btn" href="{{ url('/loans') }}">Explore loans</a>
-            </div></div>
-        </div>
+        @endforeach
         <div class="hero-ctrl" role="group" aria-label="Slide controls">
-            <button type="button" aria-label="Slide 1" aria-current="true"></button>
-            <button type="button" aria-label="Slide 2"></button>
-            <button type="button" aria-label="Slide 3"></button>
+            @foreach (site_content('home.slides', []) as $i => $slide)<button type="button" aria-label="Slide {{ $i + 1 }}" @if ($loop->first) aria-current="true" @endif></button>@endforeach
             <button type="button" class="pause" id="pause" aria-label="Pause slides"><svg viewBox="0 0 12 12" aria-hidden="true"><rect x="1" y="0" width="3.5" height="12"/><rect x="7.5" y="0" width="3.5" height="12"/></svg></button>
         </div>
     </section>
@@ -70,10 +54,10 @@
     </section>
 
     <section class="band photo-right on-dark" aria-labelledby="how-title">
-        <div class="photo" data-img="{{ asset('images/about.jpg') }}" role="img" aria-label="Golden West members at a branch"></div>
+        <div class="photo" data-img="{{ asset('images/about.jpg') }}" role="img" aria-label="{{ brand('short_name') }} members at a branch"></div>
         <div class="band-body">
             <h2 class="caps" id="how-title">Member-owned since 1958.</h2>
-            <p>Golden West began as a credit union for a few dozen teachers and shipyard workers in Oakland, California. Today more than 280,000 members count on us at 46 branches across California, Nevada, Arizona, Oregon and Washington.</p>
+            <p>{{ brand('short_name') }} began as a credit union for a few dozen teachers and shipyard workers in Oakland, California. Today more than 280,000 members count on us at 46 branches across California, Nevada, Arizona, Oregon and Washington.</p>
             <p>Because we are owned by the people we serve, our earnings go back to members through lower loan rates, higher savings yields and fewer fees.</p>
             <a class="btn" href="{{ url('/about') }}">Our story</a>
         </div>
