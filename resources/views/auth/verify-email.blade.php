@@ -3,7 +3,6 @@
 @section('heading', 'Check your email')
 @section('lede', 'We sent a link to confirm your email address. Open it to finish setting up online banking.')
 @section('form')
-@if (session('status') === 'verification-link-sent')<div class="flash" role="status">A new link is on its way.</div>@endif
 <form class="form" method="post" action="{{ route('verification.send') }}">
     @csrf
     <button class="btn" type="submit">Send the link again</button>

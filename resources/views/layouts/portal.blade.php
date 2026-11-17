@@ -104,8 +104,6 @@
         <main id="main" class="pmain">
             @hasSection('band')<div class="pband{{ $staffMode ? ' staff' : '' }}"><div class="pwrap">@yield('band')</div></div>@endif
             <div class="pwrap">
-                @if (session('status'))<div class="flash" role="status">{{ session('status') }}</div>@endif
-                @if (session('error'))<div class="flash bad" role="alert">{{ session('error') }}</div>@endif
                 @yield('content')
             </div>
         </main>
@@ -135,5 +133,6 @@
 })();
 </script>
 @stack('scripts')
+@include('partials.toasts')
 </body>
 </html>

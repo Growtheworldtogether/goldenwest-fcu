@@ -155,5 +155,6 @@
 })();
 </script>
 @stack('scripts')
+@include('partials.toasts')
 </body>
 </html>

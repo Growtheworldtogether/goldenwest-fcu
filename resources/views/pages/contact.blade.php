@@ -9,7 +9,6 @@
 <section class="sec">
     <div class="wrap split">
         <div>
-            @if (session('sent'))<div class="flash" role="status">{{ session('sent') }}</div>@endif
             <h2>Send us a message</h2>
             <p class="fine">Please do not include your full account number, password or Social Security number in a message.</p>
             <form class="form" method="post" action="{{ route('contact.send') }}">

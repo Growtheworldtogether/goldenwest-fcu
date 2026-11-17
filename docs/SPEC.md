@@ -351,6 +351,10 @@ Build in this order and do not start a milestone until the check of the previous
 
 **Simplifications to list in the README:** one routing number for the whole credit union, simulated ACH and wire settlement, fake card number range, simulated crypto with no real wallets or keys, and no real identity verification.
 
+## 10b. Notifications (toasts)
+
+Every success, error and info message in the interface appears as a **toast**, never as an inline banner. One partial (`partials.toasts`) is included by the public, auth and portal layouts. Controllers flash with `->with('status', ...)`, `->with('sent', ...)`, `->with('error', ...)` or `->with('toast', ['type' => 'ok|bad|warn|info', 'message' => ...])`; views can `@push('toast')`; script calls `window.toast(message, type)`. Toasts auto-dismiss (6 s, errors 9 s), pause on hover and focus, close with the button or Escape, announce through `aria-live`, stack at most four, and work without script (server-rendered ones simply stay). Field-level validation messages stay next to their fields. New features must use toasts for their confirmations and failures.
+
 ## 11. Content standards
 
 - One brand everywhere: every public page extends `resources/views/layouts/site.blade.php`, so the header, footer, colors and type never drift.

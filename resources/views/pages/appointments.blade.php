@@ -9,7 +9,6 @@
 <section class="sec">
     <div class="wrap split">
         <div>
-            @if (session('sent'))<div class="flash" role="status">{{ session('sent') }}</div>@endif
             <h2>Request a time</h2>
             <form class="form" method="post" action="{{ route('appointments.send') }}">
                 @csrf

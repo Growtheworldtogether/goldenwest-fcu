@@ -8,7 +8,7 @@
 @section('content')
 @php($open = in_array($tx->status->value, ['pending', 'held']))
 @php($owner = $owners[$tx->from_account_id] ?? $owners[$tx->to_account_id] ?? null)
-@if ($errors->any())<div class="flash bad" role="alert">@foreach ($errors->all() as $e){{ $e }} @endforeach</div>@endif
+@if ($errors->any())@push('toast')<div class="toast bad" role="alert"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v6M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg><p>{{ $errors->first() }}</p><button type="button" class="toast-x" aria-label="Dismiss">&times;</button></div>@endpush @endif
 
 <div class="cols">
 <div class="panel-card">

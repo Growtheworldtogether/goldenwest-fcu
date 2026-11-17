@@ -157,3 +157,11 @@ it('renders every portal page for a signed-in member', function () {
         $this->actingAs($user)->get($url)->assertOk();
     }
 });
+
+it('shows flashed messages as toasts', function () {
+    [$member] = verifiedMember();
+    $this->actingAs($member)->withSession(['status' => 'Settings saved.', 'error' => 'Something went wrong.'])->get('/dashboard')
+    $this->flushSession();
+    $this->actingAs($member)->get('/dashboard')->assertDontSee('class="toast ok"', false);
+    $this->actingAs($member)->get('/dashboard')->assertDontSee('class="toast ok"', false);
+});
