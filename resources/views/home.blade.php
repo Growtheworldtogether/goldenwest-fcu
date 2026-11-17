@@ -12,12 +12,8 @@
 <body>
 <a class="skip" href="#main">Skip to content</a>
 
-<div class="topnote">
-    <div class="wrap"><b>DEMO</b> Golden West is a made-up credit union for a software project. No real money here.</div>
-</div>
-
 <header class="site-head">
-    <div class="wrap">
+    <div class="head-in">
         <a class="brand" href="{{ url('/') }}" aria-label="Golden West Federal Credit Union, home">
             <svg class="brand-mark" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="23" fill="#1f2869"/><circle cx="23" cy="26" r="9" fill="#f5bd02"/><path d="M6 36h34" stroke="#f5bd02" stroke-width="3" stroke-linecap="round"/><path d="M23 7v5M10 13l3.5 3.5M36 13l-3.5 3.5" stroke="#f5bd02" stroke-width="2.6" stroke-linecap="round"/></svg>
             <span class="brand-name">Golden West<small>FEDERAL CREDIT UNION</small></span>
@@ -25,8 +21,9 @@
 
         <div class="head-right" id="site-nav">
             <ul class="util">
-                <li><a href="{{ url('/rates') }}">Rates</a></li>
+                <li>Demo credit union, not real</li>
                 <li><a href="{{ url('/learn') }}">Learn</a></li>
+                <li><a href="{{ url('/rates') }}">Rates</a></li>
                 <li><a href="{{ url('/security') }}">Security</a></li>
                 <li><a href="{{ url('/about') }}">About</a></li>
                 <li><a href="{{ url('/help') }}">Help</a></li>
@@ -41,10 +38,10 @@
 
         <div class="head-tools">
             <a class="tool hide-sm" href="{{ url('/search') }}">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>SEARCH
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>SEARCH
             </a>
             <a class="tool" href="{{ url('/login') }}">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>LOG IN
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>LOG IN
             </a>
             <button class="tool menu-btn" type="button" id="menu-btn" aria-expanded="false" aria-controls="site-nav">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>MENU
@@ -53,8 +50,8 @@
     </div>
 </header>
 
-<div class="taskbar">
-    <div class="wrap">
+<div class="taskbar on-dark">
+    <div class="taskbar-in">
         <label for="task">What do you need to do?</label>
         <form action="{{ url('/join') }}" method="get" id="task-form">
             <select id="task" name="task">
@@ -70,29 +67,29 @@
 </div>
 
 <main id="main">
-    {{-- Hero: three slides, own copy. Photos load from public/images/hero-N.jpg if present. --}}
-    <section class="hero" aria-roledescription="carousel" aria-label="Featured">
+    {{-- Hero: three slides. Photos load from public/images/hero-N.jpg when present. --}}
+    <section class="hero on-dark" aria-roledescription="carousel" aria-label="Featured">
         <div class="slide on" aria-label="1 of 3">
-            <div class="photo" data-img="{{ asset('images/hero-1.jpg') }}"></div>
-            <div class="slide-panel"><div class="slide-body">
+            <div class="photo" data-img="{{ asset('images/hero-1.jpg') }}" data-label="hero-1.jpg"></div>
+            <div class="panel"><div class="panel-body">
                 <h2 class="caps">Open an account in ten minutes. Pay nothing.</h2>
-                <p>No opening deposit and no fee to join. You can finish from your couch, and there is no lobby to wait in because we never built one.</p>
+                <p>No opening deposit and no fee to join. Finish from your couch. There is no lobby to wait in because we never built one.</p>
                 <a class="btn" href="{{ url('/join') }}">Join Golden West</a>
             </div></div>
         </div>
         <div class="slide" aria-label="2 of 3">
-            <div class="photo" data-img="{{ asset('images/hero-2.jpg') }}"></div>
-            <div class="slide-panel"><div class="slide-body">
+            <div class="photo" data-img="{{ asset('images/hero-2.jpg') }}" data-label="hero-2.jpg"></div>
+            <div class="panel"><div class="panel-body">
                 <h2 class="caps">Save for one thing at a time.</h2>
                 <p>Name a goal, pick a date, and move money in when you can. A progress bar keeps score so you don't have to.</p>
                 <a class="btn" href="{{ url('/accounts#savings') }}">See savings accounts</a>
             </div></div>
         </div>
         <div class="slide" aria-label="3 of 3">
-            <div class="photo" data-img="{{ asset('images/hero-3.jpg') }}"></div>
-            <div class="slide-panel"><div class="slide-body">
+            <div class="photo" data-img="{{ asset('images/hero-3.jpg') }}" data-label="hero-3.jpg"></div>
+            <div class="panel"><div class="panel-body">
                 <h2 class="caps">See every loan payment before you apply.</h2>
-                <p>Choose an amount and a term. We lay out each payment, how much is interest, and the date it is due.</p>
+                <p>Choose an amount and a term. We lay out each payment, how much is interest, and the day it is due.</p>
                 <a class="btn" href="{{ url('/loans') }}">Try the loan calculator</a>
             </div></div>
         </div>
@@ -104,147 +101,145 @@
         </div>
     </section>
 
-    <section class="products" aria-label="Accounts and services">
-        <div class="wrap">
+    <section class="rail-section" aria-label="Accounts and services">
+        <div class="rail-wrap">
+            <button class="arrow prev" type="button" aria-label="Previous" data-prev><svg viewBox="0 0 22 52" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20 2 3 26l17 24"/></svg></button>
             <div class="rail" data-rail>
                 <a class="pcard" href="{{ url('/accounts#checking') }}">
-                    <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="34" height="24" rx="3"/><path d="M5 18h34M11 27h8"/></svg>
+                    <svg viewBox="0 0 60 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="54" height="32" rx="3"/><path d="M9 14h12M9 20h6M36 30h15M36 25h15"/></svg>
                     <h3>Checking</h3><p>Everyday money with no minimum balance.</p>
                 </a>
                 <a class="pcard" href="{{ url('/accounts#savings') }}">
-                    <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 34V20M18 34V12M28 34V24M38 34V8"/><path d="M5 38h34"/></svg>
+                    <svg viewBox="0 0 60 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 38V24M24 38V14M36 38V26M48 38V8"/><path d="M5 41h50"/></svg>
                     <h3>Savings</h3><p>Goals with a name, a target and a date.</p>
                 </a>
                 <a class="pcard" href="{{ url('/loans#personal') }}">
-                    <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="22" cy="22" r="16"/><path d="M26 15.5c-1-1.4-2.6-2-4.2-2-2.4 0-4.2 1.2-4.2 3.2 0 4.8 8.8 2.4 8.8 7 0 2-1.9 3.3-4.4 3.3-1.8 0-3.5-.8-4.5-2.2M22 10v3M22 31v3"/></svg>
+                    <svg viewBox="0 0 60 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="30" cy="22" r="17"/><path d="M34 14.5c-1-1.3-2.5-1.9-4.2-1.9-2.4 0-4.2 1.2-4.2 3.2 0 4.8 8.8 2.4 8.8 7 0 2-1.9 3.3-4.4 3.3-1.8 0-3.4-.8-4.4-2.1M30 9v3M30 32v3"/></svg>
                     <h3>Personal loans</h3><p>The full payment schedule, shown up front.</p>
                 </a>
                 <a class="pcard" href="{{ url('/loans#auto') }}">
-                    <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 27v-6l4-9h24l4 9v6z"/><path d="M6 21h32"/><circle cx="13" cy="30" r="3.2"/><circle cx="31" cy="30" r="3.2"/></svg>
+                    <svg viewBox="0 0 60 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 30v-8l6-12h34l6 12v8z"/><path d="M7 22h46"/><circle cx="17" cy="33" r="4"/><circle cx="43" cy="33" r="4"/></svg>
                     <h3>Auto loans</h3><p>Fixed payments that stay the same.</p>
                 </a>
                 <a class="pcard" href="{{ url('/digital-banking#card') }}">
-                    <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="9" width="34" height="26" rx="4"/><circle cx="16" cy="22" r="5"/><circle cx="24" cy="22" r="5"/></svg>
+                    <svg viewBox="0 0 60 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="6" width="50" height="32" rx="4"/><circle cx="24" cy="22" r="7"/><circle cx="36" cy="22" r="7"/></svg>
                     <h3>Virtual card</h3><p>Ask for one. A person reviews the request.</p>
                 </a>
                 <a class="pcard" href="{{ url('/digital-banking#bills') }}">
-                    <svg viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="6" width="30" height="32" rx="3"/><path d="M14 15h16M14 22h16M14 29h9"/></svg>
+                    <svg viewBox="0 0 60 44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="14" y="3" width="32" height="38" rx="3"/><path d="M21 13h18M21 21h18M21 29h10"/></svg>
                     <h3>Bill pay</h3><p>Set it once and stop tracking due dates.</p>
                 </a>
             </div>
+            <button class="arrow next" type="button" aria-label="Next" data-next><svg viewBox="0 0 22 52" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m2 2 17 24L2 50"/></svg></button>
             <div class="dots" data-dots></div>
         </div>
     </section>
 
-    <section class="band" aria-labelledby="how-title">
-        <div class="grad l"><div class="inner">
+    <section class="band photo-right on-dark" aria-labelledby="how-title">
+        <div class="photo" data-img="{{ asset('images/about.jpg') }}" data-label="about.jpg" role="img" aria-label="A member using Golden West on a phone"></div>
+        <div class="band-body">
             <h2 class="caps" id="how-title">No branch to find. No lobby to visit.</h2>
-            <p>Golden West lives online, and our members own it. That means we answer to you, and we can keep rates fair without paying for a building on every corner.</p>
-            <p>If we hold, decline or approve a transaction, you get the reason in writing. Disagree? One button opens a ticket, and a person replies.</p>
+            <p>Golden West lives online and our members own it. That keeps us answerable to you, and it keeps rates fair, since we aren't paying for a building on every corner.</p>
+            <p>When we hold, decline or approve a transaction, you get the reason in writing. Disagree? One button opens a ticket and a person replies.</p>
             <a class="btn" href="{{ url('/about') }}">About Golden West</a>
-        </div></div>
-        <div class="photo" data-img="{{ asset('images/about.jpg') }}" role="img" aria-label="A member using Golden West on a phone"></div>
+        </div>
     </section>
 
     <section class="articles" aria-labelledby="learn-title">
-        <div class="wrap">
-            <h2 class="caps" id="learn-title">Money questions, answered</h2>
+        <h2 class="caps" id="learn-title">Money questions, answered</h2>
+        <div class="rail-wrap">
+            <button class="arrow prev" type="button" aria-label="Previous" data-prev><svg viewBox="0 0 22 52" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20 2 3 26l17 24"/></svg></button>
             <div class="rail" data-rail>
                 <a class="acard" href="{{ url('/learn/read-your-statement') }}">
-                    <div class="photo" data-img="{{ asset('images/learn-1.jpg') }}"></div>
+                    <div class="photo" data-img="{{ asset('images/learn-1.jpg') }}" data-label="learn-1.jpg"></div>
                     <div class="acard-body"><div class="meta"><span class="chip">Your money</span><time datetime="2026-11-12">11.12.2026</time></div>
                     <h3>How to read your monthly statement in five minutes</h3></div>
                 </a>
                 <a class="acard" href="{{ url('/learn/fake-bank-texts') }}">
-                    <div class="photo" data-img="{{ asset('images/learn-2.jpg') }}"></div>
+                    <div class="photo" data-img="{{ asset('images/learn-2.jpg') }}" data-label="learn-2.jpg"></div>
                     <div class="acard-body"><div class="meta"><span class="chip">Security</span><time datetime="2026-11-05">11.05.2026</time></div>
                     <h3>That text from "your bank" is probably not from your bank</h3></div>
                 </a>
                 <a class="acard" href="{{ url('/learn/held-transaction') }}">
-                    <div class="photo" data-img="{{ asset('images/learn-3.jpg') }}"></div>
+                    <div class="photo" data-img="{{ asset('images/learn-3.jpg') }}" data-label="learn-3.jpg"></div>
                     <div class="acard-body"><div class="meta"><span class="chip">Your account</span><time datetime="2026-10-29">10.29.2026</time></div>
                     <h3>My payment says "held". What now?</h3></div>
                 </a>
                 <a class="acard" href="{{ url('/learn/used-car-loan') }}">
-                    <div class="photo" data-img="{{ asset('images/learn-4.jpg') }}"></div>
+                    <div class="photo" data-img="{{ asset('images/learn-4.jpg') }}" data-label="learn-4.jpg"></div>
                     <div class="acard-body"><div class="meta"><span class="chip">Borrowing</span><time datetime="2026-10-22">10.22.2026</time></div>
                     <h3>Buying a used car: auto loan or personal loan?</h3></div>
                 </a>
                 <a class="acard" href="{{ url('/learn/goal-savings') }}">
-                    <div class="photo" data-img="{{ asset('images/learn-5.jpg') }}"></div>
+                    <div class="photo" data-img="{{ asset('images/learn-5.jpg') }}" data-label="learn-5.jpg"></div>
                     <div class="acard-body"><div class="meta"><span class="chip">Saving</span><time datetime="2026-10-15">10.15.2026</time></div>
                     <h3>Pick a number, pick a date: how goal savings works</h3></div>
                 </a>
             </div>
+            <button class="arrow next" type="button" aria-label="Next" data-next><svg viewBox="0 0 22 52" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m2 2 17 24L2 50"/></svg></button>
             <div class="dots" data-dots></div>
-            <p class="more"><a href="{{ url('/learn') }}">Browse all articles</a></p>
         </div>
+        <div class="more"><a class="btn" href="{{ url('/learn') }}">Explore more articles</a></div>
     </section>
 
-    <section class="band" aria-labelledby="help-title">
-        <div class="photo" data-img="{{ asset('images/help.jpg') }}" role="img" aria-label="A member reading a reply from support"></div>
-        <div class="grad r"><div class="inner">
+    <section class="band photo-left on-dark" aria-labelledby="help-title">
+        <div class="photo" data-img="{{ asset('images/help.jpg') }}" data-label="help.jpg" role="img" aria-label="A member reading a reply from support"></div>
+        <div class="band-body">
             <h2 class="caps" id="help-title">A real person reads every ticket.</h2>
-            <p>Open a support ticket from your account and follow the whole conversation in one place. No phone tree, no starting over when you call back.</p>
+            <p>Open a support ticket from your account and follow the whole conversation in one place. No phone tree, and no starting over when you call back.</p>
             <a class="btn" href="{{ url('/help') }}">Visit the help center</a>
-        </div></div>
+        </div>
     </section>
 </main>
 
 <footer>
-    <div class="linkbar dark">
-        <div class="wrap">
-            <ul>
-                <li><a href="{{ url('/contact') }}">Contact us</a></li>
-                <li><a href="{{ url('/security#report') }}">Report fraud</a></li>
-                <li><a href="{{ url('/help') }}">Open a ticket</a></li>
-            </ul>
-        </div>
+    <div class="linkbar on-dark">
+        <ul>
+            <li><a href="{{ url('/contact') }}">Contact us</a></li>
+            <li><a href="{{ url('/security#report') }}">Report fraud</a></li>
+            <li><a href="{{ url('/help') }}">Open a ticket</a></li>
+        </ul>
     </div>
     <div class="foot">
-        <div class="wrap">
-            <div class="foot-grid">
-                <div>
-                    <a class="brand" href="{{ url('/') }}">
-                        <svg class="brand-mark" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="23" fill="#1f2869"/><circle cx="23" cy="26" r="9" fill="#f5bd02"/><path d="M6 36h34" stroke="#f5bd02" stroke-width="3" stroke-linecap="round"/></svg>
-                        <span class="brand-name">Golden West<small>FEDERAL CREDIT UNION</small></span>
-                    </a>
-                    <p>Golden West is an online-only credit union. Joining is free, opening accounts is free, and every decision on your money comes with a reason.</p>
-                </div>
-                <div>
-                    <h3>Quick links</h3>
-                    <ul>
-                        <li><a href="{{ url('/rates') }}">Rates</a></li>
-                        <li><a href="{{ url('/privacy') }}">Privacy</a></li>
-                        <li><a href="{{ url('/terms') }}">Terms</a></li>
-                        <li><a href="{{ url('/disclosures') }}">Disclosures</a></li>
-                        <li><a href="{{ url('/accessibility') }}">Accessibility</a></li>
-                        <li><a href="{{ url('/security') }}">Security center</a></li>
-                        <li><a href="{{ url('/sitemap') }}">Sitemap</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3>Contact us</h3>
-                    <p>Members: open a ticket from your account and we reply in the order received.</p>
-                    <p>Not a member yet? Use the <a href="{{ url('/contact') }}" style="color:var(--blue)">contact form</a>.</p>
-                    <p>&copy; {{ date('Y') }} Golden West Federal Credit Union</p>
-                </div>
+        <div class="foot-grid">
+            <div>
+                <a class="brand" href="{{ url('/') }}">
+                    <svg class="brand-mark" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="23" fill="#1f2869"/><circle cx="23" cy="26" r="9" fill="#f5bd02"/><path d="M6 36h34" stroke="#f5bd02" stroke-width="3" stroke-linecap="round"/></svg>
+                    <span class="brand-name">Golden West<small>FEDERAL CREDIT UNION</small></span>
+                </a>
+                <p>Golden West is an online-only credit union. Joining is free, opening accounts is free, and every decision on your money comes with a reason.</p>
             </div>
-            <p class="sim-note">Golden West Federal Credit Union is a fictional institution created for a software project. No real money is held or moved, and nothing here is a financial offer. Rates and figures shown are samples.</p>
+            <div>
+                <h3>Quick links</h3>
+                <ul>
+                    <li><a href="{{ url('/rates') }}">Rates</a></li>
+                    <li><a href="{{ url('/privacy') }}">Privacy</a></li>
+                    <li><a href="{{ url('/terms') }}">Terms</a></li>
+                    <li><a href="{{ url('/disclosures') }}">Disclosures</a></li>
+                    <li><a href="{{ url('/accessibility') }}">Accessibility</a></li>
+                    <li><a href="{{ url('/security') }}">Security center</a></li>
+                    <li><a href="{{ url('/sitemap') }}">Sitemap</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3>Contact us</h3>
+                <p>Members: open a ticket from your account and we reply in the order received.</p>
+                <p>Not a member yet? Use the <a href="{{ url('/contact') }}">contact form</a>.</p>
+                <p>&copy; {{ date('Y') }} Golden West Federal Credit Union</p>
+            </div>
         </div>
+        <p class="sim-note">Golden West Federal Credit Union is a fictional institution created for a software project. No real money is held or moved, and nothing here is a financial offer. Rates and figures shown are samples.</p>
     </div>
 </footer>
 
 <script>
 (function () {
-    // Mobile menu
     var mb = document.getElementById('menu-btn'), nav = document.getElementById('site-nav');
     mb.addEventListener('click', function () {
         var o = nav.classList.toggle('open');
         mb.setAttribute('aria-expanded', o ? 'true' : 'false');
     });
 
-    // Task bar jumps straight to the chosen page
     document.getElementById('task-form').addEventListener('submit', function (e) {
         e.preventDefault();
         window.location.href = document.getElementById('task').value;
@@ -276,9 +271,9 @@
     });
     if (reduce) { pauseBtn.setAttribute('aria-label', 'Play slides'); } else { play(); }
 
-    // Scroll rows with dots
+    // Scroll rows with arrows and dots
     document.querySelectorAll('[data-rail]').forEach(function (rail) {
-        var holder = rail.parentNode.querySelector('[data-dots]');
+        var box = rail.parentNode, holder = box.querySelector('[data-dots]');
         function build() {
             var pages = Math.max(1, Math.round(rail.scrollWidth / rail.clientWidth));
             holder.innerHTML = '';
@@ -296,6 +291,8 @@
             var bs = holder.children, p = Math.round(rail.scrollLeft / rail.clientWidth);
             for (var k = 0; k < bs.length; k++) bs[k].setAttribute('aria-current', k === p ? 'true' : 'false');
         }
+        box.querySelector('[data-prev]').addEventListener('click', function () { rail.scrollBy({ left: -rail.clientWidth, behavior: 'smooth' }); });
+        box.querySelector('[data-next]').addEventListener('click', function () { rail.scrollBy({ left: rail.clientWidth, behavior: 'smooth' }); });
         rail.addEventListener('scroll', function () { window.requestAnimationFrame(mark); });
         window.addEventListener('resize', build);
         build();
