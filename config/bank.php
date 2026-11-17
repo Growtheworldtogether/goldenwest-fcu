@@ -16,4 +16,8 @@ return [
     'wire_cutoff' => '14:00',               // wires reviewed and sent before this time go out the same business day
     'wire_timezone' => 'America/Los_Angeles',
     'overdraft_transfer_fee' => 0,          // charged to the checking account when protection is used
+
+    // Virtual card: default limits a member can lower but not raise.
+    'card_daily_limit' => 100_000,    // $1,000 a day
+    'card_purchase_limit' => 50_000,  // $500 a purchase
 ];

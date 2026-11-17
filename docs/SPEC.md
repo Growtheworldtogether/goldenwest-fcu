@@ -392,3 +392,11 @@ Every success, error and info message in the interface appears as a **toast**, n
 - **Files:** `ticket_attachments`, stored privately via `SecureUpload`; `/files/ticket/{id}` serves owner or staff, staff views audited (`ticket.attachment_viewed`).
 - **Audit actions:** ticket.opened, ticket.replied, ticket.note_added, ticket.assigned, ticket.priority_changed, ticket.status_changed.
 - Contested decisions (M4) are tickets in the same inbox, priority high, and the admin transaction page links to them.
+
+## 10f. M6 as built: virtual card, announcements, security center
+
+- **Card (`/card`):** open to any member with verified identity and a checking account; no flag needed (the request and staff approval are the gate). Statuses: requested, active, frozen, cancelled, rejected. Approval needs `approvals.manage` (gate `staff.approveCards`, Manager, Compliance, Super Admin) and writes a `decisions` row; a decline needs a reason code and a message the member sees. Numbers use the `999999` prefix with a Luhn digit; number and CVV are stored encrypted, and revealing them needs the member's password and is audited. Members freeze, set limits (up to `bank.card_daily_limit` and `bank.card_purchase_limit`), cancel, or replace (new number at once, old holds released). Staff can freeze or cancel from `/admin/cards`.
+- **Checkout (`/card/pay`):** pay a merchant, or place a hold and later complete or release it. A hold reserves money through `TransferService::holdFunds`; completing it releases the hold and posts a `card_purchase` through `execute`. Declines: frozen or inactive card, over purchase limit, over daily limit, not enough available money, account restricted.
+- **Announcements:** `/admin/announcements` (Super Admin) with type, audience (everyone or a feature flag), start and end, dismissible or permanent. Members see live ones on the dashboard and can dismiss them.
+- **Security center additions:** devices signed in (live sessions only) with sign-out of other devices, and an emergency lock of all the member's accounts. Both ask for the password. Staff unlock through the normal unlock flow.
+- Not built yet from the security list: new-device email alerts.

@@ -7,6 +7,13 @@
 @section('content')
 @php($kinds = ['share_savings' => 'Savings', 'share_draft' => 'Checking', 'money_market' => 'Money market'])
 
+@foreach ($announcements as $n)
+    <div class="notice-bar ann {{ $n->type }}" role="status">
+        <div><p><strong>{{ $n->title }}</strong></p><p>{{ $n->body }}</p></div>
+        @if ($n->dismissible)<form method="post" action="{{ route('announcements.dismiss', $n) }}">@csrf<button class="linkbtn" type="submit">Dismiss</button></form>@endif
+    </div>
+@endforeach
+
 @foreach ($locks as $lock)
     <div class="notice-bar" role="status">
         <p><strong>{{ $lock->account ? $lock->account->nickname.' '.$lock->account->masked() : 'Your membership' }} has a restriction:</strong> {{ ['full_lock' => 'No money can move in or out', 'debit_block' => 'Money cannot be sent out', 'credit_block' => 'Money cannot be received'][$lock->type] ?? '' }}.</p>

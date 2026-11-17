@@ -89,6 +89,15 @@
         </div>
 
         <div class="panel-card">
+            <h3>Virtual cards</h3>
+            @forelse ($cards as $c)
+                <p class="item">@can('staff.approveCards')<a class="plink" href="{{ route('admin.cards.index', ['tab' => 'all']) }}">{{ $c->last4 ? 'Ending '.$c->last4 : 'Request' }}</a>@else{{ $c->last4 ? 'Ending '.$c->last4 : 'Request' }}@endcan <span class="chip {{ ['active' => 'completed', 'rejected' => 'rejected', 'frozen' => 'held'][$c->status] ?? 'pending' }}">{{ $c->status }}</span></p>
+            @empty
+                <p style="margin:0;color:var(--muted)">No card requested.</p>
+            @endforelse
+        </div>
+
+        <div class="panel-card">
             <h3>Identity documents</h3>
             @forelse ($kycDocs as $d)
                 <p class="item">@can('staff.reviewKyc')<a class="plink" href="{{ route('admin.kyc.show', $d) }}">{{ $d->typeLabel() }}</a>@else{{ $d->typeLabel() }}@endcan <span class="chip {{ ['approved' => 'completed', 'rejected' => 'rejected'][$d->status] ?? 'pending' }}">{{ $d->status }}</span></p>

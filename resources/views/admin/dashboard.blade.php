@@ -13,6 +13,7 @@
         <a href="{{ route('admin.queue.index') }}" @class(['alert' => $overdue > 0])><b>{{ $overdue }}</b><span>Over 3 business days</span></a>
     @endcan
     @can('staff.answerInquiries')
+        @can('staff.approveCards')<a href="{{ route('admin.cards.index') }}"><b>{{ $cardRequests }}</b><span>Card requests</span></a>@endcan
         <a href="{{ route('admin.tickets.index') }}"><b>{{ $tickets }}</b><span>Tickets to answer</span></a>
         <a href="{{ route('admin.inquiries.index') }}"><b>{{ $inquiries }}</b><span>Open inquiries</span></a>
     @endcan

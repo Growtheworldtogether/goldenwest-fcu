@@ -1,0 +1,168 @@
+<?php
+
+namespace App\Http\Controllers\Portal;
+
+use App\Http\Controllers\Controller;
+use App\Models\Card;
+use App\Models\CardTransaction;
+use App\Services\CardService;
+use App\Support\Money;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use InvalidArgumentException;
+
+class CardController extends Controller
+{
+    /** Merchants the checkout page offers. */
+    public const MERCHANTS = ['Fieldstone Grocery', 'Harbor Coffee Co.', 'Redwood Fuel', 'Summit Books', 'Streamline Internet', 'Alder & Finch Clothing'];
+
+    private function current(Request $request): ?Card
+    {
+        return Card::with('account')->where('user_id', $request->user()->id)->whereIn('status', ['requested', 'active', 'frozen'])->latest('id')->first();
+    }
+
+    private function mine(Request $request, Card $card): Card
+    {
+        abort_unless($card->user_id === $request->user()->id, 404);
+
+        return $card;
+    }
+
+    public function show(Request $request)
+    {
+        $user = $request->user();
+        $card = $this->current($request);
+
+        return view('portal.card', [
+            'card' => $card,
+            'last' => Card::where('user_id', $user->id)->whereIn('status', ['rejected', 'cancelled'])->latest('id')->first(),
+            'checking' => $user->accounts()->where('accounts.status', 'active')->where('accounts.type', 'standard')->whereHas('product', fn ($q) => $q->where('kind', 'share_draft'))->get(),
+            'purchases' => $card ? $card->purchases()->limit(10)->get() : collect(),
+            'revealed' => session('revealed'),
+            'maxDaily' => Money::cents((int) config('bank.card_daily_limit')),
+            'maxPurchase' => Money::cents((int) config('bank.card_purchase_limit')),
+        ]);
+    }
+
+    public function request(Request $request, CardService $cards)
+    {
+        $data = $request->validate(['account_id' => ['required', 'integer'], 'nickname' => ['nullable', 'string', 'max:40']], ['account_id.required' => 'Choose a checking account.']);
+        $cards->request($request->user(), (int) $data['account_id'], $data['nickname'] ?? null);
+
+        return redirect()->route('card.show')->with('toast', ['type' => 'ok', 'message' => 'Request sent. We will let you know once it is reviewed.']);
+    }
+
+    /** Showing the full number and security code needs the member's password again. */
+    public function reveal(Request $request, Card $card, CardService $cards)
+    {
+        $this->mine($request, $card);
+        $request->validate(['password' => ['required', 'string']], ['password.required' => 'Enter your password to see the card details.']);
+        if (! Hash::check($request->input('password'), $request->user()->password)) {
+            return back()->withErrors(['password' => 'That password is not right.'], 'reveal');
+        }
+
+        return redirect()->route('card.show')->with('revealed', $cards->reveal($card, $request->user()));
+    }
+
+    public function freeze(Request $request, Card $card, CardService $cards)
+    {
+        $freeze = $request->boolean('freeze');
+        if ($fail = $this->guard(fn () => $cards->freeze($this->mine($request, $card), $request->user(), $freeze))) {
+            return $fail;
+        }
+
+        return back()->with('toast', ['type' => 'ok', 'message' => $freeze ? 'Card frozen. Purchases will be declined until you unfreeze it.' : 'Card is active again.']);
+    }
+
+    public function limits(Request $request, Card $card, CardService $cards)
+    {
+        $data = $request->validate(['daily_limit' => ['nullable', 'numeric', 'min:0'], 'purchase_limit' => ['nullable', 'numeric', 'min:0']]);
+        $toCents = fn ($v) => ($v === null || $v === '') ? null : (int) round(((float) $v) * 100);
+        $cards->setLimits($this->mine($request, $card), $request->user(), $toCents($data['daily_limit'] ?? null), $toCents($data['purchase_limit'] ?? null));
+
+        return back()->with('toast', ['type' => 'ok', 'message' => 'Limits saved.']);
+    }
+
+    public function cancel(Request $request, Card $card, CardService $cards)
+    {
+        if ($fail = $this->guard(fn () => $cards->cancel($this->mine($request, $card), $request->user()))) {
+            return $fail;
+        }
+
+        return redirect()->route('card.show')->with('toast', ['type' => 'info', 'message' => 'Your card was cancelled.']);
+    }
+
+    public function replace(Request $request, Card $card, CardService $cards)
+    {
+        $new = null;
+        if ($fail = $this->guard(function () use ($request, $card, $cards, &$new) {
+            $new = $cards->replace($this->mine($request, $card), $request->user());
+        })) {
+            return $fail;
+        }
+
+        return redirect()->route('card.show')->with('toast', ['type' => 'ok', 'message' => 'New card ending '.$new?->last4.' is ready. The old one no longer works.']);
+    }
+
+    public function merchant(Request $request)
+    {
+        $card = $this->current($request);
+        abort_unless($card && $card->isLive(), 404);
+
+        return view('portal.card-pay', [
+            'card' => $card,
+            'merchants' => self::MERCHANTS,
+            'attempts' => $card->purchases()->limit(12)->get(),
+        ]);
+    }
+
+    public function pay(Request $request, CardService $cards)
+    {
+        $card = $this->current($request);
+        abort_unless($card && $card->isLive(), 404);
+        $data = $request->validate([
+            'merchant' => ['required', 'string', 'in:'.implode(',', self::MERCHANTS)],
+            'amount' => ['required', 'numeric', 'min:0.01', 'max:100000'],
+            'mode' => ['required', 'in:pay,hold'],
+        ], ['amount.required' => 'Enter an amount.']);
+
+        $amount = Money::cents((int) round(((float) $data['amount']) * 100));
+        $p = $data['mode'] === 'hold' ? $cards->authorize($card, $data['merchant'], $amount) : $cards->pay($card, $data['merchant'], $amount);
+
+        if ($p->status === 'declined') {
+            return back()->with('toast', ['type' => 'bad', 'message' => 'Declined by '.$data['merchant'].': '.CardService::declineText($p->decline_reason)]);
+        }
+
+        return back()->with('toast', ['type' => 'ok', 'message' => $p->status === 'settled' ? 'Paid '.$amount->format().' to '.$data['merchant'].'.' : $amount->format().' is on hold for '.$data['merchant'].'.']);
+    }
+
+    public function settle(Request $request, CardTransaction $purchase, CardService $cards)
+    {
+        abort_unless($purchase->card->user_id === $request->user()->id, 404);
+        if ($fail = $this->guard(fn () => $cards->settle($purchase))) {
+            return $fail;
+        }
+
+        return back()->with('toast', ['type' => 'ok', 'message' => 'Purchase posted to your account.']);
+    }
+
+    public function release(Request $request, CardTransaction $purchase, CardService $cards)
+    {
+        abort_unless($purchase->card->user_id === $request->user()->id, 404);
+        $cards->release($purchase);
+
+        return back()->with('toast', ['type' => 'info', 'message' => 'The hold was released.']);
+    }
+
+    /** Runs a card change; a refused one comes back as a toast instead of an error page. */
+    private function guard(callable $work): ?\Illuminate\Http\RedirectResponse
+    {
+        try {
+            $work();
+        } catch (InvalidArgumentException $e) {
+            return back()->with('toast', ['type' => 'bad', 'message' => $e->getMessage()]);
+        }
+
+        return null;
+    }
+}

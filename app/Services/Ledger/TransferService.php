@@ -73,6 +73,28 @@ final class TransferService
         });
     }
 
+    /** Set money aside on an account for a card authorization. Refuses if the account is restricted or the funds are not there. */
+    public function holdFunds(int $accountId, Money $amount): void
+    {
+        $this->atomic(function () use ($accountId, $amount) {
+            $account = $this->lockIds(collect([$accountId]))[$accountId];
+            $this->assertUsable($account, null);
+            if ($account->available_balance->lessThan($amount)) {
+                throw TransferException::because('insufficient_funds', 'There is not enough available money in this account.');
+            }
+            $this->reserve($account, $amount);
+        });
+    }
+
+    /** Give back money set aside for an authorization that was not used. */
+    public function releaseFunds(int $accountId, Money $amount): void
+    {
+        $this->atomic(function () use ($accountId, $amount) {
+            $account = $this->lockIds(collect([$accountId]))[$accountId];
+            $this->releaseReserve($account, $amount);
+        });
+    }
+
     /** Approve a pending or held transaction. Large amounts need a second, different admin. */
     public function approve(Transaction $transaction, User|int $admin, ?string $note = null): Transaction
     {

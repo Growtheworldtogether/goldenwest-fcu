@@ -23,6 +23,7 @@ class DashboardController extends Controller
             'held' => Transaction::where('status', TransactionStatus::Held->value)->count(),
             'overdue' => (clone $open)->where('created_at', '<=', now()->subWeekdays(3))->count(),
             'tickets' => \App\Models\Ticket::whereIn('status', ['open', 'awaiting_staff'])->count(),
+            'cardRequests' => \App\Models\Card::where('status', 'requested')->count(),
             'inquiries' => Inquiry::whereNull('handled_at')->count(),
             'members' => User::where('role', 'user')->count(),
             'oldest' => $oldest,

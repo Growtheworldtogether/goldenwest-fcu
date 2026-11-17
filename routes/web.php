@@ -107,7 +107,22 @@ Route::middleware(['auth', 'verified', 'member.area'])->group(function () {
     Route::post('/tickets/{ticket:reference}/reply', [Portal\TicketController::class, 'reply'])->middleware('throttle:20,1')->name('tickets.reply');
     Route::post('/tickets/{ticket:reference}/resolve', [Portal\TicketController::class, 'resolve'])->name('tickets.resolve');
 
+    Route::get('/card', [Portal\CardController::class, 'show'])->name('card.show');
+    Route::post('/card', [Portal\CardController::class, 'request'])->middleware('throttle:5,1')->name('card.request');
+    Route::post('/card/{card}/reveal', [Portal\CardController::class, 'reveal'])->middleware('throttle:10,1')->whereNumber('card')->name('card.reveal');
+    Route::post('/card/{card}/freeze', [Portal\CardController::class, 'freeze'])->whereNumber('card')->name('card.freeze');
+    Route::post('/card/{card}/limits', [Portal\CardController::class, 'limits'])->whereNumber('card')->name('card.limits');
+    Route::post('/card/{card}/cancel', [Portal\CardController::class, 'cancel'])->whereNumber('card')->name('card.cancel');
+    Route::post('/card/{card}/replace', [Portal\CardController::class, 'replace'])->middleware('throttle:3,1')->whereNumber('card')->name('card.replace');
+    Route::get('/card/pay', [Portal\CardController::class, 'merchant'])->name('card.pay');
+    Route::post('/card/pay', [Portal\CardController::class, 'pay'])->middleware('throttle:30,1')->name('card.pay.store');
+    Route::post('/card/purchases/{purchase}/settle', [Portal\CardController::class, 'settle'])->whereNumber('purchase')->name('card.settle');
+    Route::post('/card/purchases/{purchase}/release', [Portal\CardController::class, 'release'])->whereNumber('purchase')->name('card.release');
+    Route::post('/announcements/{announcement}/dismiss', [Portal\AnnouncementController::class, 'dismiss'])->whereNumber('announcement')->name('announcements.dismiss');
+
     Route::get('/security-settings', Portal\SecurityController::class)->name('security.settings');
+    Route::post('/security-settings/sign-out-others', [Portal\SecurityController::class, 'signOutOthers'])->middleware('throttle:5,1')->name('security.signout');
+    Route::post('/security-settings/lock', [Portal\SecurityController::class, 'lockAccounts'])->middleware('throttle:5,1')->name('security.lock');
     Route::get('/profile', [Portal\ProfileController::class, 'edit'])->name('profile');
     Route::put('/profile/notifications', [Portal\ProfileController::class, 'preferences'])->name('profile.notifications');
 });
@@ -142,6 +157,13 @@ Route::middleware(['auth', 'staff'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/identity/{document}', [Admin\KycController::class, 'show'])->whereNumber('document')->name('kyc.show');
     Route::post('/identity/{document}/{action}', [Admin\KycController::class, 'decide'])->whereNumber('document')->where('action', 'approve|reject')->name('kyc.decide');
     Route::get('/audit', Admin\AuditController::class)->name('audit');
+    Route::get('/cards', [Admin\CardController::class, 'index'])->name('cards.index');
+    Route::post('/cards/{card}/decide', [Admin\CardController::class, 'decide'])->whereNumber('card')->name('cards.decide');
+    Route::post('/cards/{card}/change', [Admin\CardController::class, 'change'])->whereNumber('card')->name('cards.change');
+    Route::get('/announcements', [Admin\AnnouncementController::class, 'index'])->name('announcements.index');
+    Route::post('/announcements', [Admin\AnnouncementController::class, 'store'])->name('announcements.store');
+    Route::put('/announcements/{announcement}', [Admin\AnnouncementController::class, 'update'])->whereNumber('announcement')->name('announcements.update');
+    Route::delete('/announcements/{announcement}', [Admin\AnnouncementController::class, 'destroy'])->whereNumber('announcement')->name('announcements.destroy');
     Route::get('/tickets', [Admin\TicketController::class, 'index'])->name('tickets.index');
     Route::get('/tickets/{ticket:reference}', [Admin\TicketController::class, 'show'])->name('tickets.show');
     Route::post('/tickets/{ticket:reference}/reply', [Admin\TicketController::class, 'reply'])->name('tickets.reply');

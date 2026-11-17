@@ -61,6 +61,36 @@
     </table>
 </div>
 
+@unless ($admin)
+<div class="table-title"><h2>Where you are signed in</h2></div>
+<div class="panel-card flush">
+    <table class="dtable"><tbody>
+    @foreach ($sessions as $d)
+        <tr><td><strong>{{ $d->device }}</strong>@if ($d->current) <span class="chip completed">This device</span>@endif<small>{{ $d->ip }} &middot; last active {{ $d->last->diffForHumans() }}</small></td></tr>
+    @endforeach
+    </tbody></table>
+    @if ($sessions->count() > 1)
+    <form class="sform" method="post" action="{{ route('security.signout') }}" style="padding:1rem 1.25rem;border-top:1px solid #e7ebf6">@csrf
+        <label>Password<input type="password" name="password" autocomplete="current-password" required>@error('password', 'devices')<span class="err">{{ $message }}</span>@enderror</label>
+        <button class="plain" type="submit">Sign out of other devices</button>
+    </form>
+    @endif
+</div>
+
+<div class="table-title"><h2>Lock my accounts</h2></div>
+<div class="panel-card">
+    @if ($selfLocked)
+        <p style="margin:0"><strong>Your accounts are locked.</strong> No money can move in or out. Call Customer Care at {{ brand('support_phone') }} and we will check it is you before unlocking.</p>
+    @else
+        <p class="fine" style="margin-top:0">If you think someone has your details, lock every account now. No money can move in or out until we speak with you and unlock them.</p>
+        <form class="sform" method="post" action="{{ route('security.lock') }}" onsubmit="return confirm('Lock all of your accounts now?')">@csrf
+            <label>Password<input type="password" name="password" autocomplete="current-password" required>@error('password', 'lock')<span class="err">{{ $message }}</span>@enderror</label>
+            <button class="plain" type="submit">Lock all my accounts</button>
+        </form>
+    @endif
+</div>
+@endunless
+
 <div class="table-title"><h2>Recent sign-in and security activity</h2></div>
 <div class="panel-card flush">
     @if ($events->count())

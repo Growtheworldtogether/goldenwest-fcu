@@ -30,6 +30,7 @@ class DashboardController extends Controller
             ->latest('id')->get();
 
         return view('portal.dashboard', [
+            'announcements' => \App\Models\Announcement::forMember($request->user()),
             'accounts' => $accounts,
             'total' => Money::cents($accounts->sum(fn ($a) => $a->balance->cents)),
             'recent' => $recent,

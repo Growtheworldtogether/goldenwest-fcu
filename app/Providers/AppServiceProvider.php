@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        foreach (['lookupMembers', 'postDeposits', 'lockAccounts', 'viewAudit', 'answerInquiries', 'toggleFeatures', 'manageAdmin', 'editSite', 'reviewKyc', 'waivePayeeWait', 'decideTransaction', 'viewQueue', 'adjustBalance', 'canAdjust', 'impersonate'] as $ability) {
+        foreach (['lookupMembers', 'postDeposits', 'lockAccounts', 'viewAudit', 'answerInquiries', 'toggleFeatures', 'manageAdmin', 'editSite', 'reviewKyc', 'waivePayeeWait', 'decideTransaction', 'viewQueue', 'adjustBalance', 'canAdjust', 'impersonate', 'approveCards'] as $ability) {
             \Illuminate\Support\Facades\Gate::define('staff.'.$ability, [\App\Policies\StaffPolicy::class, $ability]);
         }
 
