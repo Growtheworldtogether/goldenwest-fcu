@@ -6,7 +6,7 @@
     <title>@yield('title', 'Golden West Federal Credit Union | Banking built around you')</title>
     <meta name="description" content="@yield('description', 'Golden West Federal Credit Union has served members across the West since 1958. Joining and opening an account is free.')">
     <meta name="theme-color" content="#1f2869">
-    <link rel="preload" href="{{ asset('fonts/Barlow-Regular.woff2') }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ asset('fonts/SourceSans3.woff2') }}" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="{{ asset('css/site.css') }}">
 </head>
 <body id="top">

@@ -2,11 +2,8 @@
    Layout follows the structure of a large retail bank home page.
    Colors: navy, royal blue and gold. Gold text on white is never used (contrast). */
 
+@font-face { font-family: "Source Sans 3"; src: url("../fonts/SourceSans3.woff2") format("woff2"); font-weight: 200 900; font-style: normal; font-display: swap; }
 @font-face { font-family: "Oswald"; src: url("../fonts/Oswald.woff2") format("woff2"); font-weight: 200 700; font-style: normal; font-display: swap; }
-@font-face { font-family: "Barlow"; src: url("../fonts/Barlow-Regular.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
-@font-face { font-family: "Barlow"; src: url("../fonts/Barlow-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
-@font-face { font-family: "Barlow"; src: url("../fonts/Barlow-SemiBold.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
-@font-face { font-family: "Barlow"; src: url("../fonts/Barlow-Bold.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
 
 :root {
   --navy: #1f2869;
@@ -21,13 +18,13 @@
   --dark: #202226;
   --pad: clamp(1.25rem, 5.5vw, 5rem);
   --display: "Oswald", "Arial Narrow", Impact, sans-serif;
-  --sans: "Barlow", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --sans: "Source Sans 3", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
   --grad: linear-gradient(90deg, var(--navy) 0%, var(--navy) 62%, var(--blue) 100%);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-body { margin: 0; font-family: var(--sans); color: var(--ink); background: #fff; line-height: 1.55; overflow-x: hidden; }
+body { margin: 0; font-family: var(--sans); color: var(--ink); background: #fff; line-height: 1.55; font-size: 1.0625rem; overflow-x: hidden; }
 img, svg { max-width: 100%; display: block; }
 a { color: inherit; }
 .skip { position: absolute; left: -999px; top: 0; background: var(--gold); color: var(--navy-deep); padding: .6rem 1rem; z-index: 99; }

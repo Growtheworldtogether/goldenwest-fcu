@@ -48,7 +48,7 @@
                     <h3>Savings</h3><p>Grow your money with goals and competitive yields.</p>
                 </a>
                 <a class="pcard" href="{{ url('/loans#personal') }}">
-                    <svg class="ico" viewBox="0 0 64 48" aria-hidden="true"><circle cx="32" cy="14" r="11" fill="#f5bd02"/><text x="32" y="19.5" text-anchor="middle" font-size="15" font-weight="700" font-family="Barlow, Arial, sans-serif" fill="#1f2869" stroke="none">$</text><path d="M5 35h10v11H5z"/><path d="M15 37l8-2.500h13c3.500 0 4 3.800.8 4.600L26 42"/><path d="M15 43c5 2.500 9 3.500 14 3.500h9.500l15-8c2.800-1.500 1.400-5-1.500-4.300L45 35"/></svg>
+                    <svg class="ico" viewBox="0 0 64 48" aria-hidden="true"><circle cx="32" cy="14" r="11" fill="#f5bd02"/><text x="32" y="19.5" text-anchor="middle" font-size="15" font-weight="700" font-family="Source Sans 3, Arial, sans-serif" fill="#1f2869" stroke="none">$</text><path d="M5 35h10v11H5z"/><path d="M15 37l8-2.500h13c3.500 0 4 3.800.8 4.600L26 42"/><path d="M15 43c5 2.500 9 3.500 14 3.500h9.500l15-8c2.800-1.500 1.400-5-1.500-4.300L45 35"/></svg>
                     <h3>Personal loans</h3><p>Clear terms and fixed payments you can plan around.</p>
                 </a>
                 <a class="pcard" href="{{ url('/loans#auto') }}">
