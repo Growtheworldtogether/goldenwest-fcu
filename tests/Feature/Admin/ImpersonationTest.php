@@ -174,5 +174,5 @@ it('lists acting sessions in the audit viewer', function () {
     $this->post('/accounts/open', ['product' => 'MONEY-MARKET']);
     $this->post('/exit-member');
 
-    $this->actingAs($manager)->get('/admin/audit?acting=1')->assertOk()->assertSee('account.opened')->assertDontSee('login.success');
+    $this->actingAs($manager)->get('/admin/audit?acting=1')->assertOk()->assertSee('Account opened')->assertDontSee('Login success');
 });

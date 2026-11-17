@@ -150,9 +150,9 @@ it('shows audit entries with filters and has no way to change them', function ()
     $manager = makeStaff('Manager', name: 'Daniel Brooks');
     $this->actingAs($manager)->post("/admin/members/{$member->id}/locks", ['target' => 'member', 'type' => 'debit_block', 'reason_code' => 'account_review', 'reason_text' => 'Review.']);
 
-    $this->actingAs($manager)->get('/admin/audit?action=restriction')->assertOk()->assertSee('restriction.created')->assertSee('Daniel Brooks');
+    $this->actingAs($manager)->get('/admin/audit?action=restriction')->assertOk()->assertSee('Restriction created')->assertSee('Daniel Brooks');
     $this->actingAs($manager)->get('/admin/audit?action=nothing-like-this')->assertSee('No entries match');
-    $this->actingAs($manager)->get('/admin/audit?actor=Brooks&from='.now()->toDateString())->assertSee('restriction.created');
+    $this->actingAs($manager)->get('/admin/audit?actor=Brooks&from='.now()->toDateString())->assertSee('Restriction created');
 
     $writes = collect(app('router')->getRoutes()->getRoutes())->filter(fn ($r) => str_contains($r->uri(), 'audit') && array_diff($r->methods(), ['GET', 'HEAD']));
     expect($writes)->toBeEmpty();
