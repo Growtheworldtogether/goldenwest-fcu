@@ -374,3 +374,44 @@ it('removes one of several holders with only their own consent, and promotes the
     $svc->leave($a, $ac);
     expect($svc->holderRow($ac, $b)->role)->toBe('primary')->and($svc->holderRow($ac, $c)->role)->toBe('joint');
 });
+
+it('moves a removed holder\'s loan autopay and open application to an account they still hold', function () {
+    [$a, $b, $ac, $bc] = pair();
+    makeJoint($a, $b, $ac);
+    App\Services\Features::set($b, 'loans', true, makeStaff('Manager'));
+    $loan = makeLoan($b->refresh(), $ac);
+    app(App\Services\Loans\LoanService::class)->setAutopay($loan, $b, $ac->id);
+    $open = applyFor($b, $ac, 500_000, 12);
+    expect($loan->refresh()->autopay_account_id)->toBe($ac->id);
+
+    app(JointService::class)->leave($b, $ac);
+
+    expect($loan->refresh()->autopay_account_id)->toBe($bc->id)
+        ->and($open->refresh()->deposit_account_id)->toBe($bc->id)->and($open->status)->not->toBe('withdrawn')
+        ->and(AuditLog::where('action', 'loan.autopay_moved')->where('subject_id', $loan->id)->exists())->toBeTrue();
+});
+
+it('switches autopay off and withdraws the application when the removed holder has no other account', function () {
+    [$a, $b, $ac, $bc] = pair();
+    makeJoint($a, $b, $ac);
+    App\Services\Features::set($b, 'loans', true, makeStaff('Manager'));
+    $loan = makeLoan($b->refresh(), $ac);
+    app(App\Services\Loans\LoanService::class)->setAutopay($loan, $b, $ac->id);
+    $open = applyFor($b, $ac, 500_000, 12);
+    // Jon's own accounts are closed.
+    Account::whereIn('id', $b->accounts()->where('accounts.id', '!=', $ac->id)->pluck('accounts.id'))->update(['status' => 'closed']);
+
+    app(JointService::class)->leave($b, $ac);
+
+    expect($loan->refresh()->autopay_account_id)->toBeNull()->and($open->refresh()->status)->toBe('withdrawn');
+});
+
+it('leaves the remaining holder\'s loan autopay alone', function () {
+    [$a, $b, $ac] = pair();
+    makeJoint($a, $b, $ac);
+    App\Services\Features::set($a, 'loans', true, makeStaff('Manager'));
+    $loan = makeLoan($a->refresh(), $ac);
+    app(App\Services\Loans\LoanService::class)->setAutopay($loan, $a, $ac->id);
+    app(JointService::class)->leave($b, $ac);
+    expect($loan->refresh()->autopay_account_id)->toBe($ac->id);
+});

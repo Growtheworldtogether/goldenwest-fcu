@@ -254,6 +254,40 @@ final class LoanService
         Audit::record($accountId ? 'loan.autopay_on' : 'loan.autopay_off', $loan, null, ['account' => $accountId], $member->id);
     }
 
+    /**
+     * A member is no longer a holder of this account. Their loan autopay and any open application that point at it
+     * move to another of their accounts (checking first), or autopay is switched off and the application is
+     * withdrawn when they have no other account. Returns what changed so the member can be told.
+     *
+     * @return array{autopay_moved: array<int, string>, autopay_off: array<int, string>, applications_moved: array<int, string>, applications_withdrawn: array<int, string>, new_account: ?Account}
+     */
+    public function moveOffAccount(User $member, Account $account, ?User $actor = null): array
+    {
+        $fallback = $member->accounts()->with('product')->where('accounts.id', '!=', $account->id)->where('accounts.status', 'active')->where('accounts.type', 'standard')->get()
+            ->sortBy(fn ($a) => ['share_draft' => 0, 'share_savings' => 1][$a->product->kind] ?? 2)->first();
+        $out = ['autopay_moved' => [], 'autopay_off' => [], 'applications_moved' => [], 'applications_withdrawn' => [], 'new_account' => $fallback];
+        $by = $actor?->id ?? $member->id;
+
+        foreach (Loan::where('user_id', $member->id)->where('autopay_account_id', $account->id)->whereIn('status', ['active', 'delinquent'])->get() as $loan) {
+            $loan->update(['autopay_account_id' => $fallback?->id]);
+            Audit::record($fallback ? 'loan.autopay_moved' : 'loan.autopay_off', $loan, ['account' => $account->id], ['account' => $fallback?->id, 'why' => 'holder_removed'], $by);
+            $out[$fallback ? 'autopay_moved' : 'autopay_off'][] = $loan->reference;
+        }
+        foreach (LoanApplication::where('user_id', $member->id)->where('deposit_account_id', $account->id)->whereIn('status', ['submitted', 'in_review', 'needs_info'])->get() as $app) {
+            if ($fallback) {
+                $app->update(['deposit_account_id' => $fallback->id]);
+                Audit::record('loan.deposit_account_moved', $app, ['account' => $account->id], ['account' => $fallback->id, 'why' => 'holder_removed'], $by);
+                $out['applications_moved'][] = $app->reference;
+            } else {
+                $app->update(['status' => 'withdrawn']);
+                Audit::record('loan.withdrawn', $app, null, ['why' => 'holder_removed'], $by);
+                $out['applications_withdrawn'][] = $app->reference;
+            }
+        }
+
+        return $out;
+    }
+
     // ------------------------------------------------------------ nightly
 
     /** Run once a day: autopay what is due, add late fees after the grace period, flag delinquent loans. @return array{paid:int,failed:int,fees:int} */

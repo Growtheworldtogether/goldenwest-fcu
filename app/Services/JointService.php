@@ -226,6 +226,8 @@ class JointService
             if ($row->role === 'primary') {
                 $others->first()->update(['role' => 'primary']);
             }
+            // Loans and loan applications that used this account move to one they still hold.
+            app(\App\Services\Loans\LoanService::class)->moveOffAccount($target, $account, $actor);
             Audit::record('joint.holder_removed', $account, null, ['holder' => $target->id, 'how' => $how], $actor->id);
         });
     }
