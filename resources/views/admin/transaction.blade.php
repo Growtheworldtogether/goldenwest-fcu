@@ -56,19 +56,22 @@
 @endif
 
 @if ($wire)
+@php($earlier = $wire->earlierWiresToSameAccount())
 <div class="panel-card" style="margin-top:1.25rem">
     <h3>Wire details</h3>
+    <p style="margin:0 0 .6rem"><span class="chip {{ $earlier ? 'completed' : 'held' }}">{{ $earlier ? 'Sent '.$earlier.' '.\Illuminate\Support\Str::plural('wire', $earlier).' here before' : 'First wire to this account' }}</span></p>
     <dl class="kv">
-        <dt>Recipient</dt><dd>{{ $wire->payee->name }}</dd>
+        <dt>Recipient</dt><dd>{{ $wire->recipient_name }}</dd>
         <dt>Address</dt><dd>{{ $wire->recipient_address }}</dd>
-        <dt>Bank</dt><dd>{{ $wire->payee->bank_name ?? 'Not given' }}</dd>
-        <dt>Routing</dt><dd>{{ $wire->payee->routing_number }}</dd>
-        <dt>Account</dt><dd>{{ $wire->payee->account_type }} ending {{ $wire->payee->last4 }} @if ($wire->payee->waived_by)<span class="tag lock">waiting period waived</span>@endif</dd>
+        <dt>Bank</dt><dd>{{ $wire->bank_name }}</dd>
+        <dt>Routing</dt><dd>{{ $wire->routing_number }}</dd>
+        <dt>Account</dt><dd>ending {{ $wire->last4 }}</dd>
         <dt>Purpose</dt><dd>{{ $wire->purpose }}</dd>
+        @if ($wire->message)<dt>Note to recipient</dt><dd>{{ $wire->message }}</dd>@endif
         <dt>Send on</dt><dd>{{ $wire->process_on->format('l, F j, Y') }}</dd>
         <dt>Fee</dt><dd>{{ $tx->fee->format() }}</dd>
     </dl>
-    <p class="fine">Confirm the purpose and recipient with the member if anything looks unusual. A wire cannot be taken back once it is sent.</p>
+    <p class="fine">Call the member back on the number we have on file if this is a first wire to this account or anything looks unusual. A wire cannot be taken back once it is sent.</p>
 </div>
 @endif
 

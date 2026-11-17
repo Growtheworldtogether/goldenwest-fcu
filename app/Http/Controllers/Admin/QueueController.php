@@ -47,7 +47,7 @@ class QueueController extends Controller
             'reasons' => ReasonCode::whereIn('applies_to', ['decision', 'all'])->orderBy('label')->pluck('label', 'code'),
             'allReasons' => ReasonCode::pluck('label', 'code'),
             'deposit' => \App\Models\Deposit::with('payee')->where('transaction_id', $transaction->id)->first(),
-            'wire' => \App\Models\WireTransfer::with('payee')->where('transaction_id', $transaction->id)->first(),
+            'wire' => \App\Models\WireTransfer::where('transaction_id', $transaction->id)->first(),
             'tickets' => \App\Models\Ticket::with('memberMessages')->where('transaction_id', $transaction->id)->latest('id')->get(),
             'initiator' => $transaction->initiated_by ? User::find($transaction->initiated_by) : null,
             'impersonator' => $transaction->impersonator_id ? User::find($transaction->impersonator_id) : null,

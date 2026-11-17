@@ -93,6 +93,7 @@ Route::middleware(['auth', 'verified', 'member.area'])->group(function () {
     Route::middleware('feature:wires')->group(function () {
         Route::get('/wires', [Portal\WireController::class, 'index'])->name('wires.index');
         Route::get('/wires/new', [Portal\WireController::class, 'create'])->name('wires.create');
+        Route::delete('/wires/recipients/{recipient}', [Portal\WireController::class, 'destroy'])->whereNumber('recipient')->name('wires.recipients.destroy');
         Route::post('/wires', [Portal\WireController::class, 'store'])->middleware('throttle:10,1')->name('wires.store');
     });
 
