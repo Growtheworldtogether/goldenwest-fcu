@@ -1,5 +1,8 @@
 @extends('layouts.auth')
 @section('title', 'Log in | '.brand('name'))
+@section('art', 'signin.jpg')
+@section('art-title', 'Welcome back')
+@section('art-text', 'Your accounts, cards and savings goals are right where you left them.')
 @section('heading', 'Log in')
 @section('lede', 'Access your accounts securely, 24 hours a day.')
 @section('form')
