@@ -2,7 +2,12 @@
    Layout follows the structure of a large retail bank home page.
    Colors: navy, royal blue and gold. Gold text on white is never used (contrast). */
 
-@font-face { font-family: "Montserrat"; src: url("../fonts/montserrat.woff2") format("woff2"); font-weight: 100 900; font-style: normal; font-display: swap; }
+@font-face { font-family: "Barlow"; src: url("../fonts/Barlow-Regular.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Barlow"; src: url("../fonts/Barlow-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Barlow"; src: url("../fonts/Barlow-SemiBold.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "Barlow"; src: url("../fonts/Barlow-Bold.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Barlow Condensed"; src: url("../fonts/BarlowCondensed-Bold.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Barlow Condensed"; src: url("../fonts/BarlowCondensed-ExtraBold.woff2") format("woff2"); font-weight: 800; font-style: normal; font-display: swap; }
 
 :root {
   --navy: #1f2869;
@@ -16,7 +21,8 @@
   --line: #cfd6e6;
   --dark: #202226;
   --pad: clamp(1.25rem, 5.5vw, 5rem);
-  --sans: "Montserrat", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --display: "Barlow Condensed", "Arial Narrow", Impact, sans-serif;
+  --sans: "Barlow", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
   --grad: linear-gradient(90deg, var(--navy) 0%, var(--navy) 62%, var(--blue) 100%);
 }
 
@@ -30,7 +36,7 @@ a { color: inherit; }
 :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
 .on-dark :focus-visible { outline-color: var(--gold); }
 h1, h2, h3 { margin: 0; line-height: 1.08; }
-.caps { text-transform: uppercase; font-weight: 800; letter-spacing: -.005em; }
+.caps, .panel-body h2, .band h2, .articles h2 { font-family: var(--display); text-transform: uppercase; font-weight: 800; letter-spacing: 0; }
 
 .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 50px; padding: .8rem 1.9rem; background: var(--gold); color: var(--navy-deep); font: 700 1rem/1.15 var(--sans); text-decoration: none; border: 0; border-radius: 6px; cursor: pointer; transition: background-color .15s; }
 .btn:hover { background: var(--gold-hover); }
@@ -55,7 +61,7 @@ h1, h2, h3 { margin: 0; line-height: 1.08; }
 .head-in { display: grid; grid-template-columns: auto 1fr auto; align-items: stretch; padding-left: var(--pad); min-height: 132px; }
 .brand { display: flex; align-items: center; gap: .75rem; text-decoration: none; color: var(--navy); padding-block: 1rem; }
 .brand-mark { width: 54px; height: 54px; flex: none; }
-.brand-name { font-weight: 900; font-size: 1.75rem; line-height: .95; letter-spacing: -.015em; text-transform: uppercase; }
+.brand-name { font-family: var(--display); font-weight: 800; font-size: 2.1rem; line-height: .92; letter-spacing: .005em; text-transform: uppercase; }
 .brand-name small { display: block; font-weight: 600; font-size: .75rem; letter-spacing: .14em; margin-top: 6px; color: var(--muted); }
 .head-right { display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; gap: 1rem; padding: 1.3rem 2.25rem 1.45rem 1rem; }
 .util { display: flex; gap: 1.75rem; font-size: .9375rem; font-weight: 500; list-style: none; margin: 0; padding: 0; }
@@ -88,7 +94,7 @@ h1, h2, h3 { margin: 0; line-height: 1.08; }
 .slide > .photo { position: absolute; inset: 0; }
 .panel { position: absolute; top: 0; bottom: 0; right: 0; width: 63%; background: var(--grad); clip-path: polygon(28.6% 0, 100% 0, 100% 100%, 0 100%); }
 .panel-body { position: absolute; top: 50%; transform: translateY(-50%); left: 33%; right: 7%; display: grid; gap: 1.5rem; justify-items: start; color: #fff; }
-.panel-body h2 { font-size: clamp(2rem, 3.9vw, 3.5rem); line-height: 1.04; }
+.panel-body h2 { font-size: clamp(2.5rem, 5.4vw, 5rem); line-height: .98; }
 .panel-body p { margin: 0; padding-left: .9rem; border-left: 4px solid var(--gold); font-size: 1.1875rem; color: #eef1ff; max-width: 36rem; }
 .hero-ctrl { position: absolute; right: 1rem; bottom: 1.25rem; display: flex; align-items: center; gap: .6rem; z-index: 5; }
 .hero-ctrl button { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #fff; background: transparent; padding: 0; cursor: pointer; }
@@ -125,12 +131,12 @@ h1, h2, h3 { margin: 0; line-height: 1.08; }
 .band-body { position: absolute; top: 50%; transform: translateY(-50%); display: grid; gap: 1.4rem; justify-items: start; }
 .band.photo-right .band-body { left: 14.3%; width: min(34%, 520px); }
 .band.photo-left .band-body { left: 56%; right: var(--pad); }
-.band h2 { font-size: clamp(1.75rem, 3.1vw, 2.9rem); }
+.band h2 { font-size: clamp(2.25rem, 4.6vw, 4.2rem); line-height: 1; }
 .band p { margin: 0; padding-left: .9rem; border-left: 4px solid var(--gold); font-size: 1.0625rem; color: #eef1ff; }
 
 /* ---------- Articles ---------- */
 .articles { padding: clamp(3rem, 6vw, 5rem) 2rem clamp(3rem, 6vw, 4.5rem); }
-.articles h2 { text-align: center; color: var(--navy); font-size: clamp(1.6rem, 3.1vw, 2.9rem); margin-bottom: 2.5rem; }
+.articles h2 { text-align: center; color: var(--navy); font-size: clamp(2.1rem, 4.6vw, 4rem); margin-bottom: 2.5rem; }
 .acard { display: flex; flex-direction: column; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: .7rem .7rem 1.4rem; text-decoration: none; }
 .acard .photo { aspect-ratio: 4 / 3; border-radius: 8px; }
 .acard-body { padding: 1.1rem .6rem 0; display: grid; gap: .8rem; }
