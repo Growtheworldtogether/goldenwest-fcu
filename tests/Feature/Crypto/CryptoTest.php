@@ -60,7 +60,7 @@ it('keeps every crypto route out of reach without the flag', function () {
 it('shows the menu item and the pages once the flag is on', function () {
     [$u] = cryptoMember();
     $this->actingAs($u)->get('/dashboard')->assertSee('Crypto');
-    $this->actingAs($u)->get('/crypto')->assertOk()->assertSee('simulation');
+    $this->actingAs($u)->get('/crypto')->assertOk()->assertSee('Dollar values')->assertDontSee('simulation');
     $this->actingAs($u)->get('/crypto/fund')->assertOk()->assertSee('Request a BTC address');
 });
 
@@ -288,7 +288,7 @@ it('does not slow or break a page when the price service is unreachable', functi
     [$u] = cryptoMember();
     \Illuminate\Support\Facades\Http::fake(['api.coingecko.com/*' => fn () => throw new \Illuminate\Http\Client\ConnectionException('offline')]);
     CryptoAsset::query()->update(['rate_updated_at' => now()->subHour()]);
-    $this->actingAs($u)->get('/crypto')->assertOk()->assertSee('simulation');
+    $this->actingAs($u)->get('/crypto')->assertOk()->assertSee('Dollar values')->assertDontSee('simulation');
 });
 
 it('runs the crypto:rates command', function () {
