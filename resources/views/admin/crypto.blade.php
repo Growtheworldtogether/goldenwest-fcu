@@ -102,18 +102,21 @@
 
 @else
 <div class="panel-card flush">
-    <table class="dtable"><thead><tr><th>Asset</th><th>Network fee per send</th><th>Dollar rate (estimate)</th><th>Available</th><th></th></tr></thead><tbody>
+    <table class="dtable"><thead><tr><th>Asset</th><th>Network fee per send</th><th>Dollar price</th><th>Available</th><th></th></tr></thead><tbody>
     @foreach ($assets as $a)
         <tr>
             <td>{{ $a->name }}<small>{{ $a->symbol }} on {{ $a->network }}</small></td>
             <td><input form="asset-{{ $a->id }}" name="network_fee" value="{{ \App\Support\CryptoAmount::format($a->network_fee, $a->decimals) }}" inputmode="decimal" style="width:9rem"> {{ $a->symbol }}</td>
-            <td>$<input form="asset-{{ $a->id }}" name="usd_rate" value="{{ $a->usd_rate_cents !== null ? number_format($a->usd_rate_cents / 100, 2, '.', '') : '' }}" inputmode="decimal" style="width:9rem"></td>
+            <td>$<input form="asset-{{ $a->id }}" name="usd_rate" value="{{ $a->usd_rate_cents !== null ? number_format($a->usd_rate_cents / 100, 2, '.', '') : '' }}" inputmode="decimal" style="width:9rem" @disabled($a->live_rate)>
+                <label style="display:flex;gap:.4rem;align-items:center;margin-top:.3rem"><input form="asset-{{ $a->id }}" type="checkbox" name="live" value="1" @checked($a->live_rate) @disabled(! $a->coingecko_id)> Live price</label>
+                @if ($a->live_rate)<small>Updated {{ $a->rate_updated_at?->diffForHumans() ?? 'never' }}</small>@endif</td>
             <td><label style="display:flex;gap:.4rem;align-items:center"><input form="asset-{{ $a->id }}" type="checkbox" name="enabled" value="1" @checked($a->enabled)> On</label></td>
             <td class="go"><button form="asset-{{ $a->id }}" class="btn-s sm" type="submit">Save</button></td></tr>
     @endforeach
     </tbody></table>
     @foreach ($assets as $a)<form id="asset-{{ $a->id }}" method="post" action="{{ route('admin.crypto.asset', $a) }}" hidden>@csrf @method('PUT')</form>@endforeach
 </div>
-<p class="fine">The fee is charged on every send and held with the amount. Dollar rates are set by hand and used only for estimates and for the manager adjustment limit.</p>
+<form method="post" action="{{ route('admin.crypto.rates') }}" style="margin:1rem 0">@csrf<button class="btn-s" type="submit">Refresh live prices now</button></form>
+<p class="fine">Live prices come from CoinGecko and refresh every ten minutes, and when a member opens a crypto page. Turn off Live price on an asset to type a rate by hand. The fee is charged on every send and held with the amount. Dollar prices set the values members see and the manager adjustment limit.</p>
 @endif
 @endsection

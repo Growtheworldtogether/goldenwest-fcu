@@ -205,6 +205,7 @@ Route::middleware(['auth', 'staff'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/crypto', [Admin\CryptoController::class, 'index'])->name('crypto.index');
     Route::post('/crypto/sends/{tx:reference}', [Admin\CryptoController::class, 'decideSend'])->name('crypto.send.decide');
     Route::post('/crypto/deposits/{tx:reference}', [Admin\CryptoController::class, 'decideDeposit'])->name('crypto.deposit.decide');
+    Route::post('/crypto/rates', [Admin\CryptoController::class, 'refreshRates'])->name('crypto.rates');
     Route::put('/crypto/assets/{asset}', [Admin\CryptoController::class, 'asset'])->whereNumber('asset')->name('crypto.asset');
     Route::post('/members/{user}/crypto/address', [Admin\CryptoController::class, 'address'])->whereNumber('user')->name('crypto.address');
     Route::post('/members/{user}/crypto/funding', [Admin\CryptoController::class, 'funding'])->whereNumber('user')->name('crypto.funding');

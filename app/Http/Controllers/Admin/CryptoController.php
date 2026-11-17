@@ -9,6 +9,7 @@ use App\Models\CryptoTransaction;
 use App\Models\ReasonCode;
 use App\Models\User;
 use App\Services\Audit;
+use App\Services\CryptoRates;
 use App\Services\CryptoService;
 use App\Support\CryptoAmount;
 use Illuminate\Http\Request;
@@ -126,15 +127,29 @@ class CryptoController extends Controller
     public function asset(Request $request, CryptoAsset $asset)
     {
         Gate::authorize('staff.manageAdmin');
-        $d = $request->validate(['network_fee' => ['required', 'numeric', 'min:0'], 'usd_rate' => ['nullable', 'numeric', 'min:0', 'max:100000000'], 'enabled' => ['nullable', 'boolean']]);
-        $old = $asset->only(['network_fee', 'usd_rate_cents', 'enabled']);
+        $d = $request->validate(['network_fee' => ['required', 'numeric', 'min:0'], 'usd_rate' => ['nullable', 'numeric', 'min:0', 'max:100000000'], 'enabled' => ['nullable', 'boolean'], 'live' => ['nullable', 'boolean']]);
+        $old = $asset->only(['network_fee', 'usd_rate_cents', 'enabled', 'live_rate']);
+        $live = (bool) ($d['live'] ?? false) && $asset->coingecko_id;
         $asset->update([
             'network_fee' => CryptoAmount::parse((string) $d['network_fee'], $asset->decimals),
-            'usd_rate_cents' => isset($d['usd_rate']) ? (int) round($d['usd_rate'] * 100) : null,
+            // A live asset keeps the fetched price; the typed rate only applies when live prices are off.
+            'usd_rate_cents' => $live ? $asset->usd_rate_cents : (isset($d['usd_rate']) ? (int) round($d['usd_rate'] * 100) : null),
+            'live_rate' => $live,
+            'rate_updated_at' => $live ? $asset->rate_updated_at : now(),
             'enabled' => (bool) ($d['enabled'] ?? false),
         ]);
-        Audit::record('crypto.asset_changed', $asset, $old, $asset->only(['network_fee', 'usd_rate_cents', 'enabled']), $request->user()->id);
+        Audit::record('crypto.asset_changed', $asset, $old, $asset->only(['network_fee', 'usd_rate_cents', 'enabled', 'live_rate']), $request->user()->id);
 
         return back()->with('toast', ['type' => 'ok', 'message' => $asset->symbol.' settings saved.']);
+    }
+
+    public function refreshRates(CryptoRates $rates)
+    {
+        Gate::authorize('staff.manageAdmin');
+        $n = $rates->refresh();
+
+        return back()->with('toast', $n > 0
+            ? ['type' => 'ok', 'message' => $n.' price'.($n === 1 ? '' : 's').' updated from '.CryptoRates::SOURCE.'.']
+            : ['type' => 'bad', 'message' => 'Could not reach '.CryptoRates::SOURCE.' right now. The last known prices are still in use.']);
     }
 }

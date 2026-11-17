@@ -35,3 +35,5 @@ Artisan::command('insights:summarize {month?}', function (?string $month = null)
     $n = app(\App\Services\SpendingService::class)->summarize($m->startOfMonth());
     $this->info("Wrote {$n} summary rows for ".$m->format('Y-m').'.');
 })->purpose('Store last month\'s spending totals')->monthlyOn(1, '06:00');
+
+\Illuminate\Support\Facades\Schedule::command('crypto:rates')->everyTenMinutes()->withoutOverlapping();

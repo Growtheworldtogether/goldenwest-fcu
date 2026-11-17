@@ -183,7 +183,7 @@ class CryptoService
             $wallet = CryptoWallet::lockForUpdate()->find($this->wallet($user, $asset)->id);
             $total = $amount + $asset->network_fee;
             if ($wallet->available() < $total) {
-                throw new InvalidArgumentException('Your available balance is '.$asset->format($wallet->available()).'. This send needs '.$asset->format($total).' including the network fee of '.$asset->format($asset->network_fee).'.');
+                throw new InvalidArgumentException('Your available balance is '.$asset->usd($wallet->available()).'. This send needs '.$asset->usd($total).' including the network fee of '.$asset->usd($asset->network_fee).'.');
             }
             $wallet->increment('held', $total);
             $tx = CryptoTransaction::create([

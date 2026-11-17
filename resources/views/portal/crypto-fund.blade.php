@@ -29,7 +29,7 @@
 <form class="panel-card form" method="post" action="{{ route('crypto.declare') }}" style="max-width:34rem">
     @csrf
     <input type="hidden" name="asset" value="{{ $asset->id }}"><input type="hidden" name="token" value="{{ $token }}">
-    <label>Amount you sent ({{ $asset->symbol }})<input name="amount" value="{{ old('amount') }}" inputmode="decimal" placeholder="0.00" required>@error('amount')<span class="err">{{ $message }}</span>@enderror</label>
+    <label>Amount you sent ({{ $asset->hasRate() ? 'in US dollars' : $asset->symbol }})<input name="amount" value="{{ old('amount') }}" inputmode="decimal" placeholder="{{ $asset->hasRate() ? '$0.00' : '0.00' }}" required>@error('amount')<span class="err">{{ $message }}</span>@enderror</label>
     <label>Note (optional)<input name="note" value="{{ old('note') }}" maxlength="140">@error('note')<span class="err">{{ $message }}</span>@enderror</label>
     <div><button class="btn" type="submit">Tell us about my deposit</button></div>
     <p class="fine" style="margin:0">A team member confirms each deposit and then adds it to your wallet. Your balance does not change until then.</p>
@@ -38,7 +38,7 @@
 @if ($waiting->count())
 <div class="table-title"><h2>Waiting for confirmation</h2></div>
 <div class="panel-card flush"><table class="dtable"><thead><tr><th>Told us on</th><th class="num">Amount</th></tr></thead><tbody>
-    @foreach ($waiting as $w)<tr><td>{{ $w->created_at->format('M j, g:i a') }}<small>{{ $w->reference }}</small></td><td class="num">{{ $asset->format($w->amount) }}</td></tr>@endforeach
+    @foreach ($waiting as $w)<tr><td>{{ $w->created_at->format('M j, g:i a') }}<small>{{ $w->reference }}</small></td><td class="num">{{ $asset->usd($w->amount) }}</td></tr>@endforeach
 </tbody></table></div>
 @endif
 @elseif ($requested)
@@ -52,7 +52,7 @@
 <script>
 document.querySelectorAll('[data-copy]').forEach(function (b) {
     b.addEventListener('click', function () {
-        var done = function () { window.toast && window.toast({type: 'ok', message: 'Copied.'}); };
+        var done = function () { window.toast && window.toast('Copied.', 'ok'); };
         if (navigator.clipboard) { navigator.clipboard.writeText(b.dataset.copy).then(done); }
         else { var t = document.createElement('textarea'); t.value = b.dataset.copy; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); done(); }
     });

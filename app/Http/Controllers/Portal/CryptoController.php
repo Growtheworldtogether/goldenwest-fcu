@@ -7,8 +7,8 @@ use App\Models\CryptoAddress;
 use App\Models\CryptoAsset;
 use App\Models\CryptoTransaction;
 use App\Models\CryptoWallet;
+use App\Services\CryptoRates;
 use App\Services\CryptoService;
-use App\Support\CryptoAmount;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -19,6 +19,8 @@ class CryptoController extends Controller
 
     private function assets()
     {
+        app(CryptoRates::class)->refreshIfStale();
+
         return CryptoAsset::where('enabled', true)->orderBy('id')->get();
     }
 
@@ -74,7 +76,7 @@ class CryptoController extends Controller
         $asset = $this->pick($request);
         $data = $request->validate(['amount' => ['required', 'string', 'max:30'], 'note' => ['nullable', 'string', 'max:140'], 'token' => ['required', 'regex:/^[0-9A-HJKMNP-TV-Z]{26}$/']]);
         try {
-            $units = CryptoAmount::parse($data['amount'], $asset->decimals);
+            $units = $asset->unitsFromInput($data['amount']);
             $crypto->declareFunding($request->user(), $asset, $units, $data['note'] ?? null, $data['token'], $request->session()->get('impersonation.admin_id'));
         } catch (InvalidArgumentException $e) {
             return back()->withInput()->withErrors(['amount' => $e->getMessage()]);
@@ -112,13 +114,13 @@ class CryptoController extends Controller
         }
 
         try {
-            $units = CryptoAmount::parse($data['amount'], $asset->decimals);
+            $units = $asset->unitsFromInput($data['amount']);
             $tx = $crypto->send($request->user(), $asset, $data['address'], $data['memo'] ?? null, $units, $data['token'], $request->session()->get('impersonation.admin_id'));
         } catch (InvalidArgumentException $e) {
             return back()->withInput($request->except(['password', 'admin_code']))->withErrors(['amount' => $e->getMessage()]);
         }
 
-        return redirect()->route('crypto.index')->with('toast', ['type' => 'ok', 'message' => 'Send requested: '.$asset->format($tx->amount).'. A team member will review it. The amount is set aside until then.']);
+        return redirect()->route('crypto.index')->with('toast', ['type' => 'ok', 'message' => 'Send requested: '.$asset->usd($tx->amount).' in '.$asset->symbol.'. A team member will review it. The amount is set aside until then.']);
     }
 
     public function cancel(Request $request, CryptoTransaction $tx, CryptoService $crypto)

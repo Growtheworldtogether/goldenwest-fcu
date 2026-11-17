@@ -232,3 +232,86 @@ it('turns the crypto flag into an audit row and an announcement audience', funct
     expect(AuditLog::where('action', 'feature.enabled')->where('new->feature', 'crypto')->exists())->toBeTrue()
         ->and(Features::ALL)->toHaveKey('crypto');
 });
+
+function fakeGecko(array $prices = null): void
+{
+    \Illuminate\Support\Facades\Http::fake(['api.coingecko.com/*' => \Illuminate\Support\Facades\Http::response($prices ?? [
+        'bitcoin' => ['usd' => 101234.5], 'ethereum' => ['usd' => 3456.78], 'usd-coin' => ['usd' => 0.9998], 'tether' => ['usd' => 1.0002], 'litecoin' => ['usd' => 88.1], 'solana' => ['usd' => 210.55],
+    ])]);
+}
+
+it('pulls live dollar prices from CoinGecko into the assets', function () {
+    fakeGecko();
+    expect(app(\App\Services\CryptoRates::class)->refresh())->toBe(6);
+    expect(CryptoAsset::where('symbol', 'BTC')->first()->usd_rate_cents)->toBe(10_123_450)
+        ->and(CryptoAsset::where('symbol', 'USDC')->first()->usd_rate_cents)->toBe(100)
+        ->and(CryptoAsset::where('symbol', 'SOL')->first()->usd_rate_cents)->toBe(21_055);
+    \Illuminate\Support\Facades\Http::assertSent(fn ($r) => str_contains($r->url(), 'ids=bitcoin') && str_contains($r->url(), 'vs_currencies=usd'));
+});
+
+it('keeps the last known prices when the service is down or answers badly', function () {
+    \Illuminate\Support\Facades\Http::fake(['api.coingecko.com/*' => \Illuminate\Support\Facades\Http::response('rate limited', 429)]);
+    $before = CryptoAsset::where('symbol', 'ETH')->first()->usd_rate_cents;
+    expect(app(\App\Services\CryptoRates::class)->refresh())->toBe(0);
+    \Illuminate\Support\Facades\Http::fake(['api.coingecko.com/*' => fn () => throw new \Illuminate\Http\Client\ConnectionException('offline')]);
+    expect(app(\App\Services\CryptoRates::class)->refresh())->toBe(0)
+        ->and(CryptoAsset::where('symbol', 'ETH')->first()->usd_rate_cents)->toBe($before);
+    // Missing or zero prices are ignored one by one.
+    fakeGecko(['bitcoin' => ['usd' => 0], 'ethereum' => ['usd' => 'x']]);
+    expect(app(\App\Services\CryptoRates::class)->refresh())->toBe(0);
+});
+
+it('leaves a manual-rate asset alone', function () {
+    fakeGecko();
+    CryptoAsset::where('symbol', 'LTC')->update(['live_rate' => false, 'usd_rate_cents' => 7_777]);
+    expect(app(\App\Services\CryptoRates::class)->refresh())->toBe(5)
+        ->and(CryptoAsset::where('symbol', 'LTC')->first()->usd_rate_cents)->toBe(7_777);
+});
+
+it('refreshes stale prices when a member opens the page, at most once a minute', function () {
+    [$u] = cryptoMember();
+    fakeGecko();
+    $this->actingAs($u)->get('/crypto')->assertOk();
+    \Illuminate\Support\Facades\Http::assertNothingSent(); // fresh after the migration
+
+    CryptoAsset::query()->update(['rate_updated_at' => now()->subMinutes(30)]);
+    $this->actingAs($u)->get('/crypto')->assertOk()->assertSee('CoinGecko');
+    \Illuminate\Support\Facades\Http::assertSentCount(1);
+    expect(CryptoAsset::where('symbol', 'BTC')->first()->usd_rate_cents)->toBe(10_123_450);
+
+    CryptoAsset::query()->update(['rate_updated_at' => now()->subMinutes(30)]);
+    $this->actingAs($u)->get('/crypto/fund')->assertOk();
+    \Illuminate\Support\Facades\Http::assertSentCount(1); // throttled
+});
+
+it('does not slow or break a page when the price service is unreachable', function () {
+    [$u] = cryptoMember();
+    \Illuminate\Support\Facades\Http::fake(['api.coingecko.com/*' => fn () => throw new \Illuminate\Http\Client\ConnectionException('offline')]);
+    CryptoAsset::query()->update(['rate_updated_at' => now()->subHour()]);
+    $this->actingAs($u)->get('/crypto')->assertOk()->assertSee('simulation');
+});
+
+it('runs the crypto:rates command', function () {
+    fakeGecko();
+    $this->artisan('crypto:rates')->expectsOutput('6 prices updated.')->assertSuccessful();
+});
+
+it('lets a Super Admin refresh prices, and switch an asset between live and manual', function () {
+    fakeGecko();
+    $super = makeStaff('Super Admin');
+    $this->actingAs($super)->post('/admin/crypto/rates')->assertSessionHas('toast.type', 'ok');
+    $eth = CryptoAsset::where('symbol', 'ETH')->first();
+    expect($eth->usd_rate_cents)->toBe(345_678);
+
+    $this->actingAs($super)->put("/admin/crypto/assets/{$eth->id}", ['network_fee' => '0.0005', 'usd_rate' => '9999', 'enabled' => 1, 'live' => 1]);
+    expect($eth->refresh()->live_rate)->toBeTrue()->and($eth->usd_rate_cents)->toBe(345_678); // typed rate ignored while live
+    $this->actingAs($super)->put("/admin/crypto/assets/{$eth->id}", ['network_fee' => '0.0005', 'usd_rate' => '3000', 'enabled' => 1]);
+    expect($eth->refresh()->live_rate)->toBeFalse()->and($eth->usd_rate_cents)->toBe(300_000);
+
+    $this->actingAs(makeStaff('Teller'))->post('/admin/crypto/rates')->assertForbidden();
+});
+
+it('tells staff when the price service cannot be reached', function () {
+    \Illuminate\Support\Facades\Http::fake(['api.coingecko.com/*' => \Illuminate\Support\Facades\Http::response('', 500)]);
+    $this->actingAs(makeStaff('Super Admin'))->post('/admin/crypto/rates')->assertSessionHas('toast.type', 'bad');
+});

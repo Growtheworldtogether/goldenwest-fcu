@@ -9,6 +9,13 @@ return [
         'Litecoin' => ['pattern' => '/^(ltc1[a-z0-9]{25,60}|[LM3][a-km-zA-HJ-NP-Z1-9]{26,33})$/', 'example' => 'ltc1... or L... or M...', 'memo' => false],
         'Solana' => ['pattern' => '/^[1-9A-HJ-NP-Za-km-z]{32,44}$/', 'example' => '32 to 44 letters and numbers', 'memo' => true],
     ],
+    // Live prices come from CoinGecko's public price endpoint. A free demo key is optional and only raises the rate limit.
+    'rates' => [
+        'url' => 'https://api.coingecko.com/api/v3/simple/price',
+        'key' => env('COINGECKO_API_KEY'),
+        'stale_minutes' => 10,
+        'timeout' => 4,
+    ],
     'max_pending_sends' => 5,
     'max_pending_deposits' => 5,
 ];
