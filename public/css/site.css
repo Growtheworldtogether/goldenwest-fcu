@@ -667,8 +667,8 @@ details.more .filters { margin: .75rem 0 0; }
 .portal-body .toasts { top: 4.25rem; } @media (max-width: 600px) { .portal-body .toasts { top: 4rem; } }
 
 /* Uploaded logo and wordmark variants */
-.brand-logo { height: 46px; width: auto; max-width: 240px; object-fit: contain; display: block; }
-.pbrand .brand-logo { height: 34px; max-width: 170px; }
+.brand-logo { height: 56px; width: auto; max-width: 280px; object-fit: contain; display: block; }
+.pbrand .brand-logo { height: 40px; max-width: 200px; }
 .brand-caption { display: block; font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--gold); margin-top: .2rem; }
 .pbrand .brand-name { font-size: inherit; line-height: 1.05; }
 .pbrand .brand-name small { color: var(--gold); letter-spacing: .08em; margin-top: .2rem; }

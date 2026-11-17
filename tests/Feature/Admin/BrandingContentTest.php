@@ -101,7 +101,7 @@ it('stores a logo with a generated name, serves it, and refuses SVG and oversize
 });
 
 it('serves a favicon even before one is uploaded', function () {
-    $this->get('/brand/favicon')->assertOk()->assertHeader('Content-Type', 'image/svg+xml');
+    $this->get('/brand/favicon')->assertOk()->assertHeader('Content-Type', 'image/png');
 });
 
 it('shows the original text until something is published, and keeps drafts private', function () {

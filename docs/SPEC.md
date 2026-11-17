@@ -480,3 +480,8 @@ Every success, error and info message in the interface appears as a **toast**, n
 
 - Every sign-in page (log in, forgot and reset password, two-step challenge, join) uses a split layout: a photo on one side and the form on the other. `layouts/auth.blade.php` takes `art` (file in `public/images`; every sign-in page and join share `branch.jpg`), `art-title` and `art-text`. A missing photo shows the green brand background, and on phones the photo becomes a short banner.
 - Join is five steps: Eligibility, About you, Contact, Password, Review. A progress bar (earlier steps can be revisited), per-step checks with plain messages, Enter to continue, a live password checklist, and a review step with a Change link on every line (the Social Security digits are never shown back). The final button posts the same form as before, and the server still validates everything. After a server error the wizard opens on the first step that has one. Without JavaScript the form shows as one long page and still works.
+
+## 10p. Photos and logo shipped with the site
+
+- `public/images` holds the site photos: `hero-1..3.jpg`, `about.jpg`, `help.jpg`, `learn-1..5.jpg` and `branch.jpg` (sign-in and join). The hero photos are mirrored so the people sit on the left, outside the text panel.
+- The logo files `logo-light.png`, `logo-dark.png` and `favicon.png` are transparent PNGs. `Brand::logoUrl()` and the favicon route use them when nothing has been uploaded on the Branding screen; an upload always wins.

@@ -30,6 +30,9 @@ class MediaController extends Controller
                 return response(Storage::disk('local')->get('media/'.$media->filename), 200, ['Content-Type' => $media->mime, 'Cache-Control' => 'public, max-age=3600', 'X-Content-Type-Options' => 'nosniff']);
             }
         }
+        if (is_file(public_path('images/favicon.png'))) {
+            return response(file_get_contents(public_path('images/favicon.png')), 200, ['Content-Type' => 'image/png', 'Cache-Control' => 'public, max-age=3600']);
+        }
         $b = Brand::all();
         $svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 46 46"><circle cx="23" cy="23" r="23" fill="'.$b['brand_color'].'"/><circle cx="23" cy="26" r="9" fill="'.$b['highlight_color'].'"/><path d="M6 36h34" stroke="'.$b['highlight_color'].'" stroke-width="3" stroke-linecap="round"/></svg>';
 

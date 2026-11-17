@@ -77,7 +77,14 @@ final class Brand
 
     public static function logoUrl(string $variant = 'light'): ?string
     {
-        return self::mediaUrl(self::get($variant === 'dark' ? 'logo_dark_id' : 'logo_light_id'));
+        $uploaded = self::mediaUrl(self::get($variant === 'dark' ? 'logo_dark_id' : 'logo_light_id'));
+        if ($uploaded) {
+            return $uploaded;
+        }
+        // No upload: use the logo files shipped with the site, when they are there.
+        $file = 'images/logo-'.($variant === 'dark' ? 'dark' : 'light').'.png';
+
+        return is_file(public_path($file)) ? asset($file) : null;
     }
 
     /** Colour variables for the page head. Only the brand-driven ones, so the stylesheet stays the default. */
