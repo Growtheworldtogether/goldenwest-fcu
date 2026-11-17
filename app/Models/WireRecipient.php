@@ -15,8 +15,15 @@ class WireRecipient extends Model
         return ['account_number' => 'encrypted'];
     }
 
+    public function isInternational(): bool
+    {
+        return $this->kind === 'international';
+    }
+
     public function label(): string
     {
-        return $this->name.', '.$this->bank_name.' ending '.$this->last4;
+        $where = $this->isInternational() ? ', '.(config('wires.countries')[$this->country] ?? $this->country) : '';
+
+        return $this->name.', '.$this->bank_name.$where.' ending '.$this->last4;
     }
 }

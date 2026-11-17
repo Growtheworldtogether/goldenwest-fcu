@@ -11,6 +11,7 @@ final class Features
     /** Every feature staff can switch on for a member. Later milestones add cards, crypto, loans and higher limits. */
     public const ALL = [
         'wires' => 'Wire transfers',
+        'wires_international' => 'International wires',
         'loans' => 'Loans',
         'crypto' => 'Crypto wallet',
     ];

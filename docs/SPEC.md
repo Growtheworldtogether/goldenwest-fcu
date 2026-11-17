@@ -439,3 +439,13 @@ Every success, error and info message in the interface appears as a **toast**, n
 - **Locks apply to everyone on the account:** this was already how `TransferService` works (an account lock, or a lock on any active holder, blocks the account), and tests now prove it for joint accounts. A removed holder (`status = removed`) loses access everywhere because `User::accounts()` and `Account::users()` now read only active holder rows.
 - **Marked deceased** (Member 360, `accounts.lock` permission): needs a note. The member's sign-in stops (Fortify's authenticate callback refuses status `deceased`) and sessions are deleted, their cards are cancelled, accounts only they hold get a full lock with the `deceased_member` reason, and joint accounts stay open for the other holder (the deceased is removed as holder). Staff then pay out through documented adjustments, as the spec says.
 - Holder count is configurable (`bank.max_joint_holders`, default 4). Removing a holder needs that holder's own consent, or staff with a reason. If the primary leaves, the holder who has been on the account longest becomes primary.
+
+## 10k. International wires (as built)
+
+- A per-member feature, `wires_international`, switched on in Member 360 beside Wire transfers. It needs `wires`. Without it the form shows only US wires and the service refuses an international one.
+- Migration `2026_11_30_000020`: `kind` (domestic or international), `country`, `swift` on `wire_recipients` and `wire_transfers`; `routing_number` is now nullable.
+- `config/wires.php`: the countries offered, the countries that use IBANs, and the blocked list (CU, IR, KP, SY, RU, BY). A blocked country is refused even if typed by hand.
+- Checks: SWIFT/BIC shape, and its country letters must match the chosen country; an IBAN country needs a valid IBAN (`App\Support\Iban`, mod-97, prefix matches); other countries take a 4 to 34 character account number. A check cannot prove the account exists, and the page says the recipient should confirm it.
+- Wires abroad are USD only. Fee is separate: `wire_fee_intl_cents` (default $45), editable by a Super Admin in Settings and audited.
+- Same review, hold and approval flow as domestic wires. Staff see country, SWIFT/BIC and account last four, with an "International wire" chip.
+- Tests: `tests/Feature/Wires/InternationalWireTest.php`.

@@ -19,6 +19,7 @@ class SettingsController extends Controller
             'managersEditSite' => Setting::bool('managers_edit_site', false),
             'moneyActions' => Setting::bool('impersonation_allow_money_actions', config('admin.impersonation_allow_money_actions')),
             'wireFee' => \App\Services\WireService::fee()->cents / 100,
+            'wireFeeIntl' => \App\Services\WireService::fee(true)->cents / 100,
             'wireCutoff' => \App\Services\WireService::cutoff(),
             'staff' => User::where('role', 'admin')->with('adminProfile')->orderBy('name')->get(),
         ]);
@@ -40,16 +41,19 @@ class SettingsController extends Controller
             Audit::record('setting.changed', null, ['managers_edit_site' => $oldSite], ['managers_edit_site' => $newSite], $request->user()->id);
         }
 
-        $wire = $request->validate(['wire_fee' => ['nullable', 'numeric', 'min:0', 'max:500'], 'wire_cutoff' => ['nullable', 'date_format:H:i']]);
-        if (isset($wire['wire_fee']) || isset($wire['wire_cutoff'])) {
-            $oldWire = ['fee' => \App\Services\WireService::fee()->cents, 'cutoff' => \App\Services\WireService::cutoff()];
+        $wire = $request->validate(['wire_fee' => ['nullable', 'numeric', 'min:0', 'max:500'], 'wire_fee_intl' => ['nullable', 'numeric', 'min:0', 'max:500'], 'wire_cutoff' => ['nullable', 'date_format:H:i']]);
+        if (isset($wire['wire_fee']) || isset($wire['wire_fee_intl']) || isset($wire['wire_cutoff'])) {
+            $oldWire = ['fee' => \App\Services\WireService::fee()->cents, 'fee_intl' => \App\Services\WireService::fee(true)->cents, 'cutoff' => \App\Services\WireService::cutoff()];
+            if (isset($wire['wire_fee_intl'])) {
+                Setting::set('wire_fee_intl_cents', (int) round($wire['wire_fee_intl'] * 100));
+            }
             if (isset($wire['wire_fee'])) {
                 Setting::set('wire_fee_cents', (int) round($wire['wire_fee'] * 100));
             }
             if (isset($wire['wire_cutoff'])) {
                 Setting::set('wire_cutoff', $wire['wire_cutoff']);
             }
-            $newWire = ['fee' => \App\Services\WireService::fee()->cents, 'cutoff' => \App\Services\WireService::cutoff()];
+            $newWire = ['fee' => \App\Services\WireService::fee()->cents, 'fee_intl' => \App\Services\WireService::fee(true)->cents, 'cutoff' => \App\Services\WireService::cutoff()];
             if ($oldWire !== $newWire) {
                 Audit::record('setting.changed', null, ['wires' => $oldWire], ['wires' => $newWire], $request->user()->id);
             }

@@ -59,13 +59,19 @@
 @php($earlier = $wire->earlierWiresToSameAccount())
 <div class="panel-card" style="margin-top:1.25rem">
     <h3>Wire details</h3>
-    <p style="margin:0 0 .6rem"><span class="chip {{ $earlier ? 'completed' : 'held' }}">{{ $earlier ? 'Sent '.$earlier.' '.\Illuminate\Support\Str::plural('wire', $earlier).' here before' : 'First wire to this account' }}</span></p>
+    <p style="margin:0 0 .6rem">@if ($wire->isInternational())<span class="chip held">International wire to {{ $wire->countryName() }}</span> @endif<span class="chip {{ $earlier ? 'completed' : 'held' }}">{{ $earlier ? 'Sent '.$earlier.' '.\Illuminate\Support\Str::plural('wire', $earlier).' here before' : 'First wire to this account' }}</span></p>
     <dl class="kv">
         <dt>Recipient</dt><dd>{{ $wire->recipient_name }}</dd>
         <dt>Address</dt><dd>{{ $wire->recipient_address }}</dd>
         <dt>Bank</dt><dd>{{ $wire->bank_name }}</dd>
-        <dt>Routing</dt><dd>{{ $wire->routing_number }}</dd>
-        <dt>Account</dt><dd>ending {{ $wire->last4 }}</dd>
+        @if ($wire->isInternational())
+            <dt>Country</dt><dd>{{ $wire->countryName() }}</dd>
+            <dt>SWIFT/BIC</dt><dd>{{ $wire->swift }}</dd>
+            <dt>Account or IBAN</dt><dd>ending {{ $wire->last4 }}</dd>
+        @else
+            <dt>Routing</dt><dd>{{ $wire->routing_number }}</dd>
+            <dt>Account</dt><dd>ending {{ $wire->last4 }}</dd>
+        @endif
         <dt>Purpose</dt><dd>{{ $wire->purpose }}</dd>
         @if ($wire->message)<dt>Note to recipient</dt><dd>{{ $wire->message }}</dd>@endif
         <dt>Send on</dt><dd>{{ $wire->process_on->format('l, F j, Y') }}</dd>

@@ -2,7 +2,7 @@
 @section('title', 'Wire transfers')
 @section('band')
 <div class="pband-row">
-    <div><h1>Wire transfers</h1><p class="psub">Send money to a bank account anywhere in the United States, usually the same business day.</p></div>
+    <div><h1>Wire transfers</h1><p class="psub">Send money to a bank account in the United States, usually the same business day@if ($international), or abroad in one to three business days@endif.</p></div>
     <div class="macts"><a class="btn-s gold" href="{{ route('wires.create') }}">Send a wire</a></div>
 </div>
 @endsection
@@ -17,7 +17,7 @@
             @php($label = ['pending' => 'In review', 'held' => 'On hold', 'rejected' => 'Declined', 'completed' => 'Sent', 'failed' => 'Failed', 'reversed' => 'Returned'][$tx->status->value] ?? $tx->status->value)
             <tr>
                 <td>{{ $w->created_at->format('M j, Y') }}</td>
-                <td>{{ $w->recipient_name }}<small>{{ $w->bank_name }} ending {{ $w->last4 }}</small></td>
+                <td>{{ $w->recipient_name }}<small>{{ $w->bank_name }}@if ($w->isInternational()), {{ $w->countryName() }}@endif ending {{ $w->last4 }}</small></td>
                 <td>{{ $w->process_on->format('M j, Y') }}</td>
                 <td class="num">{{ $tx->amount->format() }}<small>+ {{ $tx->fee->format() }} fee</small></td>
                 <td><span class="chip {{ $tx->status->value }}">{{ $label }}</span></td>
@@ -38,7 +38,7 @@
         <thead><tr><th>Recipient</th><th>Bank</th><th></th></tr></thead>
         <tbody>
         @foreach ($recipients as $r)
-            <tr><td>{{ $r->name }}<small>{{ $r->address }}</small></td><td>{{ $r->bank_name }}<small>Account ending {{ $r->last4 }}</small></td>
+            <tr><td>{{ $r->name }}<small>{{ $r->address }}</small></td><td>{{ $r->bank_name }}<small>@if ($r->isInternational()){{ config('wires.countries')[$r->country] ?? $r->country }}, @endif Account ending {{ $r->last4 }}</small></td>
                 <td class="go"><form method="post" action="{{ route('wires.recipients.destroy', $r) }}" onsubmit="return confirm('Remove this recipient?')">@csrf @method('DELETE')<button type="submit" class="linkbtn">Remove</button></form></td></tr>
         @endforeach
         </tbody>

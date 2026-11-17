@@ -227,7 +227,7 @@ it('lets only a Super Admin change the fee and cutoff, uses them on the next wir
     $super = makeStaff('Super Admin', true, 'Super Person');
     $this->actingAs($super)->put('/admin/settings', ['wire_fee' => '35.00', 'wire_cutoff' => '12:30'])->assertSessionHasNoErrors();
     expect(WireService::fee()->cents)->toBe(3_500)->and(WireService::cutoff())->toBe('12:30');
-    expect(AuditLog::where('action', 'setting.changed')->where('actor_id', $super->id)->latest('id')->first()->new)->toBe(['wires' => ['fee' => 3_500, 'cutoff' => '12:30']]);
+    expect(AuditLog::where('action', 'setting.changed')->where('actor_id', $super->id)->latest('id')->first()->new)->toBe(['wires' => ['fee' => 3_500, 'fee_intl' => 4_500, 'cutoff' => '12:30']]);
 
     sendWire($member, $checking, '1000.00');
     expect(Transaction::where('type', 'wire_out')->first()->fee->cents)->toBe(3_500);

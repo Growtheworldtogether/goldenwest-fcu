@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Portal;
 use App\Http\Controllers\Controller;
 use App\Models\WireRecipient;
 use App\Models\WireTransfer;
+use App\Services\Features;
 use App\Services\Ledger\TransferException;
 use App\Services\WireService;
 use App\Support\Money;
@@ -22,6 +23,7 @@ class WireController extends Controller
         return view('portal.wires', [
             'wires' => WireTransfer::with('transaction')->where('user_id', $request->user()->id)->latest('id')->limit(30)->get(),
             'recipients' => WireRecipient::where('user_id', $request->user()->id)->where('status', 'active')->orderBy('name')->get(),
+            'international' => Features::enabled($request->user(), 'wires_international'),
         ]);
     }
 
@@ -34,6 +36,10 @@ class WireController extends Controller
             'recipients' => WireRecipient::where('user_id', $user->id)->where('status', 'active')->orderBy('name')->get(),
             'token' => (string) Str::ulid(),
             'fee' => WireService::fee(),
+            'intlFee' => WireService::fee(true),
+            'international' => Features::enabled($user, 'wires_international'),
+            'countries' => array_diff_key(config('wires.countries'), array_flip(config('wires.blocked'))),
+            'ibanCountries' => config('wires.iban'),
             'cutoff' => WireService::cutoff(),
             'processOn' => WireService::processOn(),
             'verified' => $user->kyc_status === 'verified',
@@ -45,6 +51,9 @@ class WireController extends Controller
         $saved = $request->input('recipient_id');
         $useSaved = $saved !== null && $saved !== '' && $saved !== 'new';
         $newRule = $useSaved ? ['nullable'] : ['required'];
+        $kind = $request->input('kind') === 'international' ? 'international' : 'domestic';
+        $domesticRule = $kind === 'domestic' ? $newRule : ['nullable'];
+        $intlRule = $kind === 'international' ? $newRule : ['nullable'];
 
         $data = $request->validate([
             'account_id' => ['required', 'integer'],
@@ -52,8 +61,11 @@ class WireController extends Controller
             'recipient_name' => [...$newRule, 'string', 'max:120'],
             'recipient_address' => [...$newRule, 'string', 'min:8', 'max:200'],
             'bank_name' => [...$newRule, 'string', 'max:120'],
-            'routing_number' => [...$newRule, 'digits:9'],
-            'account_number' => [...$newRule, 'digits_between:4,17', 'confirmed'],
+            'kind' => ['nullable', 'in:domestic,international'],
+            'routing_number' => [...$domesticRule, 'digits:9'],
+            'country' => [...$intlRule, 'string', 'size:2'],
+            'swift' => [...$intlRule, 'string', 'max:20'],
+            'account_number' => [...$newRule, $kind === 'international' ? 'string' : 'digits_between:4,17', $kind === 'international' ? 'max:42' : 'max:17', 'confirmed'],
             'amount' => ['required', 'string', 'max:20'],
             'purpose' => ['required', 'string', 'max:140'],
             'message' => ['nullable', 'string', 'max:140'],
@@ -67,6 +79,8 @@ class WireController extends Controller
             'bank_name.required' => 'Enter the name of the recipient\'s bank.',
             'routing_number.required' => 'Enter the bank\'s routing number.',
             'routing_number.digits' => 'A routing number has nine digits.',
+            'country.required' => 'Choose the country of the recipient\'s bank.',
+            'swift.required' => 'Enter the bank\'s SWIFT/BIC code.',
             'account_number.required' => 'Enter the recipient\'s account number.',
             'account_number.confirmed' => 'The account numbers do not match.',
             'purpose.required' => 'Tell us what the wire is for.',
@@ -80,9 +94,10 @@ class WireController extends Controller
 
         if ($useSaved) {
             $r = WireRecipient::where('user_id', $request->user()->id)->where('status', 'active')->findOrFail($saved);
-            $to = ['name' => $r->name, 'address' => $r->address, 'bank_name' => $r->bank_name, 'routing_number' => $r->routing_number, 'account_number' => $r->account_number];
+            $kind = $r->kind;
+            $to = ['name' => $r->name, 'address' => $r->address, 'bank_name' => $r->bank_name, 'routing_number' => $r->routing_number, 'account_number' => $r->account_number, 'kind' => $r->kind, 'country' => $r->country, 'swift' => $r->swift];
         } else {
-            $to = ['name' => $data['recipient_name'], 'address' => $data['recipient_address'], 'bank_name' => $data['bank_name'], 'routing_number' => $data['routing_number'], 'account_number' => $data['account_number']];
+            $to = ['name' => $data['recipient_name'], 'address' => $data['recipient_address'], 'bank_name' => $data['bank_name'], 'routing_number' => $data['routing_number'] ?? null, 'account_number' => $data['account_number'], 'kind' => $kind, 'country' => $data['country'] ?? null, 'swift' => $data['swift'] ?? null];
         }
 
         try {
@@ -94,7 +109,7 @@ class WireController extends Controller
             return back()->withInput()->with('error', $e->getMessage());
         }
 
-        return redirect()->route('transactions.show', $tx->reference)->with('status', 'Your wire request for '.$amount->format().' was received. Every wire is reviewed first. The amount and the '.WireService::fee()->format().' fee are set aside now, and we will update you here.');
+        return redirect()->route('transactions.show', $tx->reference)->with('status', 'Your wire request for '.$amount->format().' was received. Every wire is reviewed first. The amount and the '.WireService::fee($kind === 'international')->format().' fee are set aside now, and we will update you here.');
     }
 
     public function destroy(Request $request, WireRecipient $recipient, WireService $wires)
