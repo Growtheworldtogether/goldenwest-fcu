@@ -24,6 +24,17 @@ class AppServiceProvider extends ServiceProvider
             \Illuminate\Support\Facades\Gate::define('staff.'.$ability, [\App\Policies\StaffPolicy::class, $ability]);
         }
 
+        // The portal top bar shows the previous sign-in, like a bank does.
+        \Illuminate\Support\Facades\View::composer('layouts.portal', function ($view) {
+            $user = auth()->user();
+            $last = null;
+            if ($user && ! session()->has('impersonation')) {
+                $at = \App\Models\AuditLog::where('actor_id', $user->id)->where('action', 'login.success')->latest('id')->skip(1)->value('created_at');
+                $last = $at ? \Illuminate\Support\Carbon::parse($at) : null;
+            }
+            $view->with('lastSignIn', $last);
+        });
+
         // @money($cents) prints integer cents as $1,234.56
         Blade::directive('money', fn ($expression) => "<?php echo e(\\App\\Support\\Money::cents((int) ({$expression}))->format()); ?>");
     }

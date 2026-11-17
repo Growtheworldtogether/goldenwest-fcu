@@ -96,8 +96,8 @@
             <button class="menu-toggle" type="button" id="side-open" aria-controls="side" aria-expanded="false" aria-label="Open menu">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
             </button>
-            <span class="ptitle">@yield('title', 'Online banking')</span>
-            <span class="tb-user"><span class="avatar" aria-hidden="true">{{ $initials }}</span><span class="tb-name">{{ $first }}</span></span>
+            <span class="ptitle"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="1"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>{{ $staffMode ? 'Staff console' : 'Secure online banking' }}</span>
+            <span class="tb-user">@if ($lastSignIn ?? null)<span class="tb-last">Last sign-in {{ $lastSignIn->format('M j, g:i a') }}</span>@endif<span class="tb-name">{{ $first }}</span><span class="avatar" aria-hidden="true">{{ $initials }}</span></span>
         </header>
         </div>
 

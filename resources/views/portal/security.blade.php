@@ -2,7 +2,12 @@
 @section('title', 'Security')
 @section('content')
 @php($admin = request()->routeIs('admin.*'))
-<div class="pagehead"><div><h1>Security</h1><p class="psub">{{ $admin ? 'Two-step verification is optional but recommended for staff.' : 'Keep your accounts safe.' }}</p></div></div>
+<h1>Security center</h1>
+<p class="psub">{{ $admin ? 'Two-step verification is optional but recommended for staff.' : 'Manage how you sign in and review recent activity on your profile.' }}</p>
+
+@if (! $confirmed && ! $enabled)
+    <div class="notice-bar" role="status"><p><strong>Two-step verification is off.</strong> Add a second step at sign in so a stolen password alone can't get into your account.</p></div>
+@endif
 
 @if ($enabled && ! $confirmed)
 <div class="panel-card" style="margin-bottom:1.5rem">
@@ -22,61 +27,68 @@
 </div>
 @endif
 
-<div class="panel-card flush srows">
-    <div class="srow">
-        <div><h3>Password</h3><p>Use at least 12 characters with upper and lower case letters and a number.</p></div>
-        <div class="ctl"><button type="button" class="btn-s plain sm" data-open="dlg-password">Change password</button></div>
-    </div>
-    <div class="srow">
-        <div><h3>Two-step verification</h3><p>@if ($confirmed)You'll be asked for a code from your authenticator app when you sign in.@else A second step at sign in, so a stolen password alone can't get in. It is optional and takes about two minutes.@endif</p></div>
-        <div class="ctl">
-            @if ($confirmed)
-                <span class="pill on">On</span>
-                <form method="post" action="{{ route('two-factor.disable') }}">@csrf @method('DELETE')<button class="btn-s plain sm" type="submit">Turn off</button></form>
-            @elseif ($enabled)
-                <span class="pill warn">Not finished</span>
-            @else
-                <span class="pill off">Off</span>
-                <form method="post" action="{{ route('two-factor.enable') }}">@csrf<button class="btn-s sm" type="submit">Set up two-step verification</button></form>
-            @endif
-        </div>
-    </div>
-    @if ($confirmed)
-    <div class="srow">
-        <div><h3>Recovery codes</h3><p>Each code works once if you lose your phone. Keep them somewhere safe.</p></div>
-        <div class="ctl"><button type="button" class="btn-s plain sm" data-open="dlg-codes">Show codes</button></div>
-    </div>
-    @endif
-    @if ($admin)
-    <div class="srow"><div><h3>Staff console</h3><p>Back to your work.</p></div><div class="ctl"><a class="btn-s sm" href="{{ route('admin.home') }}">Open the console</a></div></div>
-    @endif
-</div>
-
-@if ($staffAccess->count())
-<h2 class="group-title">Staff accessed or acted on your account</h2>
 <div class="panel-card flush">
-    <p class="fine" style="margin:0;padding:1rem 1.5rem 0">Sometimes a Golden West team member signs in as you to help with a request. Each time is listed here.</p>
-    <table class="dtable"><tbody>
-    @foreach ($staffAccess as $s)
-        <tr><td style="white-space:nowrap">{{ $s->started_at->format('M j, g:i a') }}</td><td><strong>{{ $s->admin->name }}</strong>, {{ $s->admin->adminTitle() }}<small>{{ $staffReasons[$s->reason_code] ?? $s->reason_code }}</small></td></tr>
-    @endforeach
-    </tbody></table>
+    <div class="grouphead"><h2>Sign-in and security</h2></div>
+    <table class="dtable">
+        <thead><tr><th>Setting</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+            <tr>
+                <td><strong>Password</strong><small>At least 12 characters with upper and lower case letters and a number.</small></td>
+                <td>Set</td>
+                <td class="go"><button type="button" class="linkbtn" data-open="dlg-password">Change password</button></td>
+            </tr>
+            <tr>
+                <td><strong>Two-step verification</strong><small>A code from your authenticator app, asked for at sign in. Optional.</small></td>
+                <td>{{ $confirmed ? 'On' : ($enabled ? 'Not finished' : 'Off') }}</td>
+                <td class="go">
+                    @if ($confirmed)
+                        <form method="post" action="{{ route('two-factor.disable') }}" style="display:inline">@csrf @method('DELETE')<button class="linkbtn" type="submit">Turn off</button></form>
+                    @elseif (! $enabled)
+                        <form method="post" action="{{ route('two-factor.enable') }}" style="display:inline">@csrf<button class="linkbtn" type="submit">Set up two-step verification</button></form>
+                    @endif
+                </td>
+            </tr>
+            @if ($confirmed)
+            <tr>
+                <td><strong>Recovery codes</strong><small>Each works once if you lose your phone. Keep them somewhere safe.</small></td>
+                <td>Available</td>
+                <td class="go"><button type="button" class="linkbtn" data-open="dlg-codes">Show codes</button></td>
+            </tr>
+            @endif
+        </tbody>
+    </table>
 </div>
-@endif
 
-<h2 class="group-title">Recent security activity</h2>
+<div class="table-title"><h2>Recent sign-in and security activity</h2></div>
 <div class="panel-card flush">
     @if ($events->count())
-    <table class="dtable"><tbody>
-    @foreach ($events as $e)
-        <tr><td style="white-space:nowrap">{{ $e->created_at->format('M j, g:i a') }}</td><td>{{ ['login.success' => 'Signed in', 'login.failed' => 'Failed sign-in attempt', 'password.changed' => 'Password changed', 'password.reset' => 'Password reset', 'profile.updated' => 'Contact details updated', 'two_factor.enabled' => 'Two-step verification turned on', 'two_factor.disabled' => 'Two-step verification turned off'][$e->action] ?? $e->action }}</td><td class="num hide-s" style="font-weight:400;color:var(--muted)">{{ $e->ip }}</td></tr>
-    @endforeach
-    </tbody></table>
+    <table class="dtable">
+        <thead><tr><th>Date</th><th>Activity</th><th class="hide-s">From</th></tr></thead>
+        <tbody>
+        @foreach ($events as $e)
+            <tr><td style="white-space:nowrap">{{ $e->created_at->format('M j, Y g:i a') }}</td><td>{{ ['login.success' => 'Signed in', 'login.failed' => 'Failed sign-in attempt', 'password.changed' => 'Password changed', 'password.reset' => 'Password reset', 'profile.updated' => 'Contact details updated', 'two_factor.enabled' => 'Two-step verification turned on', 'two_factor.disabled' => 'Two-step verification turned off'][$e->action] ?? $e->action }}</td><td class="hide-s">{{ $e->ip }}</td></tr>
+        @endforeach
+        </tbody>
+    </table>
     @else
         <div class="empty"><b>Nothing yet</b>Sign-ins and security changes will appear here.</div>
     @endif
 </div>
-<p class="fine">Don't recognize something? Call Customer Care at <a class="plink" href="tel:8005550147">800-555-0147</a> right away.</p>
+
+@if ($staffAccess->count())
+<div class="table-title"><h2>Staff accessed or acted on your account</h2></div>
+<div class="panel-card flush">
+    <p class="fine" style="margin:0;padding:1rem 1.25rem 0">Sometimes a Golden West team member signs in as you to help with a request. Each time is listed here.</p>
+    <table class="dtable">
+        <tbody>
+        @foreach ($staffAccess as $s)
+            <tr><td style="white-space:nowrap">{{ $s->started_at->format('M j, Y g:i a') }}</td><td><strong>{{ $s->admin->name }}</strong>, {{ $s->admin->adminTitle() }}<small>{{ $staffReasons[$s->reason_code] ?? $s->reason_code }}</small></td></tr>
+        @endforeach
+        </tbody>
+    </table>
+</div>
+@endif
+<p class="fine" style="margin-top:1.25rem">Don't recognize something? Call Customer Care at <a class="plink" href="tel:8005550147">800-555-0147</a> right away.</p>
 
 <dialog id="dlg-password">
     <div class="dh"><h3>Change your password</h3><button type="button" class="x" data-close aria-label="Close">&times;</button></div>

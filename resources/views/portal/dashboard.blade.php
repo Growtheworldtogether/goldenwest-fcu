@@ -1,27 +1,9 @@
 @extends('layouts.portal')
 @section('title', 'Accounts')
 @section('content')
-@php
-    $avail = \App\Support\Money::cents($accounts->sum(fn ($a) => $a->available_balance->cents));
-    $held = \App\Support\Money::cents($accounts->sum(fn ($a) => $a->held_balance->cents));
-@endphp
-<p class="hello">Welcome back, <strong>{{ auth()->user()->first_name ?? auth()->user()->name }}</strong></p>
-
-<section class="summary" aria-label="Total balance">
-    <div class="lab">Total balance</div>
-    <div class="big">{{ $total->format() }}</div>
-    <div class="row">
-        <div><span class="lab">Available</span><b>{{ $avail->format() }}</b></div>
-        @if ($held->cents > 0)<div><span class="lab">On hold</span><b>{{ $held->format() }}</b></div>@endif
-        <div><span class="lab">Accounts</span><b>{{ $accounts->count() }}</b></div>
-    </div>
-</section>
-
-<nav class="quick" aria-label="Quick actions">
-    <a href="{{ route('transfers.create') }}"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h13l-3.500-3.500M18 16H5l3.500 3.500"/></svg></span><span>Transfer money<small>Between your accounts</small></span></a>
-    <a href="{{ route('accounts.create') }}"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></span><span>Open an account<small>Free, no deposit</small></span></a>
-    <a href="{{ route('activity') }}"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span><span>View activity<small>Search and download</small></span></a>
-</nav>
+@php($kinds = ['share_savings' => 'Savings', 'share_draft' => 'Checking', 'money_market' => 'Money market'])
+<h1>Accounts</h1>
+<p class="psub">Welcome back, {{ auth()->user()->first_name ?? auth()->user()->name }}.</p>
 
 @foreach ($locks as $lock)
     <div class="notice-bar" role="status">
@@ -29,7 +11,6 @@
         <p>{{ $reasons[$lock->reason_code] ?? '' }}. You can still sign in and see your balances. <a class="plink" href="{{ url('/help#contest') }}">Contact us about this</a>.</p>
     </div>
 @endforeach
-
 @foreach ($waiting as $tx)
     @php($d = $tx->decisions->sortByDesc('id')->first())
     <div class="notice-bar" role="status">
@@ -43,35 +24,61 @@
     </div>
 @endforeach
 
-<div class="sechead"><h2>Your accounts</h2></div>
-<div class="pcards">
-    @foreach ($accounts as $a)
-        <article class="acct">
-            <span class="kind">{{ ['share_savings' => 'Savings', 'share_draft' => 'Checking', 'money_market' => 'Money market'][$a->product->kind] ?? str($a->product->kind)->replace('_', ' ')->title() }}</span>
-            <h3>{{ $a->nickname }}</h3>
-            <span class="num">Account {{ $a->masked() }}</span>
-            <span class="bal">{{ $a->balance->format() }}</span>
-            <span class="avail">Available {{ $a->available_balance->format() }}@if ($a->held_balance->cents > 0) &middot; {{ $a->held_balance->format() }} on hold @endif</span>
-            <div class="actions"><a href="{{ route('accounts.show', $a) }}">Activity</a><a href="{{ route('transfers.create', ['from' => $a->id]) }}">Transfer</a></div>
-        </article>
-    @endforeach
+<div class="mgrid">
+<div class="mmain">
+    <div class="panel-card flush">
+        <div class="grouphead"><h2>Deposit accounts</h2><span>Total balance <b>{{ $total->format() }}</b></span></div>
+        <table class="dtable">
+            <thead><tr><th>Account</th><th class="num">Available balance</th><th class="num hide-s">Current balance</th><th></th></tr></thead>
+            <tbody>
+            @foreach ($accounts as $a)
+                <tr>
+                    <td><a class="main" href="{{ route('accounts.show', $a) }}">{{ $a->nickname }}</a><small>{{ $kinds[$a->product->kind] ?? $a->product->name }} {{ $a->masked() }}</small></td>
+                    <td class="num">{{ $a->available_balance->format() }}@if ($a->held_balance->cents > 0)<small>{{ $a->held_balance->format() }} on hold</small>@endif</td>
+                    <td class="num hide-s">{{ $a->balance->format() }}</td>
+                    <td class="go"><a class="plink" href="{{ route('transfers.create', ['from' => $a->id]) }}">Transfer</a></td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-title"><h2>Recent activity</h2><a class="plink" href="{{ route('activity') }}">View all activity</a></div>
+    <div class="panel-card flush">
+        @if (count($recent))
+        <table class="dtable">
+            <thead><tr><th>Date</th><th>Description</th><th class="hide-s">Account</th><th class="num">Amount</th></tr></thead>
+            <tbody>
+            @foreach ($recent as $r)
+                <tr>
+                    <td style="white-space:nowrap">{{ $r['tx']->effective_date->format('M j') }}</td>
+                    <td><a class="main" href="{{ route('transactions.show', $r['tx']->reference) }}">{{ $r['title'] }}</a>@if ($r['tx']->status->value !== 'completed')<small>{{ ['pending' => 'Pending', 'held' => 'On hold', 'rejected' => 'Declined', 'failed' => 'Failed', 'reversed' => 'Reversed', 'approved' => 'Approved'][$r['tx']->status->value] }}</small>@endif</td>
+                    <td class="hide-s">{{ $r['account']->nickname }} {{ $r['account']->masked() }}</td>
+                    <td class="num {{ $r['cents'] > 0 ? 'in' : '' }}">{{ $r['cents'] > 0 ? '+' : '-' }}@money(abs($r['cents']))</td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+        @else
+            <div class="empty"><b>No activity yet</b>Deposits and transfers show up here.</div>
+        @endif
+    </div>
 </div>
 
-<div class="sechead"><h2>Recent activity</h2><a class="plink" href="{{ route('activity') }}">See all</a></div>
-<div class="panel-card" style="padding:0;overflow:hidden">
-    @if (count($recent))
-        <ul class="feed">
-            @foreach ($recent as $r)
-                @php($ini = strtoupper(mb_substr(preg_replace('/[^A-Za-z]/', '', $r['title']) ?: 'T', 0, 2)))
-                <li>
-                    <span class="dot c{{ crc32($r['title']) % 5 }}" aria-hidden="true">{{ $ini }}</span>
-                    <span class="what"><a href="{{ route('transactions.show', $r['tx']->reference) }}">{{ $r['title'] }}</a><small>{{ $r['tx']->effective_date->format('M j') }} &middot; {{ $r['account']->nickname }} {{ $r['account']->masked() }}@if ($r['tx']->status->value !== 'completed') &middot; {{ ['pending' => 'Pending', 'held' => 'On hold', 'rejected' => 'Declined', 'failed' => 'Failed', 'reversed' => 'Reversed', 'approved' => 'Approved'][$r['tx']->status->value] }}@endif</small></span>
-                    <span class="amt {{ $r['cents'] > 0 ? 'in' : '' }}">{{ $r['cents'] > 0 ? '+' : '-' }}@money(abs($r['cents']))</span>
-                </li>
-            @endforeach
+<aside class="mside">
+    <div class="panel-card flush">
+        <h2 class="railhead">Quick links</h2>
+        <ul class="qlinks">
+            <li><a href="{{ route('transfers.create') }}">Transfer money</a></li>
+            <li><a href="{{ route('accounts.create') }}">Open an account</a></li>
+            <li><a href="{{ route('activity') }}">Search and download activity</a></li>
+            <li><a href="{{ route('security.settings') }}">Security center</a></li>
+            <li><a href="{{ route('profile') }}">Profile and alerts</a></li>
         </ul>
-    @else
-        <p style="padding:1.5rem;margin:0">Nothing yet. Make a deposit or transfer to get started.</p>
-    @endif
+    </div>
+    <div class="panel-card flush">
+        <div class="railnote"><b>Customer Care</b>800-555-0147<br>Mon-Fri 7am - 8pm PT<br>Sat 8am - 5pm PT</div>
+    </div>
+</aside>
 </div>
 @endsection

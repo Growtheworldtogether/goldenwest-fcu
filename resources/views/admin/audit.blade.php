@@ -3,7 +3,7 @@
 @section('content')
 <h1>Audit log</h1>
 <p class="psub">Every staff action, decision, lock and sign-in. Entries cannot be edited or removed.</p>
-<form class="filters" method="get">
+<form class="filters panel-card" method="get" style="padding:1rem 1.25rem">
     <label>Action contains<input name="action" value="{{ $filters['action'] ?? '' }}" placeholder="for example: restriction"></label>
     <label>Person<input name="actor" value="{{ $filters['actor'] ?? '' }}" placeholder="Name or email"></label>
     <label>About<select name="subject"><option value="">Anything</option>@foreach ($subjects as $s)<option @selected(($filters['subject'] ?? '') === $s)>{{ $s }}</option>@endforeach</select></label>
@@ -12,8 +12,8 @@
     <label style="grid-template-columns:auto 1fr;align-items:center;gap:.5rem"><input type="checkbox" name="acting" value="1" @checked(! empty($filters['acting'])) style="min-height:0;width:auto"> Acting as member only</label>
     <button class="btn" type="submit">Filter</button>
 </form>
-<div class="panel-card" style="padding:.5rem 1rem 1rem">
-    <div style="overflow-x:auto"><table class="txtable">
+<div class="panel-card flush">
+    <div style="overflow-x:auto"><table class="dtable">
         <thead><tr><th>When</th><th>Action</th><th>By</th><th class="hide-s">About</th><th class="hide-s">Details</th></tr></thead>
         <tbody>
         @forelse ($rows as $r)
@@ -29,7 +29,7 @@
         @endforelse
         </tbody>
     </table></div>
-    <div class="pager"><span class="fine" style="margin:0">{{ $rows->total() }} entries</span><span>
+    <div class="pager" style="padding:.9rem 1.25rem;margin:0;border-top:1px solid #e7ebf6"><span class="fine" style="margin:0">{{ $rows->total() }} entries</span><span>
         @if ($rows->previousPageUrl())<a class="plink" href="{{ $rows->previousPageUrl() }}">&larr; Newer</a>@endif
         @if ($rows->nextPageUrl()) &nbsp; <a class="plink" href="{{ $rows->nextPageUrl() }}">Older &rarr;</a>@endif</span></div>
 </div>

@@ -1,31 +1,37 @@
 @extends('layouts.portal')
 @section('title', $account->nickname)
 @section('content')
-<p style="margin:0 0 .5rem"><a class="plink" href="{{ route('dashboard') }}">&larr; All accounts</a></p>
-<h1>{{ $account->nickname }}</h1>
-<p class="psub">{{ $account->product->name }} &middot; Account {{ $account->masked() }}</p>
-
-<div class="two" style="margin-bottom:1.5rem">
-    <div class="panel-card" style="margin:0">
-        <span class="fine" style="margin:0">Current balance</span>
-        <div class="acct" style="border:0;padding:0"><span class="bal">{{ $account->balance->format() }}</span></div>
-        <p class="avail" style="margin:.4rem 0 0">Available {{ $account->available_balance->format() }}@if ($account->held_balance->cents > 0) &middot; {{ $account->held_balance->format() }} on hold @endif</p>
-        <p style="margin:1rem 0 0"><a class="btn" href="{{ route('transfers.create', ['from' => $account->id]) }}">Transfer money</a></p>
-    </div>
-    <div class="panel-card" style="margin:0">
-        <h2>Account details</h2>
-        <dl class="kv">
-            <dt>Type</dt><dd>{{ $account->product->name }}</dd>
-            <dt>Earns</dt><dd>{{ number_format($account->product->dividend_rate_bps / 100, 2) }}% APY</dd>
-            <dt>Opened</dt><dd>{{ $account->created_at->format('M j, Y') }}</dd>
-            @if ($account->overdraftAccount)<dt>Overdraft protection</dt><dd>{{ $account->overdraftAccount->nickname }} {{ $account->overdraftAccount->masked() }}</dd>@endif
-        </dl>
-        <details style="margin-top:1rem"><summary class="plink" style="cursor:pointer">Show account and routing numbers</summary>
-            <dl class="kv" style="margin-top:.6rem"><dt>Routing</dt><dd>121478906</dd><dt>Account</dt><dd>{{ $account->account_number }}</dd></dl>
-        </details>
-    </div>
+@php($kinds = ['share_savings' => 'Savings', 'share_draft' => 'Checking', 'money_market' => 'Money market'])
+<p class="crumbs2"><a href="{{ route('dashboard') }}">Accounts</a> &rsaquo; {{ $account->nickname }}</p>
+<div class="pagehead">
+    <div><h1>{{ $account->nickname }}</h1><p class="psub">{{ $kinds[$account->product->kind] ?? $account->product->name }} {{ $account->masked() }}</p></div>
+    <a class="btn-s" href="{{ route('transfers.create', ['from' => $account->id]) }}">Transfer money</a>
 </div>
 
-<h2>Activity</h2>
-@include('portal._history', ['exportUrl' => route('accounts.export', [$account] + request()->query())])
+<div class="strip money">
+    <div><b>{{ $account->available_balance->format() }}</b><span>Available balance</span></div>
+    <div><b>{{ $account->balance->format() }}</b><span>Current balance</span></div>
+    @if ($account->held_balance->cents > 0)<div><b>{{ $account->held_balance->format() }}</b><span>On hold</span></div>@endif
+</div>
+
+<div class="mgrid">
+    <div class="mmain">
+        <div class="table-title" style="margin-top:0"><h2>Transactions</h2></div>
+        @include('portal._history', ['exportUrl' => route('accounts.export', [$account] + request()->query())])
+    </div>
+    <aside class="mside">
+        <div class="panel-card flush">
+            <h2 class="railhead">Account details</h2>
+            <dl class="kvlist">
+                <dt>Type</dt><dd>{{ $account->product->name }}</dd>
+                <dt>Rate</dt><dd>{{ number_format($account->product->dividend_rate_bps / 100, 2) }}% APY</dd>
+                <dt>Opened</dt><dd>{{ $account->created_at->format('M j, Y') }}</dd>
+                @if ($account->overdraftAccount)<dt>Overdraft from</dt><dd>{{ $account->overdraftAccount->nickname }} {{ $account->overdraftAccount->masked() }}</dd>@endif
+            </dl>
+            <details style="padding:0 1.25rem 1.1rem"><summary class="plink" style="cursor:pointer">Show account and routing numbers</summary>
+                <dl class="kvlist" style="padding:.8rem 0 0"><dt>Routing</dt><dd>121478906</dd><dt>Account</dt><dd>{{ $account->account_number }}</dd></dl>
+            </details>
+        </div>
+    </aside>
+</div>
 @endsection
