@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ReasonCode;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Support\AccountOwners;
 use App\Services\Ledger\TransferException;
 use App\Services\Ledger\TransferService;
 use Illuminate\Http\Request;
@@ -27,7 +28,7 @@ class QueueController extends Controller
             ->orderBy($filter === 'all' ? 'id' : 'created_at', $filter === 'all' ? 'desc' : 'asc')
             ->paginate(25)->withQueryString();
 
-        return view('admin.queue', ['rows' => $rows, 'filter' => $filter, 'ownerOf' => $this->ownerMap($rows)]);
+        return view('admin.queue', ['rows' => $rows, 'filter' => $filter, 'ownerOf' => AccountOwners::for($rows)]);
     }
 
     public function show(Transaction $transaction)
@@ -38,7 +39,7 @@ class QueueController extends Controller
 
         return view('admin.transaction', [
             'tx' => $transaction,
-            'owners' => $this->ownerMap(collect([$transaction])),
+            'owners' => AccountOwners::for([$transaction]),
             'approvers' => $approvers,
             'needed' => $transaction->amount->cents >= config('bank.dual_approval_threshold') ? 2 : 1,
             'canDecide' => Gate::allows('staff.decideTransaction', $transaction),
@@ -99,15 +100,5 @@ class QueueController extends Controller
         $d = $r->validate(['reason_code' => ['required', 'exists:reason_codes,code'], 'reason_text' => ['required', 'string', 'max:1000']]);
 
         return $ledger->reverse($tx, $r->user(), $d['reason_code'], $d['reason_text']);
-    }
-
-    /** account id => the primary holder, for display. */
-    private function ownerMap($rows): \Illuminate\Support\Collection
-    {
-        $ids = $rows->pluck('from_account_id')->merge($rows->pluck('to_account_id'))->filter()->unique();
-        $holders = \DB::table('account_holders')->whereIn('account_id', $ids)->get();
-        $users = User::whereIn('id', $holders->pluck('user_id'))->get()->keyBy('id');
-
-        return $holders->mapWithKeys(fn ($h) => [$h->account_id => $users[$h->user_id] ?? null]);
     }
 }

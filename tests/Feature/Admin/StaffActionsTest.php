@@ -24,10 +24,10 @@ function pendingTransfer(int $amountCents, int $balance = 10_000_000): array
 }
 
 it('shows queue items to staff and approves one so it posts', function () {
-    [, $checking, $savings, $tx] = pendingTransfer(600_000);
+    [$member, $checking, $savings, $tx] = pendingTransfer(600_000);
     $manager = makeStaff('Manager');
 
-    $this->actingAs($manager)->get('/admin/queue')->assertOk()->assertSee('$6,000.00');
+    $this->actingAs($manager)->get('/admin/queue')->assertOk()->assertSee('$6,000.00')->assertSee($member->name)->assertDontSee('Credit union');
     $this->actingAs($manager)->post("/admin/queue/{$tx->reference}/approve", ['note' => 'Checked'])->assertRedirect();
 
     expect($tx->refresh()->status->value)->toBe('completed')->and($savings->refresh()->balance->cents)->toBe(600_000);
