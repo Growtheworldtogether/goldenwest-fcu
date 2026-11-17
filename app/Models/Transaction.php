@@ -34,6 +34,21 @@ class Transaction extends Model
         static::deleting(fn () => throw new LogicException('Transactions cannot be deleted.'));
     }
 
+    public function initiator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'initiated_by');
+    }
+
+    /** The memo a member may read: only one they typed themselves. A staff note, reason or history marker stays internal. */
+    public function memberMemo(): ?string
+    {
+        if (! $this->memo || ($this->initiated_by && $this->initiator?->isAdmin())) {
+            return null;
+        }
+
+        return $this->memo;
+    }
+
     public function fromAccount(): BelongsTo
     {
         return $this->belongsTo(Account::class, 'from_account_id');

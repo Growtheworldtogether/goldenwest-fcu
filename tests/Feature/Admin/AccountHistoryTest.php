@@ -77,3 +77,22 @@ it('checks the dates, the amount and who may do it', function () {
     $this->actingAs($staff)->post($url, history(['account_id' => $savings->id, 'target' => '9000.00']))->assertSessionHasNoErrors();
     expect($savings->refresh()->balance->cents)->toBe(900_000)->and(Transaction::where('type', 'dividend')->count())->toBeGreaterThan(0);
 });
+
+it('has no limit on how far back history can start, and still lands on the balance', function () {
+    [$member, $checking] = verifiedMember('Maria Alvarez');
+    $this->actingAs(makeStaff('Super Admin'))->post('/admin/members/'.$member->id.'/history', history(['account_id' => $checking->id, 'from' => '2005-03-01', 'target' => '40000.00']))->assertSessionHasNoErrors();
+    expect($checking->refresh()->balance->cents)->toBe(4_000_000)->and($checking->created_at->toDateString())->toBe('2005-03-01');
+    $this->artisan('ledger:verify')->assertSuccessful();
+});
+
+it('never shows staff notes or the history marker to the member', function () {
+    [$member, $checking] = verifiedMember('Maria Alvarez');
+    $staff = makeStaff('Super Admin');
+    $this->actingAs($staff)->post('/admin/members/'.$member->id.'/history', history(['account_id' => $checking->id]))->assertSessionHasNoErrors();
+    $tx = Transaction::where('memo', 'like', 'Opening history%')->first();
+    expect($tx->memberMemo())->toBeNull();
+
+    $this->actingAs($member)->get('/accounts/'.$checking->id)->assertOk()->assertDontSee('Opening history');
+    $this->actingAs($member)->get('/transactions/'.$tx->reference)->assertOk()->assertDontSee('Opening history')->assertDontSee('Memo');
+    $this->actingAs($member)->get('/accounts/'.$checking->id.'?q=Opening+history')->assertOk()->assertDontSee('Direct deposit');
+});

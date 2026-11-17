@@ -461,8 +461,8 @@ Every success, error and info message in the interface appears as a **toast**, n
 
 ## 10m. Opening history for a new account (as built)
 
-- Staff with the adjust permission see **Add account history** on Member 360 when the member has an open account with no activity. They enter the balance the account should reach, a start date and an end date (up to today, at most five years back), a note, and whether the account shows as opened on the start date.
+- Staff with the adjust permission see **Add account history** on Member 360 when the member has an open account with no activity. They enter the balance the account should reach, a start date and an end date (up to today, any date in the past), a note, and whether the account shows as opened on the start date.
 - `HistoryBuilder` makes the activity from a seed: payroll deposits every two weeks, card purchases, bills and ATM withdrawals on checking; monthly deposits and dividends on savings. The balance never goes below zero and ends on exactly the chosen amount. The same inputs and seed always give the same rows.
 - `TransferService::postHistory` writes it, so the ledger stays the only thing that changes a balance. Rows are completed transactions and ledger entries stamped with their past dates in date order, so `ledger:verify` passes. It refuses any account that already has activity, so it can run once per account.
-- Limits: $50 to $500,000. A Manager is held to the normal adjustment limit. Each transaction is marked "Opening history added by staff" in its internal memo, and the audit log records the target, dates, count and seed.
+- Limits: $50 to $500,000, with no limit on how far back the start date goes. A Manager is held to the normal adjustment limit. Each transaction is marked "Opening history added by staff" in its memo, which members never see: `Transaction::memberMemo()` shows only a memo the member typed, so staff notes on adjustments and history stay internal. And the audit log records the target, dates, count and seed.
 - Tests: `tests/Feature/Admin/AccountHistoryTest.php`.

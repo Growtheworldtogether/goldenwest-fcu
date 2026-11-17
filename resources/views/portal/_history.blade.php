@@ -54,7 +54,7 @@
                     <td>
                         <a class="main" href="{{ route('transactions.show', $r['tx']->reference) }}">{{ $r['title'] }}</a>
                         @if ($r['tx']->status->value !== 'completed')<span class="chip {{ $r['tx']->status->value }}">{{ $labels[$r['tx']->status->value] ?? '' }}</span>@endif
-                        @if ($r['tx']->memo)<small>{{ $r['tx']->memo }}</small>@endif
+                        @if ($r['tx']->memberMemo())<small>{{ $r['tx']->memberMemo() }}</small>@endif
                     </td>
                     @unless ($account)<td class="hide-s">{{ $r['account']->nickname }}<small>{{ $r['account']->masked() }}</small></td>@endunless
                     <td class="num {{ $r['cents'] > 0 ? 'in' : '' }}">{{ $r['cents'] > 0 ? '+' : '-' }}@money(abs($r['cents']))</td>

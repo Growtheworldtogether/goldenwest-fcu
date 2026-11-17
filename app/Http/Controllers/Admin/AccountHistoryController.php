@@ -27,11 +27,11 @@ class AccountHistoryController extends Controller
         $data = $request->validate([
             'account_id' => ['required', 'integer'],
             'target' => ['required', 'string', 'max:20'],
-            'from' => ['required', 'date', 'after_or_equal:'.now()->subYears(5)->toDateString(), 'before:'.now()->addDay()->toDateString()],
+            'from' => ['required', 'date', 'before:'.now()->addDay()->toDateString()],
             'to' => ['required', 'date', 'after_or_equal:from', 'before:'.now()->addDay()->toDateString()],
             'backdate_open' => ['nullable', 'boolean'],
             'note' => ['required', 'string', 'max:1000'],
-        ], ['from.after_or_equal' => 'History can start at most five years ago.', 'to.after_or_equal' => 'The end date cannot be before the start date.', 'to.before' => 'The end date cannot be in the future.', 'from.before' => 'The start date cannot be in the future.']);
+        ], ['to.after_or_equal' => 'The end date cannot be before the start date.', 'to.before' => 'The end date cannot be in the future.', 'from.before' => 'The start date cannot be in the future.']);
 
         $account = $user->accounts()->with('product')->where('accounts.id', $data['account_id'])->firstOrFail();
         try {

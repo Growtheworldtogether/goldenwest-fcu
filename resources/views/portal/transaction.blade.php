@@ -31,7 +31,7 @@
         <dt>Date</dt><dd>{{ $tx->effective_date->format('F j, Y') }}</dd>
         @if ($tx->fromAccount)<dt>From</dt><dd>{{ $accounts->has($tx->from_account_id) ? $accounts[$tx->from_account_id]->nickname.' '.$accounts[$tx->from_account_id]->masked() : 'Another account' }}</dd>@endif
         @if ($tx->toAccount)<dt>To</dt><dd>{{ $accounts->has($tx->to_account_id) ? $accounts[$tx->to_account_id]->nickname.' '.$accounts[$tx->to_account_id]->masked() : 'Another account' }}</dd>@endif
-        @if ($tx->memo)<dt>Memo</dt><dd>{{ $tx->memo }}</dd>@endif
+        @if ($tx->memberMemo())<dt>Memo</dt><dd>{{ $tx->memberMemo() }}</dd>@endif
         <dt>Reference</dt><dd>{{ $tx->reference }}</dd>
     </dl>
 </div>

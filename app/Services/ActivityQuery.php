@@ -42,7 +42,7 @@ final class ActivityQuery
         }
 
         $q = Transaction::query()
-            ->with(['fromAccount', 'toAccount', 'entries'])
+            ->with(['fromAccount', 'toAccount', 'entries', 'initiator'])
             ->where(fn ($w) => $w->whereIn('from_account_id', $ids)->orWhereIn('to_account_id', $ids));
 
         if ($group = $request->query('type')) {
@@ -70,7 +70,7 @@ final class ActivityQuery
         if (($text = trim((string) $request->query('q', ''))) !== '') {
             $q->where(function ($w) use ($text) {
                 $like = '%'.str_replace(['%', '_'], ['\\%', '\\_'], $text).'%';
-                $w->where('member_description', 'like', $like)->orWhere('memo', 'like', $like);
+                $w->where('member_description', 'like', $like)->orWhere(fn ($m) => $m->where('memo', 'like', $like)->whereDoesntHave('initiator', fn ($i) => $i->whereHas('adminProfile')));
                 if (preg_match('/^\$?[\d,]+(\.\d{1,2})?$/', $text)) {
                     $w->orWhere('amount', Money::parse($text)->cents);
                 }
