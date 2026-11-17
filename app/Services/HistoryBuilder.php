@@ -24,12 +24,17 @@ final class HistoryBuilder
 
     private const BILLS = [['Electric utility', 7], ['Internet service', 5], ['Wireless phone', 4], ['Water and sewer', 3]];
 
+    public const VOLUMES = ['few' => 'A little', 'medium' => 'A medium amount', 'many' => 'A lot'];
+
     private Randomizer $rng;
 
+    private string $volume = 'medium';
+
     /** @return list<array{type: TransactionType, direction: string, amount: int, at: CarbonImmutable, description: string}> */
-    public static function build(string $kind, CarbonImmutable $from, CarbonImmutable $to, int $target, int $seed): array
+    public static function build(string $kind, CarbonImmutable $from, CarbonImmutable $to, int $target, int $seed, string $volume = 'medium'): array
     {
         $b = new self;
+        $b->volume = isset(self::VOLUMES[$volume]) ? $volume : 'medium';
         $b->rng = new Randomizer(new Mt19937($seed));
         $from = $from->startOfDay();
         $to = $to->startOfDay();
@@ -55,21 +60,23 @@ final class HistoryBuilder
         // Spending events, each with a weight; amounts are shared out by weight so the total is exact.
         $events = [];
         $weeks = max(1, intdiv($days, 7));
-        for ($i = 0, $k = $weeks * 3 + 2; $i < $k; $i++) {
+        $perWeek = ['few' => 1, 'medium' => 3, 'many' => 7][$this->volume];
+        for ($i = 0, $k = $weeks * $perWeek + 2; $i < $k; $i++) {
             $cat = $this->rng->pickArrayKeys(self::MERCHANTS, 1)[0];
             $name = self::MERCHANTS[$cat][$this->rng->getInt(0, count(self::MERCHANTS[$cat]) - 1)];
             $w = match ($cat) { 'groceries' => $this->rng->getInt(6, 14), 'dining' => $this->rng->getInt(2, 5), 'fuel' => $this->rng->getInt(4, 7), 'health' => $this->rng->getInt(3, 8), default => $this->rng->getInt(3, 10) };
             $events[] = ['type' => TransactionType::CardPurchase, 'desc' => $name, 'w' => $w * $this->rng->getInt(70, 130), 'at' => $from->addDays($this->rng->getInt(0, $days))];
         }
         for ($m = $from->startOfMonth(); $m <= $to; $m = $m->addMonth()) {
-            foreach (self::BILLS as [$name, $w]) {
+            $bills = match ($this->volume) { 'few' => array_slice(self::BILLS, 0, 2), 'many' => [...self::BILLS, ['Renters insurance', 4], ['Gym and fitness club', 3]], default => self::BILLS };
+            foreach ($bills as [$name, $w]) {
                 $at = $m->addDays($this->rng->getInt(2, 24));
                 if ($at >= $from && $at <= $to) {
                     $events[] = ['type' => TransactionType::BillPayment, 'desc' => $name, 'w' => $w * $this->rng->getInt(90, 110), 'at' => $at];
                 }
             }
         }
-        for ($d = $this->rng->getInt(2, 9); $d <= $days; $d += 14) {
+        for ($d = $this->rng->getInt(2, 9); $d <= $days; $d += ['few' => 30, 'medium' => 14, 'many' => 7][$this->volume]) {
             $events[] = ['type' => TransactionType::Withdrawal, 'desc' => 'ATM withdrawal', 'w' => 5 * $this->rng->getInt(80, 120), 'at' => $from->addDays($d)];
         }
 
@@ -118,6 +125,7 @@ final class HistoryBuilder
         } elseif ($extra < 0) { // cannot happen with dropped debits only; kept for safety
             $kept[] = $this->row(TransactionType::Deposit, 'credit', -$extra, $to->setTime(9, 0), 'Deposit');
         }
+        usort($kept, fn ($a, $b) => $a['at'] <=> $b['at']);
 
         return $kept;
     }
@@ -127,8 +135,13 @@ final class HistoryBuilder
         $starts = [];
         for ($m = $from->startOfMonth(); $m <= $to; $m = $m->addMonth()) {
             $at = $m->addDays($this->rng->getInt(0, 4));
-            if ($at >= $from && $at <= $to) {
-                $starts[] = $at;
+            if ($this->volume === 'few' && $m->month % 3 !== 0) {
+                continue;
+            }
+            foreach ($this->volume === 'many' ? [$at, $at->addDays(14)] : [$at] as $when) {
+                if ($when >= $from && $when <= $to) {
+                    $starts[] = $when;
+                }
             }
         }
         $starts = $starts ?: [$from];

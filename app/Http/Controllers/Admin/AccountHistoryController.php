@@ -29,6 +29,7 @@ class AccountHistoryController extends Controller
             'target' => ['required', 'string', 'max:20'],
             'from' => ['required', 'date', 'before:'.now()->addDay()->toDateString()],
             'to' => ['required', 'date', 'after_or_equal:from', 'before:'.now()->addDay()->toDateString()],
+            'volume' => ['required', 'in:few,medium,many'],
             'backdate_open' => ['nullable', 'boolean'],
             'note' => ['required', 'string', 'max:1000'],
         ], ['to.after_or_equal' => 'The end date cannot be before the start date.', 'to.before' => 'The end date cannot be in the future.', 'from.before' => 'The start date cannot be in the future.']);
@@ -51,7 +52,7 @@ class AccountHistoryController extends Controller
         $kind = $account->product->kind === 'share_draft' ? 'checking' : 'savings';
         $from = CarbonImmutable::parse($data['from'], config('app.timezone'));
         $to = CarbonImmutable::parse($data['to'], config('app.timezone'));
-        $rows = HistoryBuilder::build($kind, $from, $to, $target->cents, $seed);
+        $rows = HistoryBuilder::build($kind, $from, $to, $target->cents, $seed, $data['volume']);
 
         try {
             $ledger->postHistory($account->id, $rows, $request->user());
@@ -63,7 +64,7 @@ class AccountHistoryController extends Controller
         }
         Audit::record('account.history_added', $account, null, [
             'target' => $target->cents, 'from' => $from->toDateString(), 'to' => $to->toDateString(), 'count' => count($rows),
-            'seed' => $seed, 'backdated_open' => $request->boolean('backdate_open'), 'note' => $data['note'],
+            'seed' => $seed, 'volume' => $data['volume'], 'backdated_open' => $request->boolean('backdate_open'), 'note' => $data['note'],
         ], $request->user()->id);
 
         return back()->with('status', count($rows).' transactions were added from '.$from->format('M j, Y').' to '.$to->format('M j, Y').'. The account now has '.$target->format().'.');

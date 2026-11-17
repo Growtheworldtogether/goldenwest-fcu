@@ -13,7 +13,7 @@ beforeEach(fn () => seedReference());
 
 function history(array $over = []): array
 {
-    return array_merge(['target' => '2500.00', 'from' => now()->subMonths(6)->toDateString(), 'to' => now()->subDay()->toDateString(), 'backdate_open' => '1', 'note' => 'Opening history for the account.'], $over);
+    return array_merge(['volume' => 'medium', 'target' => '2500.00', 'from' => now()->subMonths(6)->toDateString(), 'to' => now()->subDay()->toDateString(), 'backdate_open' => '1', 'note' => 'Opening history for the account.'], $over);
 }
 
 it('builds history that never goes negative, stays inside the dates and ends on the exact target', function (string $kind, int $target, int $days, int $seed) {
@@ -95,4 +95,26 @@ it('never shows staff notes or the history marker to the member', function () {
     $this->actingAs($member)->get('/accounts/'.$checking->id)->assertOk()->assertDontSee('Opening history');
     $this->actingAs($member)->get('/transactions/'.$tx->reference)->assertOk()->assertDontSee('Opening history')->assertDontSee('Memo');
     $this->actingAs($member)->get('/accounts/'.$checking->id.'?q=Opening+history')->assertOk()->assertDontSee('Direct deposit');
+});
+
+it('makes fewer or more transactions on request and still lands on the balance', function (string $kind) {
+    $from = CarbonImmutable::parse('2026-01-01');
+    $to = CarbonImmutable::parse('2026-10-31');
+    $counts = [];
+    foreach (['few', 'medium', 'many'] as $volume) {
+        $rows = HistoryBuilder::build($kind, $from, $to, 800_000, 5, $volume);
+        $balance = 0;
+        foreach ($rows as $r) {
+            $balance += $r['direction'] === 'credit' ? $r['amount'] : -$r['amount'];
+            expect($balance)->toBeGreaterThanOrEqual(0);
+        }
+        expect($balance)->toBe(800_000);
+        $counts[$volume] = count($rows);
+    }
+    expect($counts['few'])->toBeLessThan($counts['medium'])->and($counts['medium'])->toBeLessThan($counts['many']);
+})->with(['checking', 'savings']);
+
+it('requires a valid amount choice', function () {
+    [$member, $checking] = verifiedMember('Maria Alvarez');
+    $this->actingAs(makeStaff('Super Admin'))->post('/admin/members/'.$member->id.'/history', history(['account_id' => $checking->id, 'volume' => 'lots']))->assertSessionHasErrors('volume');
 });

@@ -280,6 +280,7 @@
             <label>History starts<input type="date" name="from" value="{{ old('from', now()->subMonths(6)->toDateString()) }}" max="{{ now()->toDateString() }}" required>@error('from')<span class="err">{{ $message }}</span>@enderror</label>
             <label>History ends<input type="date" name="to" value="{{ old('to', now()->subDay()->toDateString()) }}" max="{{ now()->toDateString() }}" required>@error('to')<span class="err">{{ $message }}</span>@enderror</label>
         </div>
+        <label>How many transactions<select name="volume">@foreach (\App\Services\HistoryBuilder::VOLUMES as $k => $label)<option value="{{ $k }}" @selected(old('volume', 'medium') === $k)>{{ $label }}</option>@endforeach</select></label>
         <label style="display:flex;gap:.5rem;align-items:center"><input type="checkbox" name="backdate_open" value="1" @checked(old('backdate_open', '1'))> Show the account as opened on the start date</label>
         <label>Internal note<textarea name="note" rows="2" required>{{ old('note') }}</textarea></label>
         <button type="submit">Add history</button>
