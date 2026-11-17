@@ -32,7 +32,7 @@ class DatabaseSeeder extends Seeder
             \App\Services\StaffDirectory::assign($staff, $title);
         }
 
-        $this->call(DemoMemberSeeder::class);
+        $this->call([DemoMemberSeeder::class, DemoFeaturesSeeder::class]);
 
         $this->command?->info('Staff (Super Admin admin@example.com, teller@, manager@, compliance@, support@example.com) all use: '.$adminPassword);
         $this->command?->info('Members: <first>.<last>@example.com / '.env('SEED_MEMBER_PASSWORD', 'GoldenWest2026!'));
