@@ -18,6 +18,7 @@
         @can('staff.impersonate', $member)<button type="button" class="btn-s gold" data-open="dlg-act">Log in as member</button>@endcan
         @can('staff.postDeposits')<button type="button" class="btn-s plain" data-open="dlg-cash">Cash deposit</button>@endcan
         @can('staff.canAdjust')<button type="button" class="btn-s plain" data-open="dlg-adjust">Adjust balance</button>@endcan
+        @if ($member->status !== 'deceased')@can('staff.lockAccounts')<button type="button" class="btn-s plain" data-open="dlg-deceased">Mark as deceased</button>@endcan @endif
         @can('staff.lockAccounts')<button type="button" class="btn-s plain" data-open="dlg-lock">Lock</button>@endcan
     </div>
 </div>
@@ -148,6 +149,33 @@
         </div>
 
         <div class="panel-card">
+            <h3>Holders and beneficiaries</h3>
+            @foreach ($jointInfo as $accountId => $info)
+                @php($acct = $accounts->firstWhere('id', $accountId))
+                <div class="item"><b>{{ $acct->nickname }}</b> <small>{{ $acct->masked() }}</small>
+                    @foreach ($info['holders'] as $h)
+                        <small style="display:block">{{ $h->role === 'primary' ? 'Primary' : 'Joint' }}: <a class="plink" href="{{ route('admin.members.show', $h->user) }}">{{ $h->user->name }}</a></small>
+                        @if ($info['holders']->count() > 1 && $h->user_id === $member->id)
+                            @can('staff.approveJoint')
+                            <details class="act"><summary>Take {{ $member->first_name ?? 'this member' }} off this account</summary>
+                                <form class="sform" method="post" action="{{ route('admin.joint.remove', $member) }}">@csrf<input type="hidden" name="account_id" value="{{ $accountId }}">
+                                    <label>Reason<select name="reason_code">@foreach ($lockReasons as $k => $l)<option value="{{ $k }}">{{ $l }}</option>@endforeach</select></label>
+                                    <label>What we found<textarea name="reason_text" rows="2" maxlength="500" required></textarea></label>
+                                    <button type="submit" class="plain">Remove holder</button></form></details>
+                            @endcan
+                        @endif
+                    @endforeach
+                    @forelse ($info['beneficiaries'] as $b)
+                        <small style="display:block">Beneficiary: {{ $b->name }} ({{ \App\Services\BeneficiaryService::TIERS[$b->tier] }}, {{ $b->share_percent }}%)</small>
+                    @empty
+                        <small style="display:block">No beneficiaries named.</small>
+                    @endforelse
+                </div>
+            @endforeach
+            @if ($member->status === 'deceased')<p class="item"><span class="chip rejected">Marked deceased {{ $member->deceased_at?->format('M j, Y') }}</span></p>@endif
+        </div>
+
+        <div class="panel-card">
             <h3>Identity documents</h3>
             @forelse ($kycDocs as $d)
                 <p class="item">@can('staff.reviewKyc')<a class="plink" href="{{ route('admin.kyc.show', $d) }}">{{ $d->typeLabel() }}</a>@else{{ $d->typeLabel() }}@endcan <span class="chip {{ ['approved' => 'completed', 'rejected' => 'rejected'][$d->status] ?? 'pending' }}">{{ $d->status }}</span></p>
@@ -215,6 +243,14 @@
         <label>Amount<input name="amount" inputmode="decimal" placeholder="0.00" required></label>
         <label>Note (optional)<input name="note" maxlength="200"></label>
         <button type="submit" class="gold">Record deposit</button>
+    </form></dialog>
+@endcan
+@can('staff.lockAccounts')
+<dialog id="dlg-deceased"><div class="dh"><h3>Mark as deceased</h3><button type="button" class="x" data-close aria-label="Close">&times;</button></div>
+    <form class="sform" method="post" action="{{ route('admin.deceased', $member) }}">@csrf
+        <p class="fine" style="margin:0">Their sign-in stops and their cards are cancelled. Accounts only they hold are fully locked. Joint accounts stay open for the other holder. Payouts are then done with documented adjustments.</p>
+        <label>What was received (for example the death certificate)<textarea name="note" rows="3" maxlength="1000" required></textarea></label>
+        <button type="submit">Mark as deceased</button>
     </form></dialog>
 @endcan
 @can('staff.canAdjust')

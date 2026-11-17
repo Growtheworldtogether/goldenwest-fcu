@@ -38,6 +38,7 @@ class DashboardController extends Controller
             'waiting' => $waiting,
             'locks' => AccountRestriction::active()->where(fn ($q) => $q->where('user_id', $request->user()->id)->orWhereIn('account_id', $ids))->with('account')->get(),
             'reasons' => ReasonCode::pluck('label', 'code'),
+            'jointAlerts' => \App\Models\JointRequest::with(['account', 'requester'])->where('subject_user_id', $request->user()->id)->whereIn('status', ['invited', 'consent'])->get(),
         ]);
     }
 }

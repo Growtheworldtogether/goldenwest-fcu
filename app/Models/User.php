@@ -23,7 +23,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /** Accounts this user holds, through account_holders. */
     public function accounts(): BelongsToMany
     {
-        return $this->belongsToMany(Account::class, 'account_holders')->withPivot(['role', 'status']);
+        return $this->belongsToMany(Account::class, 'account_holders')->withPivot(['role', 'status'])->wherePivot('status', 'active');
     }
 
     public function profile(): \Illuminate\Database\Eloquent\Relations\HasOne

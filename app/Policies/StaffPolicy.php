@@ -22,6 +22,7 @@ class StaffPolicy
     public function approveCards(User $u): bool { return $this->has($u, 'approvals.manage'); }
     public function approveLoans(User $u): bool { return $this->has($u, 'approvals.manage'); }
     public function approveCrypto(User $u): bool { return $this->has($u, 'approvals.manage'); }
+    public function approveJoint(User $u): bool { return $this->has($u, 'approvals.manage'); }
     public function reviewKyc(User $u): bool { return $this->has($u, 'kyc.review'); }
     /** Ending a new external account's waiting period early is a manager decision. */
     public function waivePayeeWait(User $u): bool { return $this->has($u, 'transactions.approve'); }

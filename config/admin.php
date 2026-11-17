@@ -15,7 +15,7 @@ return [
         'audit.view' => 'View audit log',
         'credentials.reset' => 'Reset credentials',
         'tickets.answer' => 'Answer inquiries and tickets',
-        'approvals.manage' => 'Approve cards, loans and crypto sends',
+        'approvals.manage' => 'Approve cards, loans, crypto sends and joint holders',
         'features.toggle' => 'Toggle per-user features',
         'impersonate' => 'Log in as member',
         'site.edit' => 'Edit branding and public site content',

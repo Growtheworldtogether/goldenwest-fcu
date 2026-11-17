@@ -45,6 +45,7 @@
         'palette' => '<path d="M12 3a9 9 0 1 0 0 18c1.500 0 2-1 1.500-2-.5-1.200.2-2.500 1.700-2.500H17a4 4 0 0 0 4-4C21 6.500 17 3 12 3z"/><circle cx="7.500" cy="11" r="1"/><circle cx="10" cy="7.500" r="1"/><circle cx="14.500" cy="7.500" r="1"/>',
         'pages' => '<rect x="4" y="3" width="16" height="18" rx="1.500"/><path d="M8 8h8M8 12h8M8 16h5"/>',
         'coin' => '<circle cx="12" cy="12" r="9"/><path d="M14.500 9.200c-.5-.8-1.400-1.200-2.500-1.200-1.500 0-2.500.8-2.500 2s1 1.700 2.500 2 2.500.8 2.500 2-1 2-2.500 2c-1.100 0-2-.4-2.500-1.200M12 6.500V8M12 16v1.500"/>',
+        'people' => '<circle cx="9" cy="8" r="3"/><path d="M3 19c0-3 2.500-5 6-5s6 2 6 5M16 5.500a3 3 0 0 1 0 5.500M21 19c0-2.300-1.300-3.900-3.500-4.600"/>',
         'phone' => '<path d="M5 4h4l2 5-2.500 1.500a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
     ];
     $staffMode = request()->routeIs('admin.*');
@@ -56,6 +57,7 @@
         ['admin.loans.index', 'Loans', 'loan', ['admin.loans.*'], 'staff.approveLoans'],
         ['admin.cards.index', 'Cards', 'card', ['admin.cards.*'], 'staff.approveCards'],
         ['admin.crypto.index', 'Crypto', 'coin', ['admin.crypto.*'], 'staff.approveCrypto'],
+        ['admin.joint.index', 'Joint accounts', 'people', ['admin.joint.*'], 'staff.approveJoint'],
         ['admin.tickets.index', 'Tickets', 'ticket', ['admin.tickets.*'], 'staff.answerInquiries'],
         ['admin.announcements.index', 'Announcements', 'megaphone', ['admin.announcements.*'], 'staff.manageAdmin'],
         ['admin.inquiries.index', 'Inquiries', 'inbox', ['admin.inquiries.*'], 'staff.answerInquiries'],
@@ -75,6 +77,7 @@
         ['deposits.index', 'Deposit', 'deposit', ['deposits.*', 'payees.*', 'kyc.*', 'transfers.external*']],
         ['accounts.create', 'Open an account', 'open', ['accounts.create']],
         ['bills.index', 'Bill pay', 'bill', ['bills.*']],
+        ['beneficiaries.index', 'Beneficiaries', 'people', ['beneficiaries.*', 'joint.*']],
         ['goals.index', 'Goals', 'goal', ['goals.*']],
         ['insights.index', 'Insights', 'chart', ['insights.*', 'overdraft.*']],
         ['card.show', 'Card', 'card', ['card.*']],

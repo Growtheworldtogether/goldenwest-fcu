@@ -32,6 +32,16 @@
                 <dl class="kvlist" style="padding:.8rem 0 0"><dt>Routing</dt><dd>121478906</dd><dt>Account</dt><dd>{{ $account->account_number }}</dd></dl>
             </details>
         </div>
+        @php($holders = app(\App\Services\JointService::class)->activeHolders($account))
+        @php($benCount = app(\App\Services\BeneficiaryService::class)->forAccount($account)->count())
+        <div class="panel-card flush">
+            <h2 class="railhead">Holders and beneficiaries</h2>
+            <dl class="kvlist">
+                @foreach ($holders as $h)<dt>{{ $h->role === 'primary' ? 'Primary holder' : 'Joint holder' }}</dt><dd>{{ $h->user->name }}</dd>@endforeach
+                <dt>Beneficiaries</dt><dd>{{ $benCount ? $benCount.' named' : 'None named' }}</dd>
+            </dl>
+            <p style="padding:0 1.25rem 1.1rem;margin:0"><a class="plink" href="{{ route('beneficiaries.edit', $account) }}">Manage beneficiaries</a> &middot; <a class="plink" href="{{ route('joint.index', ['account' => $account->id]) }}">{{ $holders->count() > 1 ? 'Joint holders' : 'Add a joint holder' }}</a></p>
+        </div>
     </aside>
 </div>
 @endsection

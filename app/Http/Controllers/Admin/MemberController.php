@@ -63,6 +63,10 @@ class MemberController extends Controller
             'cryptoWallets' => \App\Models\CryptoWallet::where('user_id', $user->id)->get()->keyBy('asset_id'),
             'cryptoAddresses' => \App\Models\CryptoAddress::with('asset')->where('user_id', $user->id)->whereIn('status', ['requested', 'active'])->orderBy('asset_id')->get(),
             'cryptoTx' => \App\Models\CryptoTransaction::with('asset')->where('user_id', $user->id)->latest('id')->limit(8)->get(),
+            'jointInfo' => $accounts->where('type', 'standard')->mapWithKeys(fn ($a) => [$a->id => [
+                'holders' => app(\App\Services\JointService::class)->activeHolders($a),
+                'beneficiaries' => app(\App\Services\BeneficiaryService::class)->forAccount($a),
+            ]]),
             'cards' => \App\Models\Card::where('user_id', $user->id)->latest('id')->get(),
             'payees' => \App\Models\Payee::where('user_id', $user->id)->where('status', 'active')->orderBy('name')->get(),
             'kycDocs' => \App\Models\KycDocument::where('user_id', $user->id)->where('status', '!=', 'replaced')->latest('id')->get(),

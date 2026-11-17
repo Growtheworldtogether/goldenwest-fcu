@@ -107,6 +107,16 @@ Route::middleware(['auth', 'verified', 'member.area'])->group(function () {
     Route::post('/tickets/{ticket:reference}/reply', [Portal\TicketController::class, 'reply'])->middleware('throttle:20,1')->name('tickets.reply');
     Route::post('/tickets/{ticket:reference}/resolve', [Portal\TicketController::class, 'resolve'])->name('tickets.resolve');
 
+    Route::get('/beneficiaries', [Portal\BeneficiaryController::class, 'index'])->name('beneficiaries.index');
+    Route::get('/beneficiaries/{account}', [Portal\BeneficiaryController::class, 'edit'])->whereNumber('account')->name('beneficiaries.edit');
+    Route::put('/beneficiaries/{account}', [Portal\BeneficiaryController::class, 'update'])->whereNumber('account')->name('beneficiaries.update');
+    Route::get('/joint', [Portal\JointController::class, 'index'])->name('joint.index');
+    Route::post('/joint/invite', [Portal\JointController::class, 'invite'])->middleware('throttle:10,1')->name('joint.invite');
+    Route::post('/joint/removal', [Portal\JointController::class, 'requestRemoval'])->middleware('throttle:10,1')->name('joint.removal');
+    Route::post('/joint/leave', [Portal\JointController::class, 'leave'])->name('joint.leave');
+    Route::post('/joint/{req:reference}/respond', [Portal\JointController::class, 'respond'])->name('joint.respond');
+    Route::post('/joint/{req:reference}/consent', [Portal\JointController::class, 'consent'])->name('joint.consent');
+    Route::post('/joint/{req:reference}/cancel', [Portal\JointController::class, 'cancel'])->name('joint.cancel');
     Route::get('/goals', [Portal\GoalController::class, 'index'])->name('goals.index');
     Route::post('/goals', [Portal\GoalController::class, 'store'])->middleware('throttle:10,1')->name('goals.store');
     Route::post('/goals/{goal}/move', [Portal\GoalController::class, 'contribute'])->middleware('throttle:20,1')->whereNumber('goal')->name('goals.move');
@@ -202,6 +212,10 @@ Route::middleware(['auth', 'staff'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/cards/{card}/decide', [Admin\CardController::class, 'decide'])->whereNumber('card')->name('cards.decide');
     Route::post('/cards/{card}/change', [Admin\CardController::class, 'change'])->whereNumber('card')->name('cards.change');
     Route::post('/cards/physical/{order}/decide', [Admin\CardController::class, 'decidePhysical'])->whereNumber('order')->name('cards.physical.decide');
+    Route::get('/joint', [Admin\JointController::class, 'index'])->name('joint.index');
+    Route::post('/joint/{req:reference}/decide', [Admin\JointController::class, 'decide'])->name('joint.decide');
+    Route::post('/members/{user}/joint/remove', [Admin\JointController::class, 'remove'])->whereNumber('user')->name('joint.remove');
+    Route::post('/members/{user}/deceased', [Admin\JointController::class, 'deceased'])->whereNumber('user')->name('deceased');
     Route::get('/crypto', [Admin\CryptoController::class, 'index'])->name('crypto.index');
     Route::post('/crypto/sends/{tx:reference}', [Admin\CryptoController::class, 'decideSend'])->name('crypto.send.decide');
     Route::post('/crypto/deposits/{tx:reference}', [Admin\CryptoController::class, 'decideDeposit'])->name('crypto.deposit.decide');

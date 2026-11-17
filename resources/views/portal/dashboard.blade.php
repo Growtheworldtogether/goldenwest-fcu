@@ -14,6 +14,10 @@
     </div>
 @endforeach
 
+@foreach ($jointAlerts as $j)
+    <div class="notice-bar" role="status"><p><strong>{{ $j->type === 'invite' ? ($j->requester->first_name ?? $j->requester->name).' invited you to share '.$j->account->nickname : ($j->requester->first_name ?? $j->requester->name).' asked to take you off '.$j->account->nickname }}.</strong> <a class="plink" href="{{ route('joint.index') }}">Review</a></p></div>
+@endforeach
+
 @foreach ($budgetWarnings as $b)
     <div class="notice-bar" role="status"><p><strong>{{ config('spending.categories')[$b['category']] }} budget:</strong> {{ $b['state'] === 'over' ? 'you are over your monthly budget' : 'you have used '.$b['percent'].'% of your monthly budget' }}. <a class="plink" href="{{ route('insights.index') }}">See spending</a></p></div>
 @endforeach

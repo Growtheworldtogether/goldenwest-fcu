@@ -34,6 +34,15 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
+        // The default check, plus: a member recorded as deceased can no longer sign in.
+        Fortify::authenticateUsing(function (Request $request) {
+            $user = \App\Models\User::where(Fortify::username(), $request->input(Fortify::username()))->first();
+            if ($user && \Illuminate\Support\Facades\Hash::check((string) $request->input('password'), $user->password) && $user->status !== 'deceased') {
+                return $user;
+            }
+
+            return null;
+        });
         Fortify::loginView(fn () => view('auth.login'));
         Fortify::registerView(fn () => view('auth.register', ['fields' => \App\Services\SiteContent::resolve(CreateNewUser::FIELDS)]));
         Fortify::requestPasswordResetLinkView(fn () => view('auth.forgot-password'));

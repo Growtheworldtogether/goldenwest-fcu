@@ -38,7 +38,7 @@ class Account extends Model
     /** Every policy and query that asks "who owns this" reads account_holders. */
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'account_holders')->withPivot(['role', 'status']);
+        return $this->belongsToMany(User::class, 'account_holders')->withPivot(['role', 'status'])->wherePivot('status', 'active');
     }
 
     public function overdraftAccount(): BelongsTo
