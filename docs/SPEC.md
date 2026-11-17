@@ -16,7 +16,7 @@ Golden West Federal Credit Union is a fictional, member-owned credit union servi
 - **Optional features sit behind per-user flags** that an admin switches on. The virtual card appears only after a member requests it and an admin approves it.
 - **Admin can log in as a member** (impersonation), with strict safeguards (section 2).
 - **Joining and opening accounts is free.** There is no opening deposit.
-- **No branch locator.** The product has no branch locator, map or location pages, and its copy never says the credit union has no branches.
+- **No branch locator.** The product has no branch locator, map or location pages. Marketing copy presents Golden West as an established multi-state credit union with a branch network, and never says it has no branches.
 - **Simulation notice:** the footer and Terms state that this is an academic project and that no real money, securities or cryptocurrency is involved.
 
 **Scope at a glance**
@@ -350,3 +350,11 @@ Build in this order and do not start a milestone until the check of the previous
 **If time runs short, cut in this order:** joint-account screens, spending insights, crypto, loans. Do not cut the ledger, the audit log, reasons on decisions, tickets or the policy tests.
 
 **Simplifications to list in the README:** one routing number for the whole credit union, simulated ACH and wire settlement, fake card number range, simulated crypto with no real wallets or keys, and no real identity verification.
+
+## 11. Content standards
+
+- One brand everywhere: every public page extends `resources/views/layouts/site.blade.php`, so the header, footer, colors and type never drift.
+- No wording such as fictional, demo, test, placeholder or sample anywhere in the visible interface. The only project notice is the small legal line at the bottom of the footer.
+- Copy reads like an established US retail credit union: heritage, security, branch network, personal and business banking, member trust.
+- No claim of federal deposit insurance and no use of real insurance or lender logos.
+- Seed data uses realistic US names, believable balances and recognizable merchants (Whole Foods Market, Con Edison, Delta Air Lines). Routing numbers are nine digits with a valid check digit in an unassigned range (999999992); account numbers are ten to twelve digits. Never "User 1" or "Test Transaction".

@@ -38,16 +38,16 @@ h1, h2, h3 { margin: 0; line-height: 1.08; }
 /* Photo slots. A real file at data-img replaces the placeholder (script below). */
 .photo { position: relative; overflow: hidden; background-color: #cdd5ea; background-size: cover; background-position: center; }
 .photo:not(.has-img)::before { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, #dfe5f5 0%, #b9c4e6 100%); }
-.photo:not(.has-img)::after { content: attr(data-label); position: absolute; left: 14px; bottom: 12px; font: 500 .8125rem var(--sans); color: #3b4680; background: rgba(255,255,255,.7); padding: 2px 8px; border-radius: 3px; }
 
 /* ---------- Identity strip ---------- */
 .idstrip { background: #fff; position: relative; z-index: 31; }
 .idnote { padding-left: var(--pad); }
 .idnote summary { display: flex; align-items: center; gap: .6rem; min-height: 58px; cursor: pointer; list-style: none; font-size: .9375rem; color: #2a2d36; }
 .idnote summary::-webkit-details-marker { display: none; }
-.idnote summary svg { color: var(--navy); }
-.idnote[open] summary svg { transform: rotate(180deg); }
-.idmark { font-weight: 900; font-size: 1.5rem; color: var(--navy); letter-spacing: -.02em; }
+.idnote summary > svg:last-child { color: var(--navy); flex: none; }
+.idnote[open] summary > svg:last-child { transform: rotate(180deg); }
+.idicon { color: var(--navy); flex: none; }
+.idnote p a { color: var(--blue); }
 .idnote p { position: absolute; left: var(--pad); top: 52px; margin: 0; max-width: 34rem; padding: .85rem 1rem; background: #fff; border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 8px 20px rgba(20,26,74,.12); font-size: .9375rem; }
 
 /* ---------- Header ---------- */
@@ -168,7 +168,7 @@ h1, h2, h3 { margin: 0; line-height: 1.08; }
 .apps { display: flex; gap: .75rem; flex-wrap: wrap; margin: 0 0 1.4rem; }
 .app { background: #111; color: #fff; text-decoration: none; font-size: .875rem; font-weight: 600; padding: .6rem 1rem; border-radius: 6px; border: 1px solid #555; }
 .app:hover { background: #2b2d33; }
-.sim-note { margin: 2.5rem 0 0; padding-top: 1.25rem; border-top: 1px solid var(--line); font-size: .875rem; color: var(--muted); max-width: 60rem; }
+.legal, .sim-note { margin: 2.5rem 0 0; padding-top: 1.25rem; border-top: 1px solid var(--line); font-size: .8125rem; color: #6a7080; max-width: 60rem; }
 .totop { position: absolute; right: 3rem; bottom: 2.25rem; width: 48px; height: 48px; display: grid; place-items: center; background: #fff; border-radius: 6px; box-shadow: 0 3px 12px rgba(20,26,74,.2); color: var(--navy); }
 .totop:hover { background: #f1f4fc; }
 
