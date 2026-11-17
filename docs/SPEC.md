@@ -400,3 +400,5 @@ Every success, error and info message in the interface appears as a **toast**, n
 - **Announcements:** `/admin/announcements` (Super Admin) with type, audience (everyone or a feature flag), start and end, dismissible or permanent. Members see live ones on the dashboard and can dismiss them.
 - **Security center additions:** devices signed in (live sessions only) with sign-out of other devices, and an emergency lock of all the member's accounts. Both ask for the password. Staff unlock through the normal unlock flow.
 - Not built yet from the security list: new-device email alerts.
+
+- **Card page revision:** card numbers now start with 4 (16 digits, Luhn). The page shows the card beside a details panel; the checkout link was removed from the page (the `/card/pay` route remains). Members can **request a physical card** for an active card (name, mailing address; one order at a time, cancellable while under review). Staff approve and ship, or decline with a reason, on the Physical card orders tab at `/admin/cards`.

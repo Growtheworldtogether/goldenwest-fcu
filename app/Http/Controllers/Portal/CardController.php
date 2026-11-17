@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Portal;
 use App\Http\Controllers\Controller;
 use App\Models\Card;
 use App\Models\CardTransaction;
+use App\Models\PhysicalCardOrder;
 use App\Services\CardService;
 use App\Support\Money;
 use Illuminate\Http\Request;
@@ -39,6 +40,7 @@ class CardController extends Controller
             'checking' => $user->accounts()->where('accounts.status', 'active')->where('accounts.type', 'standard')->whereHas('product', fn ($q) => $q->where('kind', 'share_draft'))->get(),
             'purchases' => $card ? $card->purchases()->limit(10)->get() : collect(),
             'revealed' => session('revealed'),
+            'order' => $card ? PhysicalCardOrder::where('card_id', $card->id)->latest('id')->first() : null,
             'maxDaily' => Money::cents((int) config('bank.card_daily_limit')),
             'maxPurchase' => Money::cents((int) config('bank.card_purchase_limit')),
         ]);
@@ -102,6 +104,31 @@ class CardController extends Controller
         }
 
         return redirect()->route('card.show')->with('toast', ['type' => 'ok', 'message' => 'New card ending '.$new?->last4.' is ready. The old one no longer works.']);
+    }
+
+    public function orderPhysical(Request $request, Card $card, CardService $cards)
+    {
+        $data = $request->validate([
+            'name_on_card' => ['required', 'string', 'max:40', 'regex:/^[A-Za-z .\'-]+$/'],
+            'address_line1' => ['required', 'string', 'max:120'], 'address_line2' => ['nullable', 'string', 'max:120'],
+            'city' => ['required', 'string', 'max:80'], 'state' => ['required', 'alpha', 'size:2'], 'postal_code' => ['required', 'regex:/^\d{5}(-\d{4})?$/'],
+        ], ['name_on_card.regex' => 'Use letters only for the name on the card.', 'postal_code.regex' => 'Enter a 5-digit ZIP code.']);
+        $data['state'] = strtoupper($data['state']);
+
+        if ($fail = $this->guard(fn () => $cards->orderPhysical($this->mine($request, $card), $request->user(), $data))) {
+            return $fail;
+        }
+
+        return redirect()->route('card.show')->with('toast', ['type' => 'ok', 'message' => 'Physical card requested. We will review it and ship it to the address you gave.']);
+    }
+
+    public function cancelPhysical(Request $request, PhysicalCardOrder $order, CardService $cards)
+    {
+        if ($fail = $this->guard(fn () => $cards->cancelPhysical($order, $request->user()))) {
+            return $fail;
+        }
+
+        return back()->with('toast', ['type' => 'info', 'message' => 'Physical card order cancelled.']);
     }
 
     public function merchant(Request $request)

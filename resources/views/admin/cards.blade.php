@@ -7,10 +7,34 @@
 @section('content')
 <nav class="tabs" aria-label="Filter">
     <a href="{{ route('admin.cards.index') }}" @if ($tab === 'requests') aria-current="page" @endif>Requests</a>
+    <a href="{{ route('admin.cards.index', ['tab' => 'physical']) }}" @if ($tab === 'physical') aria-current="page" @endif>Physical card orders</a>
     <a href="{{ route('admin.cards.index', ['tab' => 'all']) }}" @if ($tab === 'all') aria-current="page" @endif>All cards</a>
 </nav>
 <div class="panel-card flush">
-@if ($cards->count())
+@if ($tab === 'physical')
+    @if ($orders->count())
+    <table class="dtable"><thead><tr><th>Member</th><th>Ship to</th><th>Status</th><th></th></tr></thead><tbody>
+    @foreach ($orders as $o)
+        <tr>
+            <td><a class="main" href="{{ route('admin.members.show', $o->user) }}">{{ $o->user->name }}</a><small>Card ending {{ $o->card->last4 }} &middot; {{ $o->created_at->format('M j, g:i a') }}</small></td>
+            <td>{{ $o->name_on_card }}<small>{{ $o->addressLine() }}</small></td>
+            <td><span class="chip {{ ['shipped' => 'completed', 'rejected' => 'rejected'][$o->status] ?? 'pending' }}">{{ ucfirst($o->status) }}</span></td>
+            <td class="go" style="min-width:16rem">
+                @if ($o->status === 'requested')
+                    <form method="post" action="{{ route('admin.cards.physical.decide', $o) }}" style="display:inline">@csrf<input type="hidden" name="decision" value="approve"><button class="btn-s sm" type="submit">Approve and ship</button></form>
+                    <details class="act" style="margin-top:.5rem"><summary>Decline</summary>
+                        <form class="sform" method="post" action="{{ route('admin.cards.physical.decide', $o) }}">@csrf<input type="hidden" name="decision" value="reject">
+                            <label>Reason<select name="reason_code">@foreach ($reasons as $k => $l)<option value="{{ $k }}">{{ $l }}</option>@endforeach</select></label>
+                            <label>Message to the member<textarea name="reason_text" rows="2" maxlength="500" required></textarea></label>
+                            <button type="submit" class="plain">Decline order</button></form>
+                    </details>
+                @endif
+            </td>
+        </tr>
+    @endforeach
+    </tbody></table>
+    @else<div class="empty"><b>Nothing here</b>No physical card orders yet.</div>@endif
+@elseif ($cards->count())
 <div style="overflow-x:auto"><table class="dtable">
     <thead><tr><th>Member</th><th>Account</th><th>Status</th><th>{{ $tab === 'requests' ? 'Requested' : 'Card' }}</th><th></th></tr></thead>
     <tbody>
@@ -40,5 +64,5 @@
 </table></div>
 @else<div class="empty"><b>Nothing here</b>{{ $tab === 'requests' ? 'No card requests are waiting.' : 'No cards yet.' }}</div>@endif
 </div>
-@if ($cards->hasPages())<p class="pager" style="margin-top:1rem">{{ $cards->links() }}</p>@endif
+@if ($tab !== 'physical' && $cards->hasPages())<p class="pager" style="margin-top:1rem">{{ $cards->links() }}</p>@endif
 @endsection

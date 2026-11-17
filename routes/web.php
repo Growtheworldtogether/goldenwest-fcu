@@ -114,6 +114,8 @@ Route::middleware(['auth', 'verified', 'member.area'])->group(function () {
     Route::post('/card/{card}/limits', [Portal\CardController::class, 'limits'])->whereNumber('card')->name('card.limits');
     Route::post('/card/{card}/cancel', [Portal\CardController::class, 'cancel'])->whereNumber('card')->name('card.cancel');
     Route::post('/card/{card}/replace', [Portal\CardController::class, 'replace'])->middleware('throttle:3,1')->whereNumber('card')->name('card.replace');
+    Route::post('/card/{card}/physical', [Portal\CardController::class, 'orderPhysical'])->middleware('throttle:5,1')->whereNumber('card')->name('card.physical');
+    Route::post('/card/physical/{order}/cancel', [Portal\CardController::class, 'cancelPhysical'])->whereNumber('order')->name('card.physical.cancel');
     Route::get('/card/pay', [Portal\CardController::class, 'merchant'])->name('card.pay');
     Route::post('/card/pay', [Portal\CardController::class, 'pay'])->middleware('throttle:30,1')->name('card.pay.store');
     Route::post('/card/purchases/{purchase}/settle', [Portal\CardController::class, 'settle'])->whereNumber('purchase')->name('card.settle');
@@ -160,6 +162,7 @@ Route::middleware(['auth', 'staff'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/cards', [Admin\CardController::class, 'index'])->name('cards.index');
     Route::post('/cards/{card}/decide', [Admin\CardController::class, 'decide'])->whereNumber('card')->name('cards.decide');
     Route::post('/cards/{card}/change', [Admin\CardController::class, 'change'])->whereNumber('card')->name('cards.change');
+    Route::post('/cards/physical/{order}/decide', [Admin\CardController::class, 'decidePhysical'])->whereNumber('order')->name('cards.physical.decide');
     Route::get('/announcements', [Admin\AnnouncementController::class, 'index'])->name('announcements.index');
     Route::post('/announcements', [Admin\AnnouncementController::class, 'store'])->name('announcements.store');
     Route::put('/announcements/{announcement}', [Admin\AnnouncementController::class, 'update'])->whereNumber('announcement')->name('announcements.update');

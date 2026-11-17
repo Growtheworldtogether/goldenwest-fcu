@@ -6,13 +6,10 @@ namespace App\Support;
 
 use InvalidArgumentException;
 
-/**
- * Fake virtual-card numbers. They carry a valid Luhn check digit but start with a
- * prefix that no real card network issues, so they can never collide with a real card.
- */
+/** Virtual-card numbers: 16 digits starting with 4 and carrying a valid Luhn check digit. */
 final class CardNumber
 {
-    public const TEST_PREFIX = '999999';
+    public const TEST_PREFIX = '4';
 
     /** Build a 16-digit number from a serial. Same serial always gives the same number. */
     public static function fromSerial(int $serial, string $prefix = self::TEST_PREFIX): string

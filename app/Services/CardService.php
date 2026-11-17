@@ -6,6 +6,7 @@ use App\Enums\TransactionType;
 use App\Models\Card;
 use App\Models\CardTransaction;
 use App\Models\Decision;
+use App\Models\PhysicalCardOrder;
 use App\Models\ReasonCode;
 use App\Models\User;
 use App\Services\Ledger\TransferException;
@@ -75,7 +76,7 @@ final class CardService
     private function issue(Card $card): void
     {
         do {
-            $serial = random_int(10_000_000, 999_999_999);
+            $serial = random_int(100_000_000_000, 999_999_999_999);
         } while (Card::where('serial', $serial)->exists());
         $number = CardNumber::fromSerial($serial);
         $card->update([
@@ -151,6 +152,49 @@ final class CardService
             Audit::record('card.replaced', $new, ['old_last4' => $card->last4], ['new_last4' => $new->last4], $member->id);
 
             return $new->refresh();
+        });
+    }
+
+    /** Order a physical card for an active card. One order at a time; it ships to the address given. */
+    public function orderPhysical(Card $card, User $member, array $address): PhysicalCardOrder
+    {
+        if ($card->user_id !== $member->id || ! $card->isLive()) {
+            throw new InvalidArgumentException('Your card must be active before you can order a physical one.');
+        }
+        if (PhysicalCardOrder::where('card_id', $card->id)->whereIn('status', ['requested', 'shipped'])->exists()) {
+            throw new InvalidArgumentException('A physical card is already on its way or being reviewed.');
+        }
+        $order = PhysicalCardOrder::create($address + ['card_id' => $card->id, 'user_id' => $member->id, 'status' => 'requested']);
+        Audit::record('card.physical_requested', $card, null, ['city' => $address['city']], $member->id);
+
+        return $order;
+    }
+
+    public function cancelPhysical(PhysicalCardOrder $order, User $member): void
+    {
+        if ($order->user_id !== $member->id || $order->status !== 'requested') {
+            throw new InvalidArgumentException('This order can no longer be cancelled.');
+        }
+        $order->update(['status' => 'cancelled']);
+        Audit::record('card.physical_cancelled', $order->card, null, null, $member->id);
+    }
+
+    public function decidePhysical(PhysicalCardOrder $order, User $staff, bool $approve, ?string $reasonCode = null, ?string $reasonText = null): void
+    {
+        if ($order->status !== 'requested') {
+            throw new InvalidArgumentException('This order was already decided.');
+        }
+        if (! $approve && (! $reasonCode || ! ReasonCode::where('code', $reasonCode)->exists() || trim((string) $reasonText) === '')) {
+            throw ValidationException::withMessages(['reason_text' => 'Choose a reason and tell the member why.']);
+        }
+        DB::transaction(function () use ($order, $staff, $approve, $reasonCode, $reasonText) {
+            Decision::create([
+                'decidable_type' => $order->getMorphClass(), 'decidable_id' => $order->id,
+                'decision' => $approve ? 'approved' : 'rejected', 'reason_code' => $approve ? null : $reasonCode,
+                'reason_text' => $approve ? null : $reasonText, 'decided_by' => $staff->id,
+            ]);
+            $order->update($approve ? ['status' => 'shipped', 'shipped_at' => now()] : ['status' => 'rejected', 'decline_note' => $reasonText]);
+            Audit::record($approve ? 'card.physical_shipped' : 'card.physical_rejected', $order->card, null, ['reason' => $reasonCode], $staff->id);
         });
     }
 

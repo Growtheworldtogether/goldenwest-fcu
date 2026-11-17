@@ -756,3 +756,15 @@ details.more .filters { margin: .75rem 0 0; }
 .notice-bar.ann p{margin:0 0 .15rem}
 .notice-bar.ann.warning{background:#fdecea;border-color:#e3a9a3}
 .notice-bar.ann.maintenance{background:#fff8dc;border-color:#e6cf7a}
+
+/* M6b: card page layout */
+.cardtop{display:grid;grid-template-columns:minmax(0,25rem) minmax(0,1fr);gap:1.25rem;align-items:stretch}
+@media (max-width:800px){.cardtop{grid-template-columns:1fr}}
+.cardtop .vcard{margin:0;width:100%;max-width:none;aspect-ratio:1.586}
+.cardinfo{display:flex;flex-direction:column}
+.cardbtns{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:auto;padding-top:1rem}
+.cardlost{margin-top:1.25rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+.vcard .vc-head{display:flex;justify-content:space-between;align-items:baseline}
+.vcard .vc-type{margin:0;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;opacity:.85}
+.vcard .vc-chip{margin:0;width:2.6rem;height:2rem;border-radius:5px;background:#e2c46b}
+.vcard .vc-num{font-size:1.45rem;white-space:nowrap}

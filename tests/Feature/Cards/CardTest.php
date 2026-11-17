@@ -53,9 +53,9 @@ it('refuses a card request until identity is verified, and a second open card', 
 it('issues a card on approval with a valid fake number stored encrypted', function () {
     [$u, , $card] = cardMember();
     expect($card->status)->toBe('active')->and($card->last4)->toHaveLength(4);
-    expect($card->getRawOriginal('number_encrypted'))->not->toContain($card->last4 === '' ? 'x' : '999999');
+    expect($card->getRawOriginal('number_encrypted'))->not->toContain($card->last4);
     $full = \Illuminate\Support\Facades\Crypt::decryptString($card->number_encrypted);
-    expect(CardNumber::isValid($full))->toBeTrue()->and($full)->toStartWith('999999');
+    expect(CardNumber::isValid($full))->toBeTrue()->and($full)->toStartWith('4')->toHaveLength(16);
     expect(AuditLog::where('action', 'card.approved')->count())->toBe(1);
 });
 
@@ -209,4 +209,46 @@ it('signs out other devices only with the right password', function () {
     expect(\DB::table('sessions')->where('id', 'other-session-1')->exists())->toBeTrue();
     $this->actingAs($u)->post('/security-settings/sign-out-others', ['password' => 'a-long-test-password-1'])->assertRedirect();
     expect(\DB::table('sessions')->where('id', 'other-session-1')->exists())->toBeFalse();
+});
+
+function physicalAddress(array $over = []): array
+{
+    return $over + ['name_on_card' => 'Maya Brooks', 'address_line1' => '14 Orchard Lane', 'city' => 'Fresno', 'state' => 'ca', 'postal_code' => '93710'];
+}
+
+it('lets a member order a physical card, once at a time, and cancel before review', function () {
+    [$u, , $card] = cardMember();
+    $this->actingAs($u)->get('/card')->assertSee('Request physical card');
+
+    $this->actingAs($u)->post('/card/'.$card->id.'/physical', physicalAddress(['postal_code' => '12']))->assertSessionHasErrors('postal_code');
+    $this->actingAs($u)->post('/card/'.$card->id.'/physical', physicalAddress())->assertSessionHasNoErrors();
+    $order = \App\Models\PhysicalCardOrder::firstOrFail();
+    expect($order->status)->toBe('requested')->and($order->state)->toBe('CA');
+
+    $this->actingAs($u)->post('/card/'.$card->id.'/physical', physicalAddress())->assertSessionHas('toast');
+    expect(\App\Models\PhysicalCardOrder::count())->toBe(1);
+    $this->actingAs($u)->get('/card')->assertSee('Under review')->assertSee('14 Orchard Lane');
+
+    $this->actingAs($u)->post('/card/physical/'.$order->id.'/cancel');
+    expect($order->refresh()->status)->toBe('cancelled');
+});
+
+it('ships or declines a physical card order for staff with approval rights', function () {
+    [$u, , $card] = cardMember();
+    $this->actingAs($u)->post('/card/'.$card->id.'/physical', physicalAddress());
+    $order = \App\Models\PhysicalCardOrder::firstOrFail();
+
+    $this->actingAs(makeStaff('Teller'))->post('/admin/cards/physical/'.$order->id.'/decide', ['decision' => 'approve'])->assertForbidden();
+    $manager = makeStaff('Manager');
+    $this->actingAs($manager)->get('/admin/cards?tab=physical')->assertOk()->assertSee('Maya Brooks');
+    $this->actingAs($manager)->post('/admin/cards/physical/'.$order->id.'/decide', ['decision' => 'reject'])->assertSessionHasErrors('reason_text');
+    $this->actingAs($manager)->post('/admin/cards/physical/'.$order->id.'/decide', ['decision' => 'approve'])->assertSessionHasNoErrors();
+    expect($order->refresh()->status)->toBe('shipped');
+    $this->actingAs($u)->get('/card')->assertSee('On its way');
+});
+
+it('keeps physical orders to the card owner', function () {
+    [, , $card] = cardMember();
+    [$other] = verifiedMember('Noah Price');
+    $this->actingAs($other)->post('/card/'.$card->id.'/physical', physicalAddress())->assertNotFound();
 });
