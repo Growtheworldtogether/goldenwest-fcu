@@ -4,7 +4,7 @@ Source of truth for the build. Copied from the project document on 2026-11-16. W
 
 ## 1. Overview and key decisions
 
-Golden West Federal Credit Union is a fictional, member-owned, online-only credit union serving members across the United States. It is built in Laravel as a simulation in which every feature works end to end. Members bank online. Admins review money movement, manage members and can sign in as a member to help them.
+Golden West Federal Credit Union is a fictional, member-owned credit union serving members across the United States. It is built in Laravel as a simulation in which every feature works end to end. Members bank online. Admins review money movement, manage members and can sign in as a member to help them.
 
 **Decisions already made**
 
@@ -16,7 +16,7 @@ Golden West Federal Credit Union is a fictional, member-owned, online-only credi
 - **Optional features sit behind per-user flags** that an admin switches on. The virtual card appears only after a member requests it and an admin approves it.
 - **Admin can log in as a member** (impersonation), with strict safeguards (section 2).
 - **Joining and opening accounts is free.** There is no opening deposit.
-- **Online only.** Nothing in the product refers to a physical location or address.
+- **No branch locator.** The product has no branch locator, map or location pages, and its copy never says the credit union has no branches.
 - **Simulation notice:** the footer and Terms state that this is an academic project and that no real money, securities or cryptocurrency is involved.
 
 **Scope at a glance**
