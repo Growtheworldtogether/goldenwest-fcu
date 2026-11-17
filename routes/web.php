@@ -161,10 +161,6 @@ Route::middleware(['auth', 'verified', 'member.area'])->group(function () {
     Route::post('/card/{card}/replace', [Portal\CardController::class, 'replace'])->middleware('throttle:3,1')->whereNumber('card')->name('card.replace');
     Route::post('/card/{card}/physical', [Portal\CardController::class, 'orderPhysical'])->middleware('throttle:5,1')->whereNumber('card')->name('card.physical');
     Route::post('/card/physical/{order}/cancel', [Portal\CardController::class, 'cancelPhysical'])->whereNumber('order')->name('card.physical.cancel');
-    Route::get('/card/pay', [Portal\CardController::class, 'merchant'])->name('card.pay');
-    Route::post('/card/pay', [Portal\CardController::class, 'pay'])->middleware('throttle:30,1')->name('card.pay.store');
-    Route::post('/card/purchases/{purchase}/settle', [Portal\CardController::class, 'settle'])->whereNumber('purchase')->name('card.settle');
-    Route::post('/card/purchases/{purchase}/release', [Portal\CardController::class, 'release'])->whereNumber('purchase')->name('card.release');
     Route::post('/announcements/{announcement}/dismiss', [Portal\AnnouncementController::class, 'dismiss'])->whereNumber('announcement')->name('announcements.dismiss');
 
     Route::get('/security-settings', Portal\SecurityController::class)->name('security.settings');

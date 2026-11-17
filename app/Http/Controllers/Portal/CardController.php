@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
 use App\Models\Card;
-use App\Models\CardTransaction;
 use App\Models\PhysicalCardOrder;
 use App\Services\CardService;
 use App\Support\Money;
@@ -14,9 +13,6 @@ use InvalidArgumentException;
 
 class CardController extends Controller
 {
-    /** Merchants the checkout page offers. */
-    public const MERCHANTS = ['Fieldstone Grocery', 'Harbor Coffee Co.', 'Redwood Fuel', 'Summit Books', 'Streamline Internet', 'Alder & Finch Clothing'];
-
     private function current(Request $request): ?Card
     {
         return Card::with('account')->where('user_id', $request->user()->id)->whereIn('status', ['requested', 'active', 'frozen'])->latest('id')->first();
@@ -129,56 +125,6 @@ class CardController extends Controller
         }
 
         return back()->with('toast', ['type' => 'info', 'message' => 'Physical card order cancelled.']);
-    }
-
-    public function merchant(Request $request)
-    {
-        $card = $this->current($request);
-        abort_unless($card && $card->isLive(), 404);
-
-        return view('portal.card-pay', [
-            'card' => $card,
-            'merchants' => self::MERCHANTS,
-            'attempts' => $card->purchases()->limit(12)->get(),
-        ]);
-    }
-
-    public function pay(Request $request, CardService $cards)
-    {
-        $card = $this->current($request);
-        abort_unless($card && $card->isLive(), 404);
-        $data = $request->validate([
-            'merchant' => ['required', 'string', 'in:'.implode(',', self::MERCHANTS)],
-            'amount' => ['required', 'numeric', 'min:0.01', 'max:100000'],
-            'mode' => ['required', 'in:pay,hold'],
-        ], ['amount.required' => 'Enter an amount.']);
-
-        $amount = Money::cents((int) round(((float) $data['amount']) * 100));
-        $p = $data['mode'] === 'hold' ? $cards->authorize($card, $data['merchant'], $amount) : $cards->pay($card, $data['merchant'], $amount);
-
-        if ($p->status === 'declined') {
-            return back()->with('toast', ['type' => 'bad', 'message' => 'Declined by '.$data['merchant'].': '.CardService::declineText($p->decline_reason)]);
-        }
-
-        return back()->with('toast', ['type' => 'ok', 'message' => $p->status === 'settled' ? 'Paid '.$amount->format().' to '.$data['merchant'].'.' : $amount->format().' is on hold for '.$data['merchant'].'.']);
-    }
-
-    public function settle(Request $request, CardTransaction $purchase, CardService $cards)
-    {
-        abort_unless($purchase->card->user_id === $request->user()->id, 404);
-        if ($fail = $this->guard(fn () => $cards->settle($purchase))) {
-            return $fail;
-        }
-
-        return back()->with('toast', ['type' => 'ok', 'message' => 'Purchase posted to your account.']);
-    }
-
-    public function release(Request $request, CardTransaction $purchase, CardService $cards)
-    {
-        abort_unless($purchase->card->user_id === $request->user()->id, 404);
-        $cards->release($purchase);
-
-        return back()->with('toast', ['type' => 'info', 'message' => 'The hold was released.']);
     }
 
     /** Runs a card change; a refused one comes back as a toast instead of an error page. */

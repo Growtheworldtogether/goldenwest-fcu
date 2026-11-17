@@ -39,6 +39,7 @@ it('lets a member request a card and shows only the request button until one exi
     expect(Card::count())->toBe(1)->and(Card::first()->status)->toBe('requested');
     $this->actingAs($u)->get('/card')->assertSee('Request under review')->assertDontSee('Card controls');
     $this->actingAs($u)->get('/card/pay')->assertNotFound();
+    $this->actingAs($u)->post('/card/pay', [])->assertNotFound();
 });
 
 it('refuses a card request until identity is verified, and a second open card', function () {
