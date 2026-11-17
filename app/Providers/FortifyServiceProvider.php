@@ -57,6 +57,9 @@ class FortifyServiceProvider extends ServiceProvider
             }
             $e->user->forceFill(['last_login_at' => now()])->saveQuietly();
             Audit::record('login.success', $e->user, null, null, $e->user->id);
+            if (! $e->user->isAdmin()) {
+                \App\Services\DeviceWatch::seen($e->user, request());
+            }
         });
         Event::listen(Failed::class, fn (Failed $e) => $e->user ? Audit::record('login.failed', $e->user, null, null, $e->user->id) : null);
         Event::listen(TwoFactorAuthenticationConfirmed::class, fn ($e) => Audit::record('two_factor.enabled', $e->user, null, null, $e->user->id));

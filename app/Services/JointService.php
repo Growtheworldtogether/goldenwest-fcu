@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Account;
+use App\Notifications\MemberNotice;
 use App\Models\AccountHolder;
 use App\Models\BillPayment;
 use App\Models\Card;
@@ -60,6 +61,7 @@ class JointService
             'subject_user_id' => $invitee->id, 'invitee_email' => $invitee->email, 'message' => $message ?: null, 'status' => 'invited',
         ]);
         Audit::record('joint.invited', $account, null, ['invitee' => $invitee->id], $by->id);
+        MemberNotice::send($invitee, $by->first_name.' invited you to share an account', [$by->name.' invited you to be a joint holder on a '.brand('short_name').' account.', 'Sign in to read the invitation and accept or decline it. If you do not know this person, decline it.'], 'See the invitation', route('joint.index'));
 
         return $req;
     }
@@ -95,7 +97,7 @@ class JointService
             throw new InvalidArgumentException('Give a reason the members can read.');
         }
 
-        return DB::transaction(function () use ($req, $staff, $approve, $reasonCode, $reasonText) {
+        $result = DB::transaction(function () use ($req, $staff, $approve, $reasonCode, $reasonText) {
             $req = JointRequest::lockForUpdate()->findOrFail($req->id);
             if ($req->type !== 'invite' || $req->status !== 'review') {
                 throw new InvalidArgumentException('This request was already handled.');
@@ -124,6 +126,12 @@ class JointService
 
             return $req->refresh();
         });
+        $word = $approve ? 'approved' : 'declined';
+        foreach ([$result->requester, $result->subject] as $who) {
+            MemberNotice::send($who, 'Your joint account request was '.$word, ['We '.$word.' the request to add a joint holder to the account.', 'Sign in to see the details.'], 'Open joint accounts', route('joint.index'));
+        }
+
+        return $result;
     }
 
     /** A holder leaves: immediate, because they are the person whose consent is needed. Someone must stay. */
@@ -148,6 +156,7 @@ class JointService
             'subject_user_id' => $target->id, 'status' => 'consent',
         ]);
         Audit::record('joint.removal_requested', $account, null, ['holder' => $target->id], $by->id);
+        MemberNotice::send($target, 'A joint account holder asked to remove you', ['Another holder on a joint account you share asked to remove you from it.', 'Sign in to answer. Nothing changes until you do.'], 'Answer the request', route('joint.index'));
 
         return $req;
     }
@@ -197,7 +206,7 @@ class JointService
     /** Takes a holder off an account and tidies what only they could use. At least one holder always stays. */
     public function removeHolder(Account $account, User $target, User $actor, string $how): void
     {
-        DB::transaction(function () use ($account, $target, $actor, $how) {
+        $moved = DB::transaction(function () use ($account, $target, $actor, $how) {
             $row = AccountHolder::where('account_id', $account->id)->where('user_id', $target->id)->where('status', 'active')->lockForUpdate()->first();
             if (! $row) {
                 throw new InvalidArgumentException('That person is not a holder of this account.');
@@ -227,9 +236,20 @@ class JointService
                 $others->first()->update(['role' => 'primary']);
             }
             // Loans and loan applications that used this account move to one they still hold.
-            app(\App\Services\Loans\LoanService::class)->moveOffAccount($target, $account, $actor);
+            $moved = app(\App\Services\Loans\LoanService::class)->moveOffAccount($target, $account, $actor);
             Audit::record('joint.holder_removed', $account, null, ['holder' => $target->id, 'how' => $how], $actor->id);
+
+            return $moved;
         });
+        MemberNotice::send($target, 'You were removed from a joint account', ['You are no longer a holder on a joint account. Your cards, savings goals and scheduled payments on it were stopped.', 'Sign in to see your accounts.'], 'Open your accounts', route('dashboard'));
+        if ($moved['autopay_moved'] || $moved['autopay_off'] || $moved['applications_moved'] || $moved['applications_withdrawn']) {
+            MemberNotice::send($target, 'Changes to your loans after a joint account change', array_filter([
+                $moved['autopay_moved'] ? 'Automatic payments for loan '.implode(', ', $moved['autopay_moved']).' now come from another account of yours.' : null,
+                $moved['autopay_off'] ? 'Automatic payments for loan '.implode(', ', $moved['autopay_off']).' were turned off because you have no other account to use. Turn them on again or pay by hand so you do not miss a payment.' : null,
+                $moved['applications_moved'] ? 'The loan funds for application '.implode(', ', $moved['applications_moved']).' will go to another account of yours.' : null,
+                $moved['applications_withdrawn'] ? 'Loan application '.implode(', ', $moved['applications_withdrawn']).' was withdrawn because you have no other account to receive the funds.' : null,
+            ]), 'Open your loans', route('borrow.index'));
+        }
     }
 
     private function assertManageable(User $by, Account $account): void

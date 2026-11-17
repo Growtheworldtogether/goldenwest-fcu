@@ -9,6 +9,7 @@ use App\Models\Loan;
 use App\Models\LoanApplication;
 use App\Models\LoanInstallment;
 use App\Models\LoanProduct;
+use App\Notifications\MemberNotice;
 use App\Models\ReasonCode;
 use App\Models\User;
 use App\Services\Audit;
@@ -105,6 +106,7 @@ final class LoanService
         }
         $app->update(['status' => 'needs_info', 'info_request' => $question, 'member_reply' => null]);
         Audit::record('loan.info_requested', $app, null, null, $staff->id);
+        MemberNotice::send($app->user, 'We need more information for loan application '.$app->reference, ['We have a question about your loan application '.$app->reference.'.', 'Sign in to read it and reply. We cannot move forward until you do.'], 'Open the application', route('borrow.application', $app->reference));
     }
 
     public function reject(LoanApplication $app, User $staff, string $reasonCode, string $reasonText): void
@@ -118,6 +120,7 @@ final class LoanService
             $app->update(['status' => 'rejected', 'decided_by' => $staff->id, 'decided_at' => now()]);
             Audit::record('loan.rejected', $app, null, ['reason' => $reasonCode], $staff->id);
         });
+        MemberNotice::send($app->user, 'Update on loan application '.$app->reference, ['We made a decision on your loan application '.$app->reference.'.', 'Sign in to see it and the reason.'], 'See the decision', route('borrow.application', $app->reference));
     }
 
     /** Approve at an APR the staff member sets, then pay the money into the member's account. */
@@ -133,7 +136,7 @@ final class LoanService
             throw ValidationException::withMessages(['amount' => 'The approved amount cannot be more than the member asked for.']);
         }
 
-        return DB::transaction(function () use ($app, $staff, $aprBps, $amount, $product) {
+        $loan = DB::transaction(function () use ($app, $staff, $aprBps, $amount, $product) {
             Decision::create(['decidable_type' => $app->getMorphClass(), 'decidable_id' => $app->id, 'decision' => 'approved', 'decided_by' => $staff->id]);
             $app->update(['status' => 'approved', 'approved_apr_bps' => $aprBps, 'decided_by' => $staff->id, 'decided_at' => now()]);
 
@@ -153,6 +156,9 @@ final class LoanService
 
             return $loan;
         });
+        MemberNotice::send($app->user, 'Your loan application '.$app->reference.' was approved', ['Good news: your loan application '.$app->reference.' was approved and the funds were added to your account.', 'Sign in to see your rate, payment schedule and first due date.'], 'See your loan', route('borrow.show', $loan->reference));
+
+        return $loan;
     }
 
     // ---------------------------------------------------------- repayment

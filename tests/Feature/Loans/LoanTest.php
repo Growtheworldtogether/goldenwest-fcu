@@ -226,3 +226,20 @@ it('keeps a member from pulling money from an account that is not theirs', funct
     $this->actingAs($u)->post('/borrow/loans/'.$loan->reference.'/pay', ['account_id' => $theirs->id, 'kind' => 'next'])->assertSessionHas('toast');
     expect($loan->schedule()->where('status', 'paid')->count())->toBe(0);
 });
+
+it('emails the member when a loan is approved, declined or needs more information, without amounts', function () {
+    Illuminate\Support\Facades\Notification::fake();
+    [$u, $checking] = loanMember();
+    $svc = app(LoanService::class);
+    $staff = makeStaff('Manager');
+
+    $a = applyFor($u, $checking);
+    $svc->requestInfo($a, $staff, 'Please send proof of income.');
+    Illuminate\Support\Facades\Notification::assertSentTo($u, App\Notifications\MemberNotice::class, fn ($n) => str_contains($n->subject, 'more information') && ! str_contains(implode(' ', $n->lines), 'proof of income'));
+
+    $svc->reject($a, $staff, App\Models\ReasonCode::first()->code, 'Income too low for this amount.');
+    Illuminate\Support\Facades\Notification::assertSentTo($u, App\Notifications\MemberNotice::class, fn ($n) => str_contains($n->subject, 'Update on loan application') && ! str_contains(implode(' ', $n->lines), 'Income'));
+
+    makeLoan($u, $checking);
+    Illuminate\Support\Facades\Notification::assertSentTo($u, App\Notifications\MemberNotice::class, fn ($n) => str_contains($n->subject, 'was approved'));
+});

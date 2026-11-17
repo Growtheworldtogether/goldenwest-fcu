@@ -449,3 +449,12 @@ Every success, error and info message in the interface appears as a **toast**, n
 - Wires abroad are USD only. Fee is separate: `wire_fee_intl_cents` (default $45), editable by a Super Admin in Settings and audited.
 - Same review, hold and approval flow as domestic wires. Staff see country, SWIFT/BIC and account last four, with an "International wire" chip.
 - Tests: `tests/Feature/Wires/InternationalWireTest.php`.
+
+## 10l. Email notifications (as built)
+
+- One class, `App\Notifications\MemberNotice`: a plain email that says something happened and links to the portal. No amounts, addresses, reasons or messages travel by email.
+- Security notices (`security: true`) are always sent: sign-in from a new device, and the terms notice. Everything else follows the member's "Deposits, transfers and payments" email preference.
+- Sent for: loan approved, declined, more information needed; joint-account invitation, decision, removal request, holder removed, and the autopay or application changes that follow a removal (from `LoanService::moveOffAccount`); crypto deposit confirmed or declined, crypto send approved, declined or held.
+- New device: `login_devices` (migration `2026_11_30_000021`) keeps a hash of the browser per member; the first sign-in is recorded silently, a later unseen browser sends the alert. Staff accounts are not tracked.
+- Terms: `php artisan members:notify-terms 2027-01-15` emails every active member.
+- Tests: `tests/Feature/Notifications/NoticeTest.php`, plus assertions in the Joint, Loan and Crypto tests.

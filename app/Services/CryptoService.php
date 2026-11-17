@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\CryptoAddress;
 use App\Models\CryptoAsset;
+use App\Notifications\MemberNotice;
 use App\Models\CryptoLedgerEntry;
 use App\Models\CryptoTransaction;
 use App\Models\CryptoWallet;
@@ -99,7 +100,7 @@ class CryptoService
     /** Staff confirm a deposit the member declared. The amount may be corrected to what actually arrived. */
     public function confirmFunding(CryptoTransaction $tx, User $staff, ?int $amount = null): CryptoTransaction
     {
-        return DB::transaction(function () use ($tx, $staff, $amount) {
+        $done = DB::transaction(function () use ($tx, $staff, $amount) {
             $tx = CryptoTransaction::lockForUpdate()->findOrFail($tx->id);
             $this->assertStaffMayDecide($tx, $staff);
             if ($tx->type !== 'fund' || $tx->status !== 'pending') {
@@ -113,11 +114,14 @@ class CryptoService
 
             return $tx->refresh();
         });
+        $this->tell($done, 'Your crypto deposit was confirmed', 'We confirmed your crypto deposit and added it to your wallet.');
+
+        return $done;
     }
 
     public function rejectFunding(CryptoTransaction $tx, User $staff, ?string $reasonCode, ?string $reasonText): CryptoTransaction
     {
-        return DB::transaction(function () use ($tx, $staff, $reasonCode, $reasonText) {
+        $done = DB::transaction(function () use ($tx, $staff, $reasonCode, $reasonText) {
             $tx = CryptoTransaction::lockForUpdate()->findOrFail($tx->id);
             $this->assertStaffMayDecide($tx, $staff);
             if ($tx->type !== 'fund' || $tx->status !== 'pending') {
@@ -129,6 +133,9 @@ class CryptoService
 
             return $tx->refresh();
         });
+        $this->tell($done, 'Update on your crypto deposit', 'We could not confirm your crypto deposit. Sign in to see why.');
+
+        return $done;
     }
 
     /** Staff record a deposit that arrived, without the member declaring it first. */
@@ -222,7 +229,7 @@ class CryptoService
             throw new InvalidArgumentException('Give the member a reason.');
         }
 
-        return DB::transaction(function () use ($tx, $staff, $action, $reasonCode, $reasonText) {
+        $done = DB::transaction(function () use ($tx, $staff, $action, $reasonCode, $reasonText) {
             $tx = CryptoTransaction::with('asset')->lockForUpdate()->findOrFail($tx->id);
             $this->assertStaffMayDecide($tx, $staff);
             if ($tx->type !== 'send' || ! in_array($tx->status, ['pending', 'held'], true)) {
@@ -250,6 +257,14 @@ class CryptoService
 
             return $tx->refresh();
         });
+        $this->tell($done, ['approve' => 'Your crypto send was completed', 'reject' => 'Your crypto send was declined', 'hold' => 'Your crypto send is on hold'][$action], ['approve' => 'Your crypto send was approved and sent.', 'reject' => 'We declined your crypto send and returned the amount to your wallet. Sign in to see why.', 'hold' => 'We put your crypto send on hold. Sign in to see what we need.'][$action]);
+
+        return $done;
+    }
+
+    private function tell(CryptoTransaction $tx, string $subject, string $line): void
+    {
+        MemberNotice::send($tx->user, $subject, [$line, 'Sign in to see the details.'], 'Open crypto', route('crypto.index'));
     }
 
     /** A signed correction to a wallet, always with a description. A wallet cannot drop below what is held. */

@@ -375,6 +375,25 @@ it('removes one of several holders with only their own consent, and promotes the
     expect($svc->holderRow($ac, $b)->role)->toBe('primary')->and($svc->holderRow($ac, $c)->role)->toBe('joint');
 });
 
+it('emails a holder who was invited, removed, and whose autopay moved', function () {
+    Illuminate\Support\Facades\Notification::fake();
+    [$a, $b, $ac] = pair();
+    $svc = app(JointService::class);
+    $req = $svc->invite($a, $ac, $b->email);
+    Illuminate\Support\Facades\Notification::assertSentTo($b, App\Notifications\MemberNotice::class, fn ($n) => str_contains($n->subject, 'invited you'));
+    $svc->respondToInvite($req, $b, true);
+    $svc->decide($req, makeStaff('Manager'), true);
+    Illuminate\Support\Facades\Notification::assertSentTo($a, App\Notifications\MemberNotice::class, fn ($n) => str_contains($n->subject, 'was approved'));
+    App\Services\Features::set($b, 'loans', true, makeStaff('Manager'));
+    $loan = makeLoan($b->refresh(), $ac);
+    app(App\Services\Loans\LoanService::class)->setAutopay($loan, $b, $ac->id);
+
+    $svc->leave($b, $ac);
+
+    Illuminate\Support\Facades\Notification::assertSentTo($b, App\Notifications\MemberNotice::class, fn ($n) => str_contains($n->subject, 'removed from a joint account'));
+    Illuminate\Support\Facades\Notification::assertSentTo($b, App\Notifications\MemberNotice::class, fn ($n) => str_contains($n->subject, 'Changes to your loans'));
+});
+
 it('moves a removed holder\'s loan autopay and open application to an account they still hold', function () {
     [$a, $b, $ac, $bc] = pair();
     makeJoint($a, $b, $ac);

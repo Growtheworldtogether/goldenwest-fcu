@@ -315,3 +315,12 @@ it('tells staff when the price service cannot be reached', function () {
     \Illuminate\Support\Facades\Http::fake(['api.coingecko.com/*' => \Illuminate\Support\Facades\Http::response('', 500)]);
     $this->actingAs(makeStaff('Super Admin'))->post('/admin/crypto/rates')->assertSessionHas('toast.type', 'bad');
 });
+
+it('emails the member when staff confirm a crypto deposit', function () {
+    Illuminate\Support\Facades\Notification::fake();
+    [$u, $staff, $eth, $svc] = cryptoMember();
+    $svc->assignAddress($u, $eth, MY_ETH, null, $staff);
+    $tx = $svc->declareFunding($u, $eth, CryptoAmount::parse('1', 8), null, (string) Illuminate\Support\Str::ulid());
+    $svc->confirmFunding($tx, makeStaff('Manager', true, 'Second Manager'));
+    Illuminate\Support\Facades\Notification::assertSentTo($u, App\Notifications\MemberNotice::class, fn ($n) => $n->subject === 'Your crypto deposit was confirmed');
+});
