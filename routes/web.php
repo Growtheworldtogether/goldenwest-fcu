@@ -122,6 +122,15 @@ Route::middleware(['auth', 'verified', 'member.area'])->group(function () {
     Route::get('/insights', [Portal\InsightsController::class, 'index'])->name('insights.index');
     Route::post('/insights/budgets', [Portal\InsightsController::class, 'budget'])->name('insights.budget');
     Route::post('/insights/transactions/{transaction:reference}/category', [Portal\InsightsController::class, 'category'])->name('insights.category');
+    Route::middleware('feature:crypto')->prefix('crypto')->name('crypto.')->group(function () {
+        Route::get('/', [Portal\CryptoController::class, 'index'])->name('index');
+        Route::get('/fund', [Portal\CryptoController::class, 'fund'])->name('fund');
+        Route::post('/fund/address', [Portal\CryptoController::class, 'requestAddress'])->middleware('throttle:10,1')->name('address');
+        Route::post('/fund', [Portal\CryptoController::class, 'declare'])->middleware('throttle:10,1')->name('declare');
+        Route::get('/send', [Portal\CryptoController::class, 'create'])->name('send');
+        Route::post('/send', [Portal\CryptoController::class, 'store'])->middleware('throttle:10,1')->name('send.store');
+        Route::post('/transactions/{tx:reference}/cancel', [Portal\CryptoController::class, 'cancel'])->name('cancel');
+    });
     Route::middleware('feature:loans')->prefix('borrow')->name('borrow.')->group(function () {
         Route::get('/', [Portal\LoanController::class, 'index'])->name('index');
         Route::get('/apply', [Portal\LoanController::class, 'create'])->name('create');
@@ -193,6 +202,13 @@ Route::middleware(['auth', 'staff'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/cards/{card}/decide', [Admin\CardController::class, 'decide'])->whereNumber('card')->name('cards.decide');
     Route::post('/cards/{card}/change', [Admin\CardController::class, 'change'])->whereNumber('card')->name('cards.change');
     Route::post('/cards/physical/{order}/decide', [Admin\CardController::class, 'decidePhysical'])->whereNumber('order')->name('cards.physical.decide');
+    Route::get('/crypto', [Admin\CryptoController::class, 'index'])->name('crypto.index');
+    Route::post('/crypto/sends/{tx:reference}', [Admin\CryptoController::class, 'decideSend'])->name('crypto.send.decide');
+    Route::post('/crypto/deposits/{tx:reference}', [Admin\CryptoController::class, 'decideDeposit'])->name('crypto.deposit.decide');
+    Route::put('/crypto/assets/{asset}', [Admin\CryptoController::class, 'asset'])->whereNumber('asset')->name('crypto.asset');
+    Route::post('/members/{user}/crypto/address', [Admin\CryptoController::class, 'address'])->whereNumber('user')->name('crypto.address');
+    Route::post('/members/{user}/crypto/funding', [Admin\CryptoController::class, 'funding'])->whereNumber('user')->name('crypto.funding');
+    Route::post('/members/{user}/crypto/adjust', [Admin\CryptoController::class, 'adjust'])->whereNumber('user')->name('crypto.adjust');
     Route::get('/announcements', [Admin\AnnouncementController::class, 'index'])->name('announcements.index');
     Route::post('/announcements', [Admin\AnnouncementController::class, 'store'])->name('announcements.store');
     Route::put('/announcements/{announcement}', [Admin\AnnouncementController::class, 'update'])->whereNumber('announcement')->name('announcements.update');

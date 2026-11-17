@@ -76,7 +76,7 @@ it('lets a manager turn wires on and off for a member, records it, and keeps tel
     expect(Features::enabled($member, 'wires'))->toBeFalse();
     $this->actingAs($member)->get('/wires')->assertNotFound();
     expect(AuditLog::whereIn('action', ['feature.enabled', 'feature.disabled'])->where('actor_id', $manager->id)->count())->toBe(2);
-    $this->actingAs($manager)->post("/admin/members/{$member->id}/features/crypto", ['enabled' => 1])->assertNotFound();
+    $this->actingAs($manager)->post("/admin/members/{$member->id}/features/jetpack", ['enabled' => 1])->assertNotFound();
 });
 
 it('sets the amount and fee aside and waits for review', function () {

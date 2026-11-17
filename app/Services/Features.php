@@ -12,6 +12,7 @@ final class Features
     public const ALL = [
         'wires' => 'Wire transfers',
         'loans' => 'Loans',
+        'crypto' => 'Crypto wallet',
     ];
 
     public static function enabled(User $user, string $feature): bool

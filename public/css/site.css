@@ -774,3 +774,13 @@ details.more .filters { margin: .75rem 0 0; }
 .goalbar span{display:block;height:100%;background:#14403a}
 .ibar{margin-bottom:.85rem}.ibar:last-child{margin-bottom:0}
 .ibar-h{display:flex;justify-content:space-between;margin-bottom:.25rem;font-size:.95rem}
+
+/* Crypto wallet */
+.cryptofund { display: grid; grid-template-columns: auto 1fr; gap: 1.75rem; align-items: start; }
+.qrbox { background: #fff; border: 1px solid var(--line, #d9dfdc); padding: .5rem; line-height: 0; }
+.qrbox svg { width: 190px; height: 190px; }
+.addrside h3 { margin: 0 0 .6rem; }
+.addrbox { margin: 0 0 .6rem; padding: .7rem .85rem; background: #f3f5f4; border: 1px solid var(--line, #d9dfdc); border-radius: 4px; word-break: break-all; }
+.addrbox code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .95rem; }
+.addrbox.memo span { display: block; font-size: .8rem; color: var(--muted, #5b6b66); margin-bottom: .15rem; }
+@media (max-width: 640px) { .cryptofund { grid-template-columns: 1fr; } }

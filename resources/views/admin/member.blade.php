@@ -107,6 +107,47 @@
         </div>
 
         <div class="panel-card">
+            <h3>Crypto wallet</h3>
+            @if (! in_array('crypto', $features, true))
+                <p style="margin:0;color:var(--muted)">Crypto is off for this member. Turn it on under Features.</p>
+            @else
+                @foreach ($cryptoAssets as $a)
+                    @php($w = $cryptoWallets->get($a->id))
+                    @php($addr = $cryptoAddresses->first(fn ($x) => $x->asset_id === $a->id))
+                    <p class="item">{{ $a->symbol }} <b>{{ $a->format($w?->balance ?? 0, false) }}</b>@if ($w && $w->held > 0) <small>{{ $a->format($w->held, false) }} set aside</small>@endif
+                        <small>@if ($addr?->status === 'active'){{ \Illuminate\Support\Str::limit($addr->address, 26, '...') }}@elseif ($addr) Address requested @else No address @endif</small></p>
+                @endforeach
+                @can('staff.approveCrypto')
+                <details class="act"><summary>Set a deposit address</summary>
+                    <form class="sform" method="post" action="{{ route('admin.crypto.address', $member) }}">@csrf
+                        <label>Asset<select name="asset_id">@foreach ($cryptoAssets as $a)<option value="{{ $a->id }}">{{ $a->label() }}</option>@endforeach</select></label>
+                        <label>Address<input name="address" maxlength="120" required spellcheck="false"></label>
+                        <label>Memo or tag (optional)<input name="memo" maxlength="60"></label>
+                        <button type="submit" class="plain">Save address</button></form></details>
+                <details class="act"><summary>Record funding</summary>
+                    <form class="sform" method="post" action="{{ route('admin.crypto.funding', $member) }}">@csrf
+                        <label>Asset<select name="asset_id">@foreach ($cryptoAssets as $a)<option value="{{ $a->id }}">{{ $a->label() }}</option>@endforeach</select></label>
+                        <label>Amount received<input name="amount" inputmode="decimal" required></label>
+                        <label>Note<input name="note" maxlength="140"></label>
+                        <button type="submit" class="plain">Add to wallet</button></form></details>
+                @endcan
+                @can('staff.canAdjust')
+                <details class="act"><summary>Adjust a wallet</summary>
+                    <form class="sform" method="post" action="{{ route('admin.crypto.adjust', $member) }}">@csrf
+                        <label>Asset<select name="asset_id">@foreach ($cryptoAssets as $a)<option value="{{ $a->id }}">{{ $a->label() }}</option>@endforeach</select></label>
+                        <div class="two2"><label>Direction<select name="direction"><option value="credit">Credit (add)</option><option value="debit">Debit (take)</option></select></label>
+                            <label>Amount<input name="amount" inputmode="decimal" required></label></div>
+                        <label>Description the member sees<input name="description" maxlength="140" required></label>
+                        <label>Reason<select name="reason_code" required><option value="">Choose a reason</option>@foreach ($adjustReasons as $c => $l)<option value="{{ $c }}">{{ $l }}</option>@endforeach</select></label>
+                        <button type="submit" class="plain">Post adjustment</button></form></details>
+                @endcan
+                @foreach ($cryptoTx as $t)
+                    <p class="item"><small>{{ $t->created_at->format('M j') }} &middot; {{ ucfirst($t->type) }} {{ $t->asset->format($t->amount) }} &middot; {{ $t->statusLabel() }}</small></p>
+                @endforeach
+            @endif
+        </div>
+
+        <div class="panel-card">
             <h3>Identity documents</h3>
             @forelse ($kycDocs as $d)
                 <p class="item">@can('staff.reviewKyc')<a class="plink" href="{{ route('admin.kyc.show', $d) }}">{{ $d->typeLabel() }}</a>@else{{ $d->typeLabel() }}@endcan <span class="chip {{ ['approved' => 'completed', 'rejected' => 'rejected'][$d->status] ?? 'pending' }}">{{ $d->status }}</span></p>
