@@ -357,4 +357,4 @@ Build in this order and do not start a milestone until the check of the previous
 - No wording such as fictional, demo, test, placeholder or sample anywhere in the visible interface. The only project notice is the small legal line at the bottom of the footer.
 - Copy reads like an established US retail credit union: heritage, security, branch network, personal and business banking, member trust.
 - No claim of federal deposit insurance and no use of real insurance or lender logos.
-- Seed data uses realistic US names, believable balances and recognizable merchants (Whole Foods Market, Con Edison, Delta Air Lines). Routing numbers are nine digits with a valid check digit in an unassigned range (999999992); account numbers are ten to twelve digits. Never "User 1" or "Test Transaction".
+- Seed data uses realistic US names, believable balances and recognizable merchants (Whole Foods Market, Con Edison, Delta Air Lines). Routing numbers are nine digits with a valid check digit (121478906, in the San Francisco Federal Reserve district range); account numbers are ten to twelve digits. Never "User 1" or "Test Transaction".
