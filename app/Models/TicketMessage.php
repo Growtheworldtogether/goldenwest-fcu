@@ -14,6 +14,11 @@ class TicketMessage extends Model
         return ['is_internal_note' => 'boolean'];
     }
 
+    public function attachments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TicketAttachment::class, 'message_id');
+    }
+
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_id');

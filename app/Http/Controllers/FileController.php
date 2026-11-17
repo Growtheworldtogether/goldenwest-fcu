@@ -35,6 +35,18 @@ class FileController extends Controller
         return $this->send($document->path, $document->mime);
     }
 
+    public function ticket(Request $request, \App\Models\TicketAttachment $attachment)
+    {
+        $attachment->load('ticket');
+        $owner = $attachment->ticket->user_id === $request->user()->id;
+        abort_unless($owner || Gate::allows('staff.answerInquiries'), 403);
+        if (! $owner) {
+            Audit::record('ticket.attachment_viewed', $attachment->ticket, null, ['name' => $attachment->name], $request->user()->id);
+        }
+
+        return $this->send($attachment->path, $attachment->mime);
+    }
+
     private function send(?string $path, ?string $mime = null)
     {
         abort_unless($path && Storage::disk('local')->exists($path), 404);

@@ -12,7 +12,7 @@ class Ticket extends Model
 
     protected function casts(): array
     {
-        return ['last_reply_at' => 'datetime', 'closed_at' => 'datetime'];
+        return ['last_reply_at' => 'datetime', 'closed_at' => 'datetime', 'resolved_at' => 'datetime'];
     }
 
     public function user(): BelongsTo
@@ -23,6 +23,26 @@ class Ticket extends Model
     public function transaction(): BelongsTo
     {
         return $this->belongsTo(Transaction::class);
+    }
+
+    public function assignee(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    public function account(): BelongsTo
+    {
+        return $this->belongsTo(Account::class);
+    }
+
+    public function statusLabel(): string
+    {
+        return config('support.statuses')[$this->status] ?? $this->status;
+    }
+
+    public function categoryLabel(): string
+    {
+        return config('support.categories')[$this->category] ?? ucfirst($this->category);
     }
 
     public function messages(): HasMany

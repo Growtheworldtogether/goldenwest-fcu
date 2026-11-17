@@ -100,7 +100,12 @@ Route::middleware(['auth', 'verified', 'member.area'])->group(function () {
     Route::get('/verification', [Portal\KycController::class, 'show'])->name('kyc.show');
     Route::post('/verification', [Portal\KycController::class, 'store'])->middleware('throttle:10,1')->name('kyc.store');
     Route::post('/transactions/{transaction:reference}/contest', [Portal\TransactionController::class, 'contest'])->middleware('throttle:10,1')->name('transactions.contest');
+    Route::get('/support', [Portal\TicketController::class, 'index'])->name('tickets.index');
+    Route::get('/support/new', [Portal\TicketController::class, 'create'])->name('tickets.create');
+    Route::post('/support', [Portal\TicketController::class, 'store'])->middleware('throttle:10,1')->name('tickets.store');
     Route::get('/tickets/{ticket:reference}', [Portal\TicketController::class, 'show'])->name('tickets.show');
+    Route::post('/tickets/{ticket:reference}/reply', [Portal\TicketController::class, 'reply'])->middleware('throttle:20,1')->name('tickets.reply');
+    Route::post('/tickets/{ticket:reference}/resolve', [Portal\TicketController::class, 'resolve'])->name('tickets.resolve');
 
     Route::get('/security-settings', Portal\SecurityController::class)->name('security.settings');
     Route::get('/profile', [Portal\ProfileController::class, 'edit'])->name('profile');
@@ -110,6 +115,7 @@ Route::middleware(['auth', 'verified', 'member.area'])->group(function () {
 // Private files: check images and identity documents. The controller decides who may see each one.
 Route::middleware('auth')->group(function () {
     Route::get('/files/check/{deposit}/{side}', [FileController::class, 'check'])->whereNumber('deposit')->name('files.check');
+    Route::get('/files/ticket/{attachment}', [FileController::class, 'ticket'])->whereNumber('attachment')->name('files.ticket');
     Route::get('/files/kyc/{document}', [FileController::class, 'kyc'])->whereNumber('document')->name('files.kyc');
 });
 
@@ -136,6 +142,10 @@ Route::middleware(['auth', 'staff'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/identity/{document}', [Admin\KycController::class, 'show'])->whereNumber('document')->name('kyc.show');
     Route::post('/identity/{document}/{action}', [Admin\KycController::class, 'decide'])->whereNumber('document')->where('action', 'approve|reject')->name('kyc.decide');
     Route::get('/audit', Admin\AuditController::class)->name('audit');
+    Route::get('/tickets', [Admin\TicketController::class, 'index'])->name('tickets.index');
+    Route::get('/tickets/{ticket:reference}', [Admin\TicketController::class, 'show'])->name('tickets.show');
+    Route::post('/tickets/{ticket:reference}/reply', [Admin\TicketController::class, 'reply'])->name('tickets.reply');
+    Route::put('/tickets/{ticket:reference}', [Admin\TicketController::class, 'update'])->name('tickets.update');
     Route::get('/inquiries', [Admin\InquiryController::class, 'index'])->name('inquiries.index');
     Route::post('/inquiries/{inquiry}/handle', [Admin\InquiryController::class, 'handle'])->whereNumber('inquiry')->name('inquiries.handle');
     Route::get('/branding', [Admin\BrandingController::class, 'edit'])->name('branding');

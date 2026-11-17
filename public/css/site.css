@@ -735,3 +735,12 @@ details.more .filters { margin: .75rem 0 0; }
 .wireform h3{margin:0 0 .25rem;color:var(--navy)}
 .wireform .panel-card.form{display:grid;gap:1rem}
 .newrecipient{display:grid;gap:1rem}.newrecipient[hidden]{display:none}
+
+/* M5: tickets */
+.tthread .tmsg{padding:.9rem 1rem;border:1px solid var(--line);border-radius:4px;margin-bottom:.75rem;background:#fff}
+.tthread .tmsg:last-child{margin-bottom:0}
+.tthread .tmsg.staff{background:#eef4f2}
+.tthread .tmsg.note{background:#fff8dc;border-color:#e6cf7a}
+.tfiles{margin:.5rem 0 0;font-size:.9rem}
+.tcols{grid-template-columns:minmax(0,2fr) minmax(16rem,1fr)}
+@media (max-width:900px){.tcols{grid-template-columns:1fr}}

@@ -78,7 +78,7 @@
 @foreach ($tickets as $t)
 <div class="panel-card" style="margin-top:1.25rem">
     <h3>Member contested this decision</h3>
-    <p class="fine" style="margin-top:0">Ticket {{ $t->reference }} &middot; {{ $t->created_at->format('M j, g:i a') }} &middot; {{ ucfirst(str_replace('_', ' ', $t->status)) }}</p>
+    <p class="fine" style="margin-top:0">Ticket <a class="plink" href="{{ route('admin.tickets.show', $t) }}">{{ $t->reference }}</a> &middot; {{ $t->created_at->format('M j, g:i a') }} &middot; {{ ucfirst(str_replace('_', ' ', $t->status)) }}</p>
     @foreach ($t->memberMessages as $m)<p style="white-space:pre-line;margin:.4rem 0">{{ $m->body }}</p>@endforeach
 </div>
 @endforeach
