@@ -768,3 +768,9 @@ details.more .filters { margin: .75rem 0 0; }
 .vcard .vc-type{margin:0;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;opacity:.85}
 .vcard .vc-chip{margin:0;width:2.6rem;height:2rem;border-radius:5px;background:#e2c46b}
 .vcard .vc-num{font-size:1.45rem;white-space:nowrap}
+
+/* M8: goals and insights */
+.goalbar{height:.6rem;border-radius:3px;background:#dfe7e4;overflow:hidden}
+.goalbar span{display:block;height:100%;background:#14403a}
+.ibar{margin-bottom:.85rem}.ibar:last-child{margin-bottom:0}
+.ibar-h{display:flex;justify-content:space-between;margin-bottom:.25rem;font-size:.95rem}

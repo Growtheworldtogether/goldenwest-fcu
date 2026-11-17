@@ -28,7 +28,7 @@ class AccountController extends Controller
         ]);
 
         $user = $request->user();
-        if ($user->accounts()->where('accounts.status', 'active')->count() >= 8) {
+        if ($user->accounts()->where('accounts.status', 'active')->where('accounts.type', 'standard')->count() >= 8) {
             return back()->withErrors(['product' => 'You have reached the limit of eight accounts. Please contact Customer Care to open more.']);
         }
 

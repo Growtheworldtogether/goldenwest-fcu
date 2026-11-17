@@ -29,7 +29,7 @@ final class ActivityQuery
 
     public function __construct(public readonly User $user, public readonly ?Account $only = null)
     {
-        $this->accounts = $user->accounts()->with('product')->orderBy('accounts.id')->get()->keyBy('id');
+        $this->accounts = $user->accounts()->with('product')->where('accounts.type', 'standard')->orderBy('accounts.id')->get()->keyBy('id');
     }
 
     public function query(Request $request): Builder
@@ -122,6 +122,10 @@ final class ActivityQuery
     private function title(Transaction $tx, bool $out, ?Account $other): string
     {
         $isOwn = $other && $this->accounts->has($other->id);
+
+        if ($other && $other->type === 'goal' && $tx->type === TransactionType::Transfer) {
+            return ($out ? 'Saved to goal: ' : 'Taken from goal: ').$other->nickname;
+        }
 
         if ($tx->type === TransactionType::Transfer || $tx->type === TransactionType::OverdraftTransfer) {
             $label = $tx->type === TransactionType::OverdraftTransfer ? 'Overdraft protection transfer' : ($out ? 'Transfer to' : 'Transfer from');

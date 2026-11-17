@@ -21,7 +21,7 @@ class TransferController extends Controller
 
     public function create(Request $request)
     {
-        $accounts = $request->user()->accounts()->with('product')->where('accounts.status', 'active')->orderBy('accounts.id')->get();
+        $accounts = $request->user()->accounts()->with('product')->where('accounts.status', 'active')->where('accounts.type', 'standard')->orderBy('accounts.id')->get();
 
         return view('portal.transfer', [
             'accounts' => $accounts,

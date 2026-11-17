@@ -107,6 +107,21 @@ Route::middleware(['auth', 'verified', 'member.area'])->group(function () {
     Route::post('/tickets/{ticket:reference}/reply', [Portal\TicketController::class, 'reply'])->middleware('throttle:20,1')->name('tickets.reply');
     Route::post('/tickets/{ticket:reference}/resolve', [Portal\TicketController::class, 'resolve'])->name('tickets.resolve');
 
+    Route::get('/goals', [Portal\GoalController::class, 'index'])->name('goals.index');
+    Route::post('/goals', [Portal\GoalController::class, 'store'])->middleware('throttle:10,1')->name('goals.store');
+    Route::post('/goals/{goal}/move', [Portal\GoalController::class, 'contribute'])->middleware('throttle:20,1')->whereNumber('goal')->name('goals.move');
+    Route::post('/goals/{goal}/auto', [Portal\GoalController::class, 'auto'])->whereNumber('goal')->name('goals.auto');
+    Route::post('/goals/{goal}/close', [Portal\GoalController::class, 'close'])->whereNumber('goal')->name('goals.close');
+    Route::get('/bills', [Portal\BillController::class, 'index'])->name('bills.index');
+    Route::post('/bills/billers', [Portal\BillController::class, 'storeBiller'])->middleware('throttle:10,1')->name('bills.billers.store');
+    Route::delete('/bills/billers/{biller}', [Portal\BillController::class, 'destroyBiller'])->whereNumber('biller')->name('bills.billers.destroy');
+    Route::post('/bills', [Portal\BillController::class, 'store'])->middleware('throttle:15,1')->name('bills.store');
+    Route::post('/bills/{payment}/cancel', [Portal\BillController::class, 'cancel'])->whereNumber('payment')->name('bills.cancel');
+    Route::get('/overdraft', [Portal\OverdraftController::class, 'index'])->name('overdraft.index');
+    Route::put('/overdraft/{account}', [Portal\OverdraftController::class, 'update'])->whereNumber('account')->name('overdraft.update');
+    Route::get('/insights', [Portal\InsightsController::class, 'index'])->name('insights.index');
+    Route::post('/insights/budgets', [Portal\InsightsController::class, 'budget'])->name('insights.budget');
+    Route::post('/insights/transactions/{transaction:reference}/category', [Portal\InsightsController::class, 'category'])->name('insights.category');
     Route::middleware('feature:loans')->prefix('borrow')->name('borrow.')->group(function () {
         Route::get('/', [Portal\LoanController::class, 'index'])->name('index');
         Route::get('/apply', [Portal\LoanController::class, 'create'])->name('create');

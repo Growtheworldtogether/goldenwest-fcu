@@ -27,7 +27,7 @@ class DepositController extends Controller
     public function createCheck(Request $request)
     {
         return view('portal.deposit-check', [
-            'accounts' => $request->user()->accounts()->with('product')->where('accounts.status', 'active')->orderBy('accounts.id')->get(),
+            'accounts' => $request->user()->accounts()->with('product')->where('accounts.status', 'active')->where('accounts.type', 'standard')->orderBy('accounts.id')->get(),
             'token' => (string) Str::ulid(),
             'verified' => $request->user()->kyc_status === 'verified',
             'limit' => Money::cents(config('bank.check_deposit_limit')),
@@ -68,7 +68,7 @@ class DepositController extends Controller
         $user = $request->user();
 
         return view('portal.deposit-ach', [
-            'accounts' => $user->accounts()->with('product')->where('accounts.status', 'active')->orderBy('accounts.id')->get(),
+            'accounts' => $user->accounts()->with('product')->where('accounts.status', 'active')->where('accounts.type', 'standard')->orderBy('accounts.id')->get(),
             'payees' => Payee::where('user_id', $user->id)->where('status', 'active')->orderBy('name')->get(),
             'token' => (string) Str::ulid(),
             'verified' => $user->kyc_status === 'verified',

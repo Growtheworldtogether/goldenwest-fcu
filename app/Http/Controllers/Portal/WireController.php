@@ -30,7 +30,7 @@ class WireController extends Controller
         $user = $request->user();
 
         return view('portal.wire-new', [
-            'accounts' => $user->accounts()->with('product')->where('accounts.status', 'active')->orderBy('accounts.id')->get(),
+            'accounts' => $user->accounts()->with('product')->where('accounts.status', 'active')->where('accounts.type', 'standard')->orderBy('accounts.id')->get(),
             'recipients' => WireRecipient::where('user_id', $user->id)->where('status', 'active')->orderBy('name')->get(),
             'token' => (string) Str::ulid(),
             'fee' => WireService::fee(),

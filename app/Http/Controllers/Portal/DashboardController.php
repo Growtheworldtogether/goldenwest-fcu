@@ -30,6 +30,7 @@ class DashboardController extends Controller
             ->latest('id')->get();
 
         return view('portal.dashboard', [
+            'budgetWarnings' => array_values(array_filter(app(\App\Services\SpendingService::class)->budgetStatus($request->user()), fn ($b) => $b['state'] !== 'ok')),
             'announcements' => \App\Models\Announcement::forMember($request->user()),
             'accounts' => $accounts,
             'total' => Money::cents($accounts->sum(fn ($a) => $a->balance->cents)),

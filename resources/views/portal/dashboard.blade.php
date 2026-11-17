@@ -14,6 +14,10 @@
     </div>
 @endforeach
 
+@foreach ($budgetWarnings as $b)
+    <div class="notice-bar" role="status"><p><strong>{{ config('spending.categories')[$b['category']] }} budget:</strong> {{ $b['state'] === 'over' ? 'you are over your monthly budget' : 'you have used '.$b['percent'].'% of your monthly budget' }}. <a class="plink" href="{{ route('insights.index') }}">See spending</a></p></div>
+@endforeach
+
 @foreach ($locks as $lock)
     <div class="notice-bar" role="status">
         <p><strong>{{ $lock->account ? $lock->account->nickname.' '.$lock->account->masked() : 'Your membership' }} has a restriction:</strong> {{ ['full_lock' => 'No money can move in or out', 'debit_block' => 'Money cannot be sent out', 'credit_block' => 'Money cannot be received'][$lock->type] ?? '' }}.</p>

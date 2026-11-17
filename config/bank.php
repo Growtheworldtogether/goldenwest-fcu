@@ -26,4 +26,11 @@ return [
     'loan_late_fee' => 2_500,         // $25
     'loan_delinquent_days' => 30,     // days past due before the loan is marked delinquent
     'loan_first_due_days' => 30,      // first payment is due this many days after disbursement
+
+    // Bill pay
+    'bill_review_threshold' => 250_000,   // payments over $2,500 wait for staff review
+    'bill_delivery_days' => 3,            // business days from send date to delivery
+
+    // Spending insights: a budget warns at this share of its limit
+    'budget_warn_percent' => 80,
 ];
