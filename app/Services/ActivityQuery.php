@@ -19,7 +19,7 @@ final class ActivityQuery
         'deposits' => ['Deposits', [TransactionType::Deposit, TransactionType::Dividend, TransactionType::LoanDisbursement]],
         'purchases' => ['Card purchases', [TransactionType::CardPurchase]],
         'transfers' => ['Transfers', [TransactionType::Transfer, TransactionType::MemberTransfer, TransactionType::OverdraftTransfer, TransactionType::Reversal]],
-        'bills' => ['Bills and payments', [TransactionType::BillPayment, TransactionType::AchOut, TransactionType::WireOut]],
+        'bills' => ['Bills and payments', [TransactionType::BillPayment, TransactionType::AchOut, TransactionType::WireOut, TransactionType::LoanPayment]],
         'fees' => ['Fees', [TransactionType::Fee]],
         'adjustments' => ['Adjustments', [TransactionType::Adjustment]],
     ];

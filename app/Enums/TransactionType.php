@@ -15,6 +15,7 @@ enum TransactionType: string
     case Adjustment = 'adjustment';           // admin credit or debit
     case Dividend = 'dividend';
     case LoanDisbursement = 'loan_disbursement';
+    case LoanPayment = 'loan_payment';           // a payment toward a loan
     case OverdraftTransfer = 'overdraft_transfer';
     case Fee = 'fee';
     case Reversal = 'reversal';

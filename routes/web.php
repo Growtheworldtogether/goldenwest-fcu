@@ -107,6 +107,17 @@ Route::middleware(['auth', 'verified', 'member.area'])->group(function () {
     Route::post('/tickets/{ticket:reference}/reply', [Portal\TicketController::class, 'reply'])->middleware('throttle:20,1')->name('tickets.reply');
     Route::post('/tickets/{ticket:reference}/resolve', [Portal\TicketController::class, 'resolve'])->name('tickets.resolve');
 
+    Route::middleware('feature:loans')->prefix('borrow')->name('borrow.')->group(function () {
+        Route::get('/', [Portal\LoanController::class, 'index'])->name('index');
+        Route::get('/apply', [Portal\LoanController::class, 'create'])->name('create');
+        Route::post('/apply', [Portal\LoanController::class, 'store'])->middleware('throttle:5,1')->name('store');
+        Route::get('/applications/{application:reference}', [Portal\LoanController::class, 'application_show'])->name('application');
+        Route::post('/applications/{application:reference}/reply', [Portal\LoanController::class, 'reply'])->name('reply');
+        Route::post('/applications/{application:reference}/withdraw', [Portal\LoanController::class, 'withdraw'])->name('withdraw');
+        Route::get('/loans/{loan:reference}', [Portal\LoanController::class, 'show'])->name('show');
+        Route::post('/loans/{loan:reference}/pay', [Portal\LoanController::class, 'pay'])->middleware('throttle:10,1')->name('pay');
+        Route::post('/loans/{loan:reference}/autopay', [Portal\LoanController::class, 'autopay'])->name('autopay');
+    });
     Route::get('/card', [Portal\CardController::class, 'show'])->name('card.show');
     Route::post('/card', [Portal\CardController::class, 'request'])->middleware('throttle:5,1')->name('card.request');
     Route::post('/card/{card}/reveal', [Portal\CardController::class, 'reveal'])->middleware('throttle:10,1')->whereNumber('card')->name('card.reveal');
@@ -159,6 +170,10 @@ Route::middleware(['auth', 'staff'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/identity/{document}', [Admin\KycController::class, 'show'])->whereNumber('document')->name('kyc.show');
     Route::post('/identity/{document}/{action}', [Admin\KycController::class, 'decide'])->whereNumber('document')->where('action', 'approve|reject')->name('kyc.decide');
     Route::get('/audit', Admin\AuditController::class)->name('audit');
+    Route::get('/loans', [Admin\LoanController::class, 'index'])->name('loans.index');
+    Route::get('/loans/applications/{application:reference}', [Admin\LoanController::class, 'show'])->name('loans.show');
+    Route::post('/loans/applications/{application:reference}', [Admin\LoanController::class, 'act'])->name('loans.act');
+    Route::get('/loans/{loan:reference}', [Admin\LoanController::class, 'loan'])->name('loans.loan');
     Route::get('/cards', [Admin\CardController::class, 'index'])->name('cards.index');
     Route::post('/cards/{card}/decide', [Admin\CardController::class, 'decide'])->whereNumber('card')->name('cards.decide');
     Route::post('/cards/{card}/change', [Admin\CardController::class, 'change'])->whereNumber('card')->name('cards.change');

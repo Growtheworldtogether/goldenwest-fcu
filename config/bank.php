@@ -20,4 +20,10 @@ return [
     // Virtual card: default limits a member can lower but not raise.
     'card_daily_limit' => 100_000,    // $1,000 a day
     'card_purchase_limit' => 50_000,  // $500 a purchase
+
+    // Loans
+    'loan_grace_days' => 10,          // days after the due date before a late fee
+    'loan_late_fee' => 2_500,         // $25
+    'loan_delinquent_days' => 30,     // days past due before the loan is marked delinquent
+    'loan_first_due_days' => 30,      // first payment is due this many days after disbursement
 ];

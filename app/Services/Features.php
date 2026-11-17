@@ -11,6 +11,7 @@ final class Features
     /** Every feature staff can switch on for a member. Later milestones add cards, crypto, loans and higher limits. */
     public const ALL = [
         'wires' => 'Wire transfers',
+        'loans' => 'Loans',
     ];
 
     public static function enabled(User $user, string $feature): bool

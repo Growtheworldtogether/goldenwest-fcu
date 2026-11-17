@@ -89,6 +89,15 @@
         </div>
 
         <div class="panel-card">
+            <h3>Loans</h3>
+            @forelse ($loans as $l)
+                <p class="item">@can('staff.approveLoans')<a class="plink" href="{{ route('admin.loans.loan', $l->reference) }}">{{ $l->product->name }}</a>@else{{ $l->product->name }}@endcan {{ $l->balanceMoney()->format() }} <span class="chip {{ $l->status === 'delinquent' ? 'rejected' : 'completed' }}">{{ str_replace('_', ' ', $l->status) }}</span></p>
+            @empty
+                <p style="margin:0;color:var(--muted)">No loans.</p>
+            @endforelse
+        </div>
+
+        <div class="panel-card">
             <h3>Virtual cards</h3>
             @forelse ($cards as $c)
                 <p class="item">@can('staff.approveCards')<a class="plink" href="{{ route('admin.cards.index', ['tab' => 'all']) }}">{{ $c->last4 ? 'Ending '.$c->last4 : 'Request' }}</a>@else{{ $c->last4 ? 'Ending '.$c->last4 : 'Request' }}@endcan <span class="chip {{ ['active' => 'completed', 'rejected' => 'rejected', 'frozen' => 'held'][$c->status] ?? 'pending' }}">{{ $c->status }}</span></p>

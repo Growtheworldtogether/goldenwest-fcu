@@ -402,3 +402,12 @@ Every success, error and info message in the interface appears as a **toast**, n
 - Not built yet from the security list: new-device email alerts.
 
 - **Card page revision:** card numbers now start with 4 (16 digits, Luhn). The page shows the card beside a details panel; the checkout link was removed from the page (the `/card/pay` route remains). Members can **request a physical card** for an active card (name, mailing address; one order at a time, cancellable while under review). Staff approve and ship, or decline with a reason, on the Physical card orders tab at `/admin/cards`.
+
+## 10g. M7 as built: loans
+
+- **Flag:** `loans` is a per-member feature (Member 360 → Features). Without it `/borrow` is a 404 and the menu item is hidden; `LoanService::apply` refuses too. The public `/loans` page is unchanged.
+- **Products:** `loan_products` seeded by migration: Personal ($1,000 to $50,000, 12-60 months, 8.99% to 16.99% APR) and Auto ($5,000 to $75,000, 36-72 months, 5.49% to 11.99% APR).
+- **Member:** `/borrow` lists loans and open applications; `/borrow/apply` has the form with a live payment estimate (auto loans ask for vehicle details). One open application at a time and identity must be verified. A member can answer a "needs info" question or withdraw. A loan page shows the schedule, balance, payoff today, pay next / extra / payoff, and autopay.
+- **Staff** (`approvals.manage`, gate `staff.approveLoans`): `/admin/loans` tabs (to review, waiting for member, active loans, all). An application can be approved (staff sets the APR inside the product range and may lower the amount), declined with a reason, or sent back with a question. Approval writes a `decisions` row, builds the schedule with `AmortizationSchedule`, and pays the money in through `TransferService` as `loan_disbursement`.
+- **Repayment:** payments post as `loan_payment`. An extra payment lowers principal and the remaining payments are recalculated over the remaining months. Payoff = balance + interest since the last due date (actual/365) + late fees.
+- **Autopay and late fees:** `php artisan loans:process` (daily 04:00) takes autopay on or after the due date (a failure is audited), adds the late fee (`bank.loan_late_fee`) after the grace days, and marks a loan delinquent after `bank.loan_delinquent_days`.

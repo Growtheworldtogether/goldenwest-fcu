@@ -58,6 +58,7 @@ class MemberController extends Controller
             'lockReasons' => ReasonCode::whereIn('applies_to', ['restriction', 'all'])->orderBy('label')->pluck('label', 'code'),
             'adjustReasons' => ReasonCode::whereIn('applies_to', ['adjustment', 'all'])->orderBy('label')->pluck('label', 'code'),
             'actingReasons' => ReasonCode::where('applies_to', 'impersonation')->orderBy('label')->pluck('label', 'code'),
+            'loans' => \App\Models\Loan::with('product')->where('user_id', $user->id)->latest('id')->get(),
             'cards' => \App\Models\Card::where('user_id', $user->id)->latest('id')->get(),
             'payees' => \App\Models\Payee::where('user_id', $user->id)->where('status', 'active')->orderBy('name')->get(),
             'kycDocs' => \App\Models\KycDocument::where('user_id', $user->id)->where('status', '!=', 'replaced')->latest('id')->get(),

@@ -24,6 +24,7 @@ class DashboardController extends Controller
             'overdue' => (clone $open)->where('created_at', '<=', now()->subWeekdays(3))->count(),
             'tickets' => \App\Models\Ticket::whereIn('status', ['open', 'awaiting_staff'])->count(),
             'cardRequests' => \App\Models\Card::where('status', 'requested')->count(),
+            'loanApps' => \App\Models\LoanApplication::whereIn('status', ['submitted', 'in_review'])->count(),
             'inquiries' => Inquiry::whereNull('handled_at')->count(),
             'members' => User::where('role', 'user')->count(),
             'oldest' => $oldest,
