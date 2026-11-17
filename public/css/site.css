@@ -48,7 +48,7 @@ h1, h2, h3 { margin: 0; line-height: 1.08; }
 .idnote[open] summary > svg:last-child { transform: rotate(180deg); }
 .idicon { color: var(--navy); flex: none; }
 .idnote p a { color: var(--blue); }
-.idnote p { position: absolute; left: var(--pad); top: 52px; margin: 0; max-width: 34rem; padding: .85rem 1rem; background: #fff; border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 8px 20px rgba(20,26,74,.12); font-size: .9375rem; }
+.idnote p { position: absolute; left: var(--pad); top: 52px; margin: 0; max-width: 40rem; padding: 1rem 1.15rem; line-height: 1.5; z-index: 20; background: #fff; border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 8px 20px rgba(20,26,74,.12); font-size: .9375rem; }
 
 /* ---------- Header ---------- */
 .site-head { position: relative; z-index: 30; background: #fff; }

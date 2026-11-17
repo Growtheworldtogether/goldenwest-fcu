@@ -19,7 +19,7 @@
             <em>Security notice: we will never ask for your password or a one-time code by phone, text or email.</em>
             <svg viewBox="0 0 12 8" width="12" height="8" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m1 1 5 5 5-5"/></svg>
         </summary>
-        <p>If someone contacts you claiming to be from Golden West and asks for either, hang up and call Customer Care at 800-555-0147. You can also report it from the <a href="{{ url('/security') }}">Security &amp; Fraud Center</a>.</p>
+        <p><strong>Protect your account.</strong> Golden West will never call, text or email you to ask for your online banking password, PIN, card number, or the one-time code we send to verify a sign-in. Fraudsters often fake caller ID and sound urgent, so do not trust a call just because it appears to come from us.<br><br>If someone contacts you claiming to be from Golden West and asks for any of these, do not share anything. Hang up and call Customer Care at <a href="tel:8005550147">800-555-0147</a>, or visit your nearest branch. If you already shared information, call us right away so we can secure your accounts. You can also report suspicious messages in the <a href="{{ url('/security') }}">Security &amp; Fraud Center</a>.</p>
     </details>
 </div>
 
