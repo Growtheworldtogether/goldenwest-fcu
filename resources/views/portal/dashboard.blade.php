@@ -23,6 +23,13 @@
     <a href="{{ route('activity') }}"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span><span>View activity<small>Search and download</small></span></a>
 </nav>
 
+@foreach ($locks as $lock)
+    <div class="notice-bar" role="status">
+        <p><strong>{{ $lock->account ? $lock->account->nickname.' '.$lock->account->masked() : 'Your membership' }} has a restriction:</strong> {{ ['full_lock' => 'No money can move in or out', 'debit_block' => 'Money cannot be sent out', 'credit_block' => 'Money cannot be received'][$lock->type] ?? '' }}.</p>
+        <p>{{ $reasons[$lock->reason_code] ?? '' }}. You can still sign in and see your balances. <a class="plink" href="{{ url('/help#contest') }}">Contact us about this</a>.</p>
+    </div>
+@endforeach
+
 @foreach ($waiting as $tx)
     @php($d = $tx->decisions->sortByDesc('id')->first())
     <div class="notice-bar" role="status">

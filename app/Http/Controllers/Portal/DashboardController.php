@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Portal;
 
 use App\Enums\TransactionStatus;
 use App\Http\Controllers\Controller;
+use App\Models\AccountRestriction;
 use App\Models\Decision;
 use App\Models\ReasonCode;
 use App\Models\Transaction;
@@ -33,6 +34,7 @@ class DashboardController extends Controller
             'total' => Money::cents($accounts->sum(fn ($a) => $a->balance->cents)),
             'recent' => $recent,
             'waiting' => $waiting,
+            'locks' => AccountRestriction::active()->where(fn ($q) => $q->where('user_id', $request->user()->id)->orWhereIn('account_id', $ids))->with('account')->get(),
             'reasons' => ReasonCode::pluck('label', 'code'),
         ]);
     }

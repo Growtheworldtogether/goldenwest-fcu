@@ -26,7 +26,7 @@ The full specification is in [`docs/SPEC.md`](docs/SPEC.md). Read it before chan
 | --- | --- |
 | Specification | Done (`docs/SPEC.md`) |
 | `Money`, loan `AmortizationSchedule`, fake `CardNumber` | Done, checked by `php scripts/verify-domain.php` (37 checks) |
-| Laravel application (migrations, services, portals) | M0 scaffold and public site done; M1 ledger core done (TransferService, ledger, decisions, overdraft, seeded members); M2 member portal done (registration with membership check, email verification, 2FA, dashboard, history with filters and CSV, transfers, profile); M3 admin core is next |
+| Laravel application (migrations, services, portals) | M0 scaffold and public site done; M1 ledger core done (TransferService, ledger, decisions, overdraft, seeded members); M2 member portal done (registration with membership check, email verification, 2FA, dashboard, history with filters and CSV, transfers, profile); M3 staff console done (titles and permissions, mandatory 2FA, member search and Member 360, review queue with dual approval, locks, balance adjustments, audit viewer, inquiries inbox, log in as member); M3b branding and content is next |
 
 Build order and the check for each step are in the spec under **Build plan** (M0 to M11).
 

@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\AdminProfile;
+use App\Models\User;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
+
+/** Writes the title presets in config/admin.php to the permission tables and assigns titles. */
+final class StaffDirectory
+{
+    public static function sync(): void
+    {
+        $all = array_keys(config('admin.permissions'));
+        foreach ($all as $name) {
+            Permission::findOrCreate($name, 'web');
+        }
+        foreach (config('admin.titles') as $title => $perms) {
+            Role::findOrCreate($title, 'web')->syncPermissions($perms === ['*'] ? $all : $perms);
+        }
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+    }
+
+    public static function assign(User $user, string $title): void
+    {
+        self::sync();
+        $user->forceFill(['role' => 'admin'])->save();
+        AdminProfile::updateOrCreate(['user_id' => $user->id], ['title' => $title]);
+        $user->syncRoles([$title]);
+    }
+}

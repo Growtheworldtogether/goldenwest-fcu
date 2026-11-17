@@ -16,7 +16,9 @@ final class Audit
         ?int $actorId = null,
         ?int $impersonatorId = null,
     ): AuditLog {
-        $request = app()->runningInConsole() ? null : request();
+        $request = app()->bound('request') ? request() : null;
+        // Anything written during a "log in as member" session is stamped with the staff member.
+        $impersonatorId ??= $request && $request->hasSession() ? $request->session()->get('impersonation.admin_id') : null;
 
         return AuditLog::create([
             'actor_id' => $actorId,

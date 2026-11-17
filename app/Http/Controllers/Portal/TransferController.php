@@ -6,6 +6,7 @@ use App\Enums\TransactionStatus;
 use App\Enums\TransactionType;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
+use App\Services\ImpersonationService;
 use App\Services\Ledger\TransferException;
 use App\Services\Ledger\TransferRequest;
 use App\Services\Ledger\TransferService;
@@ -37,6 +38,17 @@ class TransferController extends Controller
             'token' => ['required', 'regex:/^[0-9A-HJKMNP-TV-Z]{26}$/'],
         ], ['to_account_id.different' => 'Choose two different accounts.']);
 
+        // Acting as a member: money actions can be switched off, and each one needs the staff member's own code.
+        $acting = $request->session()->get('impersonation');
+        if ($acting) {
+            $staff = app(ImpersonationService::class);
+            abort_unless($staff->moneyActionsAllowed(), 403, 'Money actions are switched off while acting as a member.');
+            $request->validate(['admin_code' => ['required', 'digits:6']], ['admin_code.required' => 'Enter your own two-step code to move money while acting as a member.']);
+            if (! $staff->adminCodeIsValid($acting['admin_id'], $request->input('admin_code'))) {
+                return back()->withInput()->withErrors(['admin_code' => 'That staff code is not correct.']);
+            }
+        }
+
         $from = Account::findOrFail($data['from_account_id']);
         $to = Account::findOrFail($data['to_account_id']);
         Gate::authorize('transfer', $from);
@@ -56,6 +68,7 @@ class TransferController extends Controller
                 fromAccountId: $from->id,
                 toAccountId: $to->id,
                 initiatedBy: $request->user()->id,
+                impersonatorId: $acting['admin_id'] ?? null,
                 memo: $data['memo'] ?? null,
                 memberDescription: null,
             ));

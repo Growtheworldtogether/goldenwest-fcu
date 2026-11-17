@@ -24,6 +24,16 @@ class AccountRestriction extends Model
         static::deleting(fn () => throw new LogicException('Restrictions cannot be deleted.'));
     }
 
+    public function account(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Account::class);
+    }
+
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->whereNull('unlocked_at');

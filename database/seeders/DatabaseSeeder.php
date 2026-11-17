@@ -23,11 +23,18 @@ class DatabaseSeeder extends Seeder
             'name' => 'Alexandra Reyes', 'first_name' => 'Alexandra', 'last_name' => 'Reyes',
             'email' => 'admin@example.com', 'password' => $adminPassword,
         ]);
-        $admin->forceFill(['role' => 'admin', 'kyc_status' => 'verified', 'email_verified_at' => now()])->save();
+        $admin->forceFill(['kyc_status' => 'verified', 'email_verified_at' => now()])->save();
+        \App\Services\StaffDirectory::assign($admin, 'Super Admin');
+
+        foreach ([['Teller', 'Priya', 'Nair', 'teller'], ['Manager', 'Daniel', 'Brooks', 'manager'], ['Compliance', 'Rachel', 'Kim', 'compliance'], ['Support Agent', 'Tyler', 'Moore', 'support']] as [$title, $first, $last, $handle]) {
+            $staff = User::create(['name' => "$first $last", 'first_name' => $first, 'last_name' => $last, 'email' => "$handle@example.com", 'password' => $adminPassword]);
+            $staff->forceFill(['kyc_status' => 'verified', 'email_verified_at' => now()])->save();
+            \App\Services\StaffDirectory::assign($staff, $title);
+        }
 
         $this->call(DemoMemberSeeder::class);
 
-        $this->command?->info('Super Admin: admin@example.com / '.$adminPassword);
+        $this->command?->info('Staff (Super Admin admin@example.com, teller@, manager@, compliance@, support@example.com) all use: '.$adminPassword);
         $this->command?->info('Members: <first>.<last>@example.com / '.env('SEED_MEMBER_PASSWORD', 'GoldenWest2026!'));
     }
 }

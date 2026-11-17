@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\InquiryController;
+use App\Http\Controllers\Admin;
 use App\Http\Controllers\Portal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -57,7 +58,7 @@ Route::post('/contact', [InquiryController::class, 'contact'])->middleware('thro
 Route::post('/appointments', [InquiryController::class, 'appointment'])->middleware('throttle:6,1')->name('appointments.send');
 
 // Online banking. Members must be signed in and have a verified email.
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'member.area'])->group(function () {
     Route::get('/dashboard', Portal\DashboardController::class)->name('dashboard');
     Route::get('/activity', [Portal\ActivityController::class, 'index'])->name('activity');
     Route::get('/activity/export', [Portal\ActivityController::class, 'export'])->name('activity.export');
@@ -74,4 +75,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/security-settings', Portal\SecurityController::class)->name('security.settings');
     Route::get('/profile', [Portal\ProfileController::class, 'edit'])->name('profile');
     Route::put('/profile/notifications', [Portal\ProfileController::class, 'preferences'])->name('profile.notifications');
+});
+
+// Ends a "log in as member" session. The signed-in user is the member at this point, so it sits outside the staff group.
+Route::post('/exit-member', [Admin\ImpersonationController::class, 'stop'])->middleware('auth')->name('impersonate.stop');
+
+// Staff console. Needs a staff title, two-step verification on, and a short idle timeout.
+Route::middleware(['auth', 'staff'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', Admin\DashboardController::class)->name('home');
+    Route::get('/security', Portal\SecurityController::class)->name('security');
+    Route::get('/members', [Admin\MemberController::class, 'index'])->name('members.index');
+    Route::get('/members/{user}', [Admin\MemberController::class, 'show'])->whereNumber('user')->name('members.show');
+    Route::post('/members/{user}/locks', [Admin\RestrictionController::class, 'store'])->whereNumber('user')->name('locks.store');
+    Route::post('/locks/{restriction}/unlock', [Admin\RestrictionController::class, 'unlock'])->whereNumber('restriction')->name('locks.unlock');
+    Route::post('/members/{user}/adjustments', [Admin\AdjustmentController::class, 'store'])->whereNumber('user')->name('adjustments.store');
+    Route::post('/members/{user}/act-as', [Admin\ImpersonationController::class, 'start'])->whereNumber('user')->name('impersonate.start');
+    Route::get('/queue', [Admin\QueueController::class, 'index'])->name('queue.index');
+    Route::get('/queue/{transaction:reference}', [Admin\QueueController::class, 'show'])->name('queue.show');
+    Route::post('/queue/{transaction:reference}/{action}', [Admin\QueueController::class, 'act'])->where('action', 'approve|reject|hold|release|reverse')->name('queue.act');
+    Route::get('/audit', Admin\AuditController::class)->name('audit');
+    Route::get('/inquiries', [Admin\InquiryController::class, 'index'])->name('inquiries.index');
+    Route::post('/inquiries/{inquiry}/handle', [Admin\InquiryController::class, 'handle'])->whereNumber('inquiry')->name('inquiries.handle');
+    Route::get('/settings', [Admin\SettingsController::class, 'edit'])->name('settings');
+    Route::put('/settings', [Admin\SettingsController::class, 'update'])->name('settings.update');
 });

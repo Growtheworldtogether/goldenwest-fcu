@@ -21,6 +21,12 @@ use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
 {
+    public function register(): void
+    {
+        $this->app->singleton(\Laravel\Fortify\Contracts\LoginResponse::class, \App\Http\Responses\StaffAwareLoginResponse::class);
+        $this->app->singleton(\Laravel\Fortify\Contracts\TwoFactorLoginResponse::class, \App\Http\Responses\StaffAwareLoginResponse::class);
+    }
+
     public function boot(): void
     {
         Fortify::createUsersUsing(CreateNewUser::class);
@@ -37,6 +43,9 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::confirmPasswordView(fn () => view('auth.confirm-password'));
 
         Event::listen(Login::class, function (Login $e) {
+            if (request()->attributes->get('silent_login')) {
+                return;
+            }
             $e->user->forceFill(['last_login_at' => now()])->saveQuietly();
             Audit::record('login.success', $e->user, null, null, $e->user->id);
         });

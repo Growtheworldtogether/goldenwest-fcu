@@ -41,6 +41,18 @@
 </div>
 </div>
 
+@if ($staffAccess->count())
+<div class="panel-card">
+    <h2>Staff accessed or acted on your account</h2>
+    <p class="fine" style="margin-top:0">Sometimes a Golden West team member signs in as you to help with a request. Each time is listed here.</p>
+    <table class="txtable"><tbody>
+    @foreach ($staffAccess as $s)
+        <tr><td style="white-space:nowrap;width:1%">{{ $s->started_at->format('M j, g:i a') }}</td><td>{{ $s->admin->name }}, {{ $s->admin->adminTitle() }}<span class="sub">{{ $staffReasons[$s->reason_code] ?? $s->reason_code }}</span></td></tr>
+    @endforeach
+    </tbody></table>
+</div>
+@endif
+
 <div class="panel-card">
     <h2>Recent security activity</h2>
     @if ($events->count())

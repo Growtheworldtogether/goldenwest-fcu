@@ -11,13 +11,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable(['name', 'email', 'password', 'first_name', 'last_name', 'phone', 'dob', 'address_line1', 'city', 'state', 'postal_code'])]
 #[Hidden(['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, TwoFactorAuthenticatable;
+    use HasFactory, HasRoles, Notifiable, TwoFactorAuthenticatable;
 
     /** Accounts this user holds, through account_holders. */
     public function accounts(): BelongsToMany
@@ -36,6 +37,21 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->two_factor_recovery_codes
             ? json_decode(decrypt($this->two_factor_recovery_codes), true)
             : [];
+    }
+
+    public function adminProfile(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(AdminProfile::class);
+    }
+
+    public function adminTitle(): ?string
+    {
+        return $this->isAdmin() ? $this->adminProfile?->title : null;
+    }
+
+    public function hasTwoFactor(): bool
+    {
+        return $this->two_factor_secret !== null && $this->two_factor_confirmed_at !== null;
     }
 
     public function isAdmin(): bool

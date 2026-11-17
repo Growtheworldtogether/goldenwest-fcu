@@ -21,6 +21,9 @@ class ReasonCodeSeeder extends Seeder
             ['member_request', 'Requested by the member', 'all'],
             ['error_correction', 'Correction of an error', 'adjustment'],
             ['goodwill', 'Goodwill credit', 'adjustment'],
+            ['member_support', 'Helping the member with a request', 'impersonation'],
+            ['identity_assist', 'Helping the member regain access', 'impersonation'],
+            ['investigation', 'Reviewing an account concern', 'impersonation'],
             ['deceased_member', 'Member reported deceased', 'restriction'],
         ] as [$code, $label, $applies]) {
             ReasonCode::updateOrCreate(['code' => $code], ['label' => $label, 'applies_to' => $applies]);

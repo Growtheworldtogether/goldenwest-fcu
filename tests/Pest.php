@@ -97,3 +97,26 @@ function registrationData(array $overrides = []): array
         'password' => 'Correct-Horse-9', 'password_confirmation' => 'Correct-Horse-9', 'terms' => '1',
     ], $overrides);
 }
+
+/** A staff member with a title. Two-step verification is on unless asked otherwise. */
+function makeStaff(string $title = 'Manager', bool $twoFactor = true, string $name = 'Staff Person'): User
+{
+    $user = makeUser('admin', $name);
+    $user->forceFill(['first_name' => explode(' ', $name)[0], 'last_name' => explode(' ', $name)[1] ?? '', 'email_verified_at' => now()])->save();
+    App\Services\StaffDirectory::assign($user, $title);
+
+    if ($twoFactor) {
+        $user->forceFill([
+            'two_factor_secret' => encrypt('JBSWY3DPEHPK3PXP'),
+            'two_factor_recovery_codes' => encrypt(json_encode(['aaaaaaaaaa-bbbbbbbbbb'])),
+            'two_factor_confirmed_at' => now(),
+        ])->save();
+    }
+
+    return $user->refresh();
+}
+
+function staffCode(): string
+{
+    return (new PragmaRX\Google2FA\Google2FA)->getCurrentOtp('JBSWY3DPEHPK3PXP');
+}
