@@ -181,3 +181,18 @@ it('bumps the legal version when a legal page is published and keeps tokens in s
     $this->get('/privacy')->assertSee('Last updated December 1, 2026')->assertSee('Call 800-555-0147 about Golden West.');
     expect(PageContent::where('page', 'privacy')->first()->version)->toBe(1);
 });
+
+it('fills brand tokens in articles, search and registration from the Branding page', function () {
+    $this->actingAs(makeStaff('Super Admin'))->put('/admin/branding', brandPayload(['name' => 'Harbor Federal Credit Union', 'short_name' => 'Harbor', 'support_phone' => '800-555-0199']))->assertSessionHasNoErrors();
+    auth()->logout();
+
+    $this->get('/learn/fake-bank-texts')->assertOk()->assertSee('Harbor will never ask')->assertDontSee('Golden West')->assertDontSee('{short_name}');
+    $this->get('/register')->assertOk()->assertSee('A family member is a Harbor member')->assertDontSee('{short_name}');
+    $this->get('/search?q=join')->assertOk()->assertSee('Join Harbor');
+});
+
+it('keeps the company name out of config text', function () {
+    foreach (['articles', 'site'] as $f) {
+        expect(file_get_contents(config_path($f.'.php')))->not->toContain('Golden West');
+    }
+});

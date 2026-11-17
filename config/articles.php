@@ -72,7 +72,7 @@ return [
             ],
             [
                 'p',
-                'Golden West will never ask you to read back, text back or enter a one-time code for anyone but yourself on our official sign-in screen. A person asking for that code is trying to sign in as you.',
+                '{short_name} will never ask you to read back, text back or enter a one-time code for anyone but yourself on our official sign-in screen. A person asking for that code is trying to sign in as you.',
             ],
             [
                 'h',
@@ -96,7 +96,7 @@ return [
             ],
             [
                 'p',
-                'Call Customer Care at 800-555-0147 right away so we can secure your accounts. Then change your online banking password and review recent activity. You can report the message in our Security & Fraud Center.',
+                'Call Customer Care at {phone} right away so we can secure your accounts. Then change your online banking password and review recent activity. You can report the message in our Security & Fraud Center.',
             ],
         ],
     ],
@@ -132,7 +132,7 @@ return [
                 [
                     'Check your secure messages in online banking for questions from our team.',
                     'Make sure we have your current phone number on file.',
-                    'Call Customer Care at 800-555-0147 if the payment is urgent.',
+                    'Call Customer Care at {phone} if the payment is urgent.',
                 ],
             ],
             [
@@ -199,7 +199,7 @@ return [
             ],
             [
                 'p',
-                'Knowing your rate and budget before you visit a dealer lets you shop on price rather than monthly payment. Pre-approval from Golden West does not obligate you to borrow.',
+                'Knowing your rate and budget before you visit a dealer lets you shop on price rather than monthly payment. Pre-approval from {short_name} does not obligate you to borrow.',
             ],
             [
                 'h',

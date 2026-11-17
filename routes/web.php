@@ -17,11 +17,11 @@ foreach ([
     Route::view('/'.$page, 'pages.'.$page)->name($page);
 }
 
-Route::get('/rates', fn () => view('pages.rates', ['rates' => config('site.rates')]))->name('rates');
+Route::get('/rates', fn () => view('pages.rates', ['rates' => \App\Services\SiteContent::resolve(config('site.rates'))]))->name('rates');
 
-Route::get('/learn', fn () => view('pages.learn', ['articles' => config('articles')]))->name('learn');
+Route::get('/learn', fn () => view('pages.learn', ['articles' => \App\Services\SiteContent::resolve(config('articles'))]))->name('learn');
 Route::get('/learn/{slug}', function (string $slug) {
-    $articles = collect(config('articles'));
+    $articles = collect(\App\Services\SiteContent::resolve(config('articles')));
     $article = $articles->firstWhere('slug', $slug);
     abort_unless($article, 404);
 
@@ -32,7 +32,7 @@ Route::get('/learn/{slug}', function (string $slug) {
 })->name('learn.show');
 
 Route::get('/sitemap', fn () => view('pages.sitemap', [
-    'groups' => collect(config('site.pages'))->groupBy(0),
+    'groups' => collect(\App\Services\SiteContent::resolve(config('site.pages')))->groupBy(0),
 ]))->name('sitemap');
 
 Route::get('/search', function (Request $request) {
@@ -41,10 +41,10 @@ Route::get('/search', function (Request $request) {
 
     if (mb_strlen($q) >= 2) {
         $terms = preg_split('/\s+/', mb_strtolower($q));
-        $pages = collect(config('site.pages'))->map(fn ($p) => [
+        $pages = collect(\App\Services\SiteContent::resolve(config('site.pages')))->map(fn ($p) => [
             'title' => $p[1], 'url' => $p[2], 'area' => $p[0], 'hay' => mb_strtolower($p[1].' '.$p[3]),
         ]);
-        $articles = collect(config('articles'))->map(fn ($a) => [
+        $articles = collect(\App\Services\SiteContent::resolve(config('articles')))->map(fn ($a) => [
             'title' => $a['title'], 'url' => '/learn/'.$a['slug'], 'area' => $a['cat'], 'hay' => mb_strtolower($a['title'].' '.$a['intro']),
         ]);
         $results = $pages->concat($articles)->filter(

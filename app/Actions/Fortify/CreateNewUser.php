@@ -21,7 +21,7 @@ class CreateNewUser implements CreatesNewUsers
         'works_in_region' => 'I work in one of these states',
         'attends_school' => 'I attend school in one of these states',
         'worships_in_region' => 'I worship in one of these states',
-        'family_member' => 'A family member is a Golden West member',
+        'family_member' => 'A family member is a {short_name} member',
     ];
 
     public function create(array $input): User
@@ -46,7 +46,7 @@ class CreateNewUser implements CreatesNewUsers
             'terms' => ['accepted'],
         ], [
             'dob.before_or_equal' => 'You must be at least 18 to open an account.',
-            'eligibility_state.required_unless' => 'Choose the state that connects you to Golden West.',
+            'eligibility_state.required_unless' => 'Choose the state that connects you to '.brand('short_name').'.',
             'eligibility_state.in' => 'We serve California, Nevada, Arizona, Oregon and Washington.',
             'referred_by_member_number.exists' => 'We could not find that member number.',
             'referred_by_member_number.required_if' => 'Enter your family member\'s member number.',

@@ -129,6 +129,18 @@ final class SiteContent
         return $m ? ['url' => route('media.show', $m['filename']), 'alt' => (string) ($value['alt'] ?? ''), 'width' => $m['width'], 'height' => $m['height']] : null;
     }
 
+    /** Fills the tokens in every string of a config array (articles, search index, rates) from the Branding page. */
+    public static function resolve(array $data): array
+    {
+        array_walk_recursive($data, function (&$v) {
+            if (is_string($v) && str_contains($v, '{')) {
+                $v = self::tokens($v, false);
+            }
+        });
+
+        return $data;
+    }
+
     /** {name}, {short_name}, {phone}, {email} and {hours} follow the Branding page. */
     public static function tokens(string $text, bool $html): string
     {

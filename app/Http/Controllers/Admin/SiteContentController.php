@@ -69,8 +69,8 @@ class SiteContentController extends Controller
         SiteContent::$previewPage = $page;
         $view = $def['view'] ?? 'pages.'.$page;
         $data = match ($page) {
-            'rates' => ['rates' => config('site.rates')],
-            'learn' => ['articles' => config('articles')],
+            'rates' => ['rates' => \App\Services\SiteContent::resolve(config('site.rates'))],
+            'learn' => ['articles' => \App\Services\SiteContent::resolve(config('articles'))],
             default => [],
         };
 
