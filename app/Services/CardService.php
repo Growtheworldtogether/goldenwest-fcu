@@ -76,9 +76,9 @@ final class CardService
     private function issue(Card $card): void
     {
         do {
-            $serial = random_int(100_000_000_000, 999_999_999_999);
+            $serial = random_int(10_000_000_000, 99_999_999_999);
         } while (Card::where('serial', $serial)->exists());
-        $number = CardNumber::fromSerial($serial);
+        $number = CardNumber::fromSerial($serial, CardNumber::VISA_STARTS[array_rand(CardNumber::VISA_STARTS)]);
         $card->update([
             'status' => 'active', 'serial' => $serial, 'last4' => substr($number, -4),
             'number_encrypted' => Crypt::encryptString($number), 'cvv_encrypted' => Crypt::encryptString(str_pad((string) random_int(0, 999), 3, '0', STR_PAD_LEFT)),

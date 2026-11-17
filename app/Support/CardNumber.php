@@ -11,6 +11,9 @@ final class CardNumber
 {
     public const TEST_PREFIX = '4';
 
+    /** Four-digit starts that read as Visa. One is picked for each new card. */
+    public const VISA_STARTS = ['4147', '4532', '4556', '4716', '4024', '4929', '4485', '4916'];
+
     /** Build a 16-digit number from a serial. Same serial always gives the same number. */
     public static function fromSerial(int $serial, string $prefix = self::TEST_PREFIX): string
     {

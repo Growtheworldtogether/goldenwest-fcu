@@ -55,7 +55,7 @@ it('issues a card on approval with a valid fake number stored encrypted', functi
     expect($card->status)->toBe('active')->and($card->last4)->toHaveLength(4);
     expect($card->getRawOriginal('number_encrypted'))->not->toContain($card->last4);
     $full = \Illuminate\Support\Facades\Crypt::decryptString($card->number_encrypted);
-    expect(CardNumber::isValid($full))->toBeTrue()->and($full)->toStartWith('4')->toHaveLength(16);
+    expect(CardNumber::isValid($full))->toBeTrue()->and(substr($full, 0, 4))->toBeIn(CardNumber::VISA_STARTS)->and($full)->toHaveLength(16);
     expect(AuditLog::where('action', 'card.approved')->count())->toBe(1);
 });
 
