@@ -123,7 +123,7 @@
             <div>
                 <h3>Contact Us</h3>
                 <p class="contact">Customer Care: <a href="tel:8005550147">800-555-0147</a><br>Mon-Fri: 7am - 8pm PT | Sat: 8am - 5pm PT<br>Routing number: 121478906<br>NMLS number: 482915</p>
-                <p class="apps"><a class="app" href="#">Get the iPhone app</a><a class="app" href="#">Get the Android app</a></p>
+                <p class="apps"><a class="app" href="#"><img src="{{ asset('images/app-store-badge.png') }}" alt="Download on the App Store" width="130" height="39"></a><a class="app" href="#"><img src="{{ asset('images/google-play-badge.png') }}" alt="Get it on Google Play" width="131" height="39"></a></p>
                 <p class="contact">&copy; {{ date('Y') }} Golden West Federal Credit Union</p>
             </div>
         </div>

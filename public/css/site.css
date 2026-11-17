@@ -166,8 +166,9 @@ h1, h2, h3 { margin: 0; line-height: 1.08; }
 .contact { margin: 0 0 1.4rem; font-size: 1.0625rem; line-height: 1.5; color: #1d2029; }
 .contact a { color: var(--blue); }
 .apps { display: flex; gap: .75rem; flex-wrap: wrap; margin: 0 0 1.4rem; }
-.app { background: #111; color: #fff; text-decoration: none; font-size: .875rem; font-weight: 600; padding: .6rem 1rem; border-radius: 6px; border: 1px solid #555; }
-.app:hover { background: #2b2d33; }
+.app { display: inline-block; line-height: 0; }
+.app img { display: block; height: 44px; width: auto; }
+.app:hover { opacity: .85; }
 .legal, .sim-note { margin: 2.5rem 0 0; padding-top: 1.25rem; border-top: 1px solid var(--line); font-size: .8125rem; color: #6a7080; max-width: 60rem; }
 .totop { position: absolute; right: 3rem; bottom: 2.25rem; width: 48px; height: 48px; display: grid; place-items: center; background: #fff; border-radius: 6px; box-shadow: 0 3px 12px rgba(20,26,74,.2); color: var(--navy); }
 .totop:hover { background: #f1f4fc; }
