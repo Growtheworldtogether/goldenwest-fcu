@@ -25,7 +25,7 @@
             <button class="btn" type="submit">Confirm and turn on</button>
         </form>
     @else
-        <p>Add a second step so a stolen password alone cannot get into your accounts. It takes about two minutes.</p>
+        <p>Add a second step so a stolen password alone cannot get into your accounts. It is optional and takes about two minutes.</p>
         <form method="post" action="{{ route('two-factor.enable') }}">@csrf<button class="btn" type="submit">Set up two-step verification</button></form>
     @endif
 </div>

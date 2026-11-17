@@ -25,7 +25,8 @@
         <label>Amount<input name="amount" value="{{ old('amount') }}" inputmode="decimal" placeholder="0.00" required autocomplete="off">@error('amount')<span class="err">{{ $message }}</span>@enderror</label>
         <label>Memo (optional)<input name="memo" value="{{ old('memo') }}" maxlength="140">@error('memo')<span class="err">{{ $message }}</span>@enderror</label>
         @if (session('impersonation'))
-            <label>Your staff code<input name="admin_code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required placeholder="6-digit code from your authenticator app">@error('admin_code')<span class="err">{{ $message }}</span>@enderror</label>
+            @php($hasCode = session('impersonation.admin_two_factor'))
+            <label>{{ $hasCode ? 'Your staff two-step code' : 'Your staff password' }}<input name="admin_code" @if ($hasCode) inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6-digit code from your authenticator app" @else type="password" autocomplete="current-password" @endif required>@error('admin_code')<span class="err">{{ $message }}</span>@enderror</label>
         @endif
         <button class="btn" type="submit">Transfer</button>
     </form>

@@ -18,13 +18,13 @@ it('keeps members and signed-out visitors out of the staff console', function ()
     $this->actingAs($member)->get('/admin/audit')->assertForbidden();
 });
 
-it('requires two-step verification before staff can use the console', function () {
+it('lets staff use the console without two-step verification', function () {
     $staff = makeStaff('Manager', twoFactor: false);
 
-    $this->actingAs($staff)->get('/admin')->assertRedirect('/admin/security');
-    $this->actingAs($staff)->get('/admin/members')->assertRedirect('/admin/security');
+    $this->actingAs($staff)->get('/admin')->assertOk();
+    $this->actingAs($staff)->get('/admin/members')->assertOk();
     $this->actingAs($staff)->get('/admin/security')->assertRedirect(route('password.confirm'));
-    $this->actingAs($staff)->withSession(['auth.password_confirmed_at' => time()])->get('/admin/security')->assertOk()->assertSee('Set up two-step verification');
+    $this->actingAs($staff)->withSession(['auth.password_confirmed_at' => time()])->get('/admin/security')->assertOk()->assertSee('optional');
 });
 
 it('shows the overview to staff with two-step on', function () {

@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-/** Staff area gate: an admin with a title, two-step verification on, and a short idle timeout. */
+/** Staff area gate: an admin with a title and a short idle timeout. Two-step verification is optional. */
 class EnsureStaff
 {
     public function handle(Request $request, Closure $next): Response
@@ -24,10 +24,6 @@ class EnsureStaff
             return redirect()->route('login')->with('status', 'You were signed out after a period of inactivity. Please sign in again.');
         }
         $request->session()->put('staff_last_activity', time());
-
-        if (! $user->hasTwoFactor() && ! $request->routeIs('admin.security')) {
-            return redirect()->route('admin.security')->with('error', 'Turn on two-step verification to use the staff console.');
-        }
 
         return $next($request);
     }

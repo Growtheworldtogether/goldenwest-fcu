@@ -7,6 +7,7 @@ use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
 
@@ -37,7 +38,7 @@ final class ImpersonationService
         $request->session()->regenerate();
         $request->session()->put('impersonation', [
             'id' => $imp->id, 'admin_id' => $admin->id, 'member_id' => $member->id,
-            'admin_name' => $admin->name, 'member_name' => $member->name, 'expires_at' => $imp->expires_at->timestamp,
+            'admin_name' => $admin->name, 'admin_two_factor' => $admin->hasTwoFactor(), 'member_name' => $member->name, 'expires_at' => $imp->expires_at->timestamp,
         ]);
 
         return $imp;
@@ -66,14 +67,21 @@ final class ImpersonationService
         return Setting::bool('impersonation_allow_money_actions', config('admin.impersonation_allow_money_actions'));
     }
 
-    /** The staff member's own two-step code, required for every money action while acting as a member. */
-    public function adminCodeIsValid(int $adminId, ?string $code): bool
+    /**
+     * The staff member's own proof for every money action while acting as a member: their two-step
+     * code when they have two-step on, otherwise their account password.
+     */
+    public function adminCredentialIsValid(int $adminId, ?string $input): bool
     {
         $admin = User::find($adminId);
-        if (! $admin || ! $admin->hasTwoFactor() || ! $code) {
+        if (! $admin || ! $input) {
             return false;
         }
 
-        return app(TwoFactorAuthenticationProvider::class)->verify(decrypt($admin->two_factor_secret), $code);
+        if ($admin->hasTwoFactor()) {
+            return app(TwoFactorAuthenticationProvider::class)->verify(decrypt($admin->two_factor_secret), $input);
+        }
+
+        return Hash::check($input, $admin->password);
     }
 }

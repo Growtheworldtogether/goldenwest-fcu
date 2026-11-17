@@ -71,6 +71,22 @@ it('requires the staff members own code before money moves and stamps the staff 
     expect(AuditLog::where('subject_id', $tx->id)->where('impersonator_id', $manager->id)->exists())->toBeTrue();
 });
 
+it('asks staff without two-step for their password instead before money moves', function () {
+    [$member, $checking, $savings] = verifiedMember();
+    deposit($checking, 100_000);
+    $staff = makeStaff('Manager', twoFactor: false);
+    $staff->forceFill(['password' => 'Staff-Password-77'])->save();
+    startActing($staff, $member);
+
+    $this->get('/transfers/new')->assertSee('Your staff password');
+    $this->post('/transfers', transferPayload($checking, $savings))->assertSessionHasErrors('admin_code');
+    $this->post('/transfers', transferPayload($checking, $savings, extra: ['admin_code' => 'wrong-password']))->assertSessionHasErrors('admin_code');
+    expect($savings->refresh()->balance->cents)->toBe(0);
+
+    $this->post('/transfers', transferPayload($checking, $savings, extra: ['admin_code' => 'Staff-Password-77']))->assertRedirect();
+    expect($savings->refresh()->balance->cents)->toBe(2_500)->and(Transaction::latest('id')->first()->impersonator_id)->toBe($staff->id);
+});
+
 it('stamps the staff id on every audit row written during the session', function () {
     [$member, $checking, $savings] = verifiedMember();
     deposit($checking, 100_000);
