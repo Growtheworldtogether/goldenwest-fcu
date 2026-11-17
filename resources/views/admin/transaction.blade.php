@@ -36,6 +36,33 @@
 </div>
 </div>
 
+@if ($deposit)
+<div class="panel-card" style="margin-top:1.25rem">
+    <h3>{{ $deposit->methodLabel() }} deposit</h3>
+    <dl class="kv">
+        @if ($deposit->check_number)<dt>Check number</dt><dd>{{ $deposit->check_number }}</dd>@endif
+        @if ($deposit->payee)<dt>From</dt><dd>{{ $deposit->payee->label() }} (routing {{ $deposit->payee->routing_number }}) @if ($deposit->payee->waived_by)<span class="tag lock">waiting period waived</span>@endif</dd>@endif
+        @if ($deposit->recorded_by)<dt>Recorded by</dt><dd>{{ \App\Models\User::find($deposit->recorded_by)?->name }} at the counter</dd>@endif
+    </dl>
+    @if ($deposit->front_path)
+    <div class="checkimgs">
+        @foreach (['front' => 'Front', 'back' => 'Back'] as $side => $label)
+            <figure><a href="{{ route('files.check', [$deposit, $side]) }}" target="_blank" rel="noopener"><img src="{{ route('files.check', [$deposit, $side]) }}" alt="{{ $label }} of the check" loading="lazy"></a><figcaption>{{ $label }}</figcaption></figure>
+        @endforeach
+    </div>
+    <p class="fine">Check images are private. Each time staff open one it is recorded in the audit log.</p>
+    @endif
+</div>
+@endif
+
+@foreach ($tickets as $t)
+<div class="panel-card" style="margin-top:1.25rem">
+    <h3>Member contested this decision</h3>
+    <p class="fine" style="margin-top:0">Ticket {{ $t->reference }} &middot; {{ $t->created_at->format('M j, g:i a') }} &middot; {{ ucfirst(str_replace('_', ' ', $t->status)) }}</p>
+    @foreach ($t->memberMessages as $m)<p style="white-space:pre-line;margin:.4rem 0">{{ $m->body }}</p>@endforeach
+</div>
+@endforeach
+
 @if ($open && $canDecide)
 <div class="panel-card decide" style="margin-top:1.25rem">
     <h3>Decide</h3>

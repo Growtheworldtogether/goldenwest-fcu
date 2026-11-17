@@ -362,3 +362,14 @@ Every success, error and info message in the interface appears as a **toast**, n
 - Copy reads like an established US retail credit union: heritage, security, branch network, personal and business banking, member trust.
 - No claim of federal deposit insurance and no use of real insurance or lender logos.
 - Seed data uses realistic US names, believable balances and recognizable merchants (Whole Foods Market, Con Edison, Delta Air Lines). Routing numbers are nine digits with a valid check digit (121478906, in the San Francisco Federal Reserve district range); account numbers are ten to twelve digits. Never "User 1" or "Test Transaction".
+
+
+## 10c. M4 as built (deposits, payees, KYC)
+
+- **Check deposit:** member photographs front and back (PNG, JPG or WebP, 8 MB, re-encoded, stored privately under a random name). It is a `deposit` transaction with `requireReview`, so it stays pending and nothing is credited until staff approve. A rejection or hold carries a reason code and text the member sees.
+- **ACH pull:** from a saved external account, up to the pull limit, pending until reviewed, effective the next weekday. **ACH out** to a saved account uses the normal limits and review threshold.
+- **External accounts (payees):** routing number checked with the ABA checksum, account number encrypted, shown only as the last four digits. A new one cannot be used for `payee_cooling_hours` (24). A Manager, Compliance or Super Admin can end the wait early; it is audited.
+- **Cash:** recorded by a Teller (`deposits.post`), posts at once. Amounts at or over `cash_review_threshold` wait for a second person and the teller cannot approve their own.
+- **KYC:** government ID and proof of address (images or PDF). Staff with `kyc.review` approve or reject with a reason; both approved means `verified`. Unverified members cannot deposit checks or pull from another bank. Documents and check images are served only through `FileController` to the owner and authorised staff, with `no-store`; each staff view is audited. PDFs download rather than open.
+- **Contest:** on a rejected or held transaction, "Contest this decision" opens one ticket linked to the transaction (a second click returns the same ticket). Staff see the contest on the transaction page. The inbox, replies and internal notes arrive in M5.
+- Limits in `config/bank.php`: `check_deposit_limit`, `ach_pull_limit`, `cash_review_threshold`, `payee_cooling_hours`.

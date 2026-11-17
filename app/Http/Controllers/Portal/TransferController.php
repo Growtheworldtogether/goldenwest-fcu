@@ -6,7 +6,6 @@ use App\Enums\TransactionStatus;
 use App\Enums\TransactionType;
 use App\Http\Controllers\Controller;
 use App\Models\Account;
-use App\Services\ImpersonationService;
 use App\Services\Ledger\TransferException;
 use App\Services\Ledger\TransferRequest;
 use App\Services\Ledger\TransferService;
@@ -18,6 +17,8 @@ use InvalidArgumentException;
 
 class TransferController extends Controller
 {
+    use Concerns\ChecksStaffCode;
+
     public function create(Request $request)
     {
         $accounts = $request->user()->accounts()->with('product')->where('accounts.status', 'active')->orderBy('accounts.id')->get();
@@ -38,16 +39,9 @@ class TransferController extends Controller
             'token' => ['required', 'regex:/^[0-9A-HJKMNP-TV-Z]{26}$/'],
         ], ['to_account_id.different' => 'Choose two different accounts.']);
 
-        // Acting as a member: money actions can be switched off, and each one needs the staff member's own code.
         $acting = $request->session()->get('impersonation');
-        if ($acting) {
-            $staff = app(ImpersonationService::class);
-            abort_unless($staff->moneyActionsAllowed(), 403, 'Money actions are switched off while acting as a member.');
-            $what = ($acting['admin_two_factor'] ?? false) ? 'two-step code' : 'password';
-            $request->validate(['admin_code' => ['required', 'string', 'max:200']], ['admin_code.required' => "Enter your own staff {$what} to move money while acting as a member."]);
-            if (! $staff->adminCredentialIsValid($acting['admin_id'], $request->input('admin_code'))) {
-                return back()->withInput($request->except('admin_code'))->withErrors(['admin_code' => "That staff {$what} is not correct."]);
-            }
+        if ($problem = $this->staffCodeProblem($request)) {
+            return $problem;
         }
 
         $from = Account::findOrFail($data['from_account_id']);

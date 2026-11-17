@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\InquiryController;
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\Portal;
@@ -77,9 +78,32 @@ Route::middleware(['auth', 'verified', 'member.area'])->group(function () {
     Route::post('/transfers', [Portal\TransferController::class, 'store'])->middleware('throttle:20,1')->name('transfers.store');
     Route::get('/transactions/{transaction:reference}', [Portal\TransactionController::class, 'show'])->name('transactions.show');
 
+    Route::get('/deposits', [Portal\DepositController::class, 'index'])->name('deposits.index');
+    Route::get('/deposits/check', [Portal\DepositController::class, 'createCheck'])->name('deposits.check');
+    Route::post('/deposits/check', [Portal\DepositController::class, 'storeCheck'])->middleware('throttle:10,1')->name('deposits.check.store');
+    Route::get('/deposits/from-another-bank', [Portal\DepositController::class, 'createAch'])->name('deposits.ach');
+    Route::post('/deposits/from-another-bank', [Portal\DepositController::class, 'storeAch'])->middleware('throttle:10,1')->name('deposits.ach.store');
+
+    Route::get('/payees', [Portal\PayeeController::class, 'index'])->name('payees.index');
+    Route::post('/payees', [Portal\PayeeController::class, 'store'])->middleware('throttle:10,1')->name('payees.store');
+    Route::delete('/payees/{payee}', [Portal\PayeeController::class, 'destroy'])->whereNumber('payee')->name('payees.destroy');
+    Route::get('/transfers/external', [Portal\PayeeController::class, 'create'])->name('transfers.external');
+    Route::post('/transfers/external', [Portal\PayeeController::class, 'send'])->middleware('throttle:10,1')->name('transfers.external.store');
+
+    Route::get('/verification', [Portal\KycController::class, 'show'])->name('kyc.show');
+    Route::post('/verification', [Portal\KycController::class, 'store'])->middleware('throttle:10,1')->name('kyc.store');
+    Route::post('/transactions/{transaction:reference}/contest', [Portal\TransactionController::class, 'contest'])->middleware('throttle:10,1')->name('transactions.contest');
+    Route::get('/tickets/{ticket:reference}', [Portal\TicketController::class, 'show'])->name('tickets.show');
+
     Route::get('/security-settings', Portal\SecurityController::class)->name('security.settings');
     Route::get('/profile', [Portal\ProfileController::class, 'edit'])->name('profile');
     Route::put('/profile/notifications', [Portal\ProfileController::class, 'preferences'])->name('profile.notifications');
+});
+
+// Private files: check images and identity documents. The controller decides who may see each one.
+Route::middleware('auth')->group(function () {
+    Route::get('/files/check/{deposit}/{side}', [FileController::class, 'check'])->whereNumber('deposit')->name('files.check');
+    Route::get('/files/kyc/{document}', [FileController::class, 'kyc'])->whereNumber('document')->name('files.kyc');
 });
 
 // Ends a "log in as member" session. The signed-in user is the member at this point, so it sits outside the staff group.
@@ -98,6 +122,11 @@ Route::middleware(['auth', 'staff'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/queue', [Admin\QueueController::class, 'index'])->name('queue.index');
     Route::get('/queue/{transaction:reference}', [Admin\QueueController::class, 'show'])->name('queue.show');
     Route::post('/queue/{transaction:reference}/{action}', [Admin\QueueController::class, 'act'])->where('action', 'approve|reject|hold|release|reverse')->name('queue.act');
+    Route::post('/members/{user}/cash-deposits', [Admin\DepositController::class, 'cash'])->whereNumber('user')->name('deposits.cash');
+    Route::post('/members/{user}/payees/{payee}/waive', [Admin\DepositController::class, 'waive'])->whereNumber(['user', 'payee'])->name('payees.waive');
+    Route::get('/identity', [Admin\KycController::class, 'index'])->name('kyc.index');
+    Route::get('/identity/{document}', [Admin\KycController::class, 'show'])->whereNumber('document')->name('kyc.show');
+    Route::post('/identity/{document}/{action}', [Admin\KycController::class, 'decide'])->whereNumber('document')->where('action', 'approve|reject')->name('kyc.decide');
     Route::get('/audit', Admin\AuditController::class)->name('audit');
     Route::get('/inquiries', [Admin\InquiryController::class, 'index'])->name('inquiries.index');
     Route::post('/inquiries/{inquiry}/handle', [Admin\InquiryController::class, 'handle'])->whereNumber('inquiry')->name('inquiries.handle');

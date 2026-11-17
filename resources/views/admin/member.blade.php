@@ -9,12 +9,14 @@
         <p class="chips">
             <span class="tag">Joined {{ $member->created_at->format('M j, Y') }}</span>
             @if ($member->profile)<span class="tag">{{ str($member->profile->field_of_membership)->replace('_', ' ')->title() }}</span>@endif
+            <span class="tag {{ $member->kyc_status === 'verified' ? 'ok' : 'held' }}">ID {{ $member->kyc_status === 'verified' ? 'verified' : ($member->kyc_status === 'rejected' ? 'rejected' : 'not verified') }}</span>
             @if ($restrictions->count())<span class="tag lock">{{ $restrictions->count() }} {{ \Illuminate\Support\Str::plural('restriction', $restrictions->count()) }}</span>@endif
             @if ($waiting->count())<span class="tag held">{{ $waiting->count() }} waiting</span>@endif
         </p>
     </div>
     <div class="macts">
         @can('staff.impersonate', $member)<button type="button" class="btn-s gold" data-open="dlg-act">Log in as member</button>@endcan
+        @can('staff.postDeposits')<button type="button" class="btn-s plain" data-open="dlg-cash">Cash deposit</button>@endcan
         @can('staff.canAdjust')<button type="button" class="btn-s plain" data-open="dlg-adjust">Adjust balance</button>@endcan
         @can('staff.lockAccounts')<button type="button" class="btn-s plain" data-open="dlg-lock">Lock</button>@endcan
     </div>
@@ -74,6 +76,28 @@
         </div>
 
         <div class="panel-card">
+            <h3>Identity documents</h3>
+            @forelse ($kycDocs as $d)
+                <p class="item">@can('staff.reviewKyc')<a class="plink" href="{{ route('admin.kyc.show', $d) }}">{{ $d->typeLabel() }}</a>@else{{ $d->typeLabel() }}@endcan <span class="chip {{ ['approved' => 'completed', 'rejected' => 'rejected'][$d->status] ?? 'pending' }}">{{ $d->status }}</span></p>
+            @empty
+                <p style="margin:0;color:var(--muted)">No documents uploaded.</p>
+            @endforelse
+        </div>
+
+        <div class="panel-card">
+            <h3>External accounts</h3>
+            @forelse ($payees as $p)
+                <div class="item">{{ $p->name }} ending {{ $p->last4 }}
+                    @if ($p->isActive())<span class="chip completed">ready</span>@else<small>Waiting period ends {{ $p->activates_at->format('M j, g:i a') }}</small>
+                        @can('staff.waivePayeeWait')<form method="post" action="{{ route('admin.payees.waive', [$member, $p]) }}" style="margin-top:.35rem">@csrf<button type="submit" class="linkbtn">End the wait now</button></form>@endcan
+                    @endif
+                </div>
+            @empty
+                <p style="margin:0;color:var(--muted)">None saved.</p>
+            @endforelse
+        </div>
+
+        <div class="panel-card">
             <h3>Staff access</h3>
             <ul class="tl">
             @forelse ($sessions as $s)<li>{{ $s->admin->name }}<small>{{ $s->started_at->format('M j, g:i a') }} &middot; {{ $actingReasons[$s->reason_code] ?? $s->reason_code }}</small></li>@empty<li style="color:var(--muted)">No staff have acted as this member.</li>@endforelse
@@ -108,6 +132,17 @@
         <label>Reason<select name="reason_code" required><option value="">Choose a reason</option>@foreach ($lockReasons as $c => $l)<option value="{{ $c }}">{{ $l }}</option>@endforeach</select></label>
         <label>Details the member can see<textarea name="reason_text" rows="2" required></textarea></label>
         <button type="submit" class="red">Apply lock</button>
+    </form></dialog>
+@endcan
+@can('staff.postDeposits')
+<dialog id="dlg-cash"><div class="dh"><h3>Cash deposit</h3><button type="button" class="x" data-close aria-label="Close">&times;</button></div>
+    <p class="fine" style="margin-top:0">Record cash the member handed you at the counter. Count it twice. Amounts of {{ \App\Support\Money::cents(config('bank.cash_review_threshold'))->format() }} or more wait for a second person.</p>
+    <form class="sform" method="post" action="{{ route('admin.deposits.cash', $member) }}">@csrf
+        <input type="hidden" name="token" value="{{ $token }}">
+        <label>Account<select name="account_id">@foreach ($accounts as $a)<option value="{{ $a->id }}">{{ $a->nickname }} {{ $a->masked() }}</option>@endforeach</select></label>
+        <label>Amount<input name="amount" inputmode="decimal" placeholder="0.00" required></label>
+        <label>Note (optional)<input name="note" maxlength="200"></label>
+        <button type="submit" class="gold">Record deposit</button>
     </form></dialog>
 @endcan
 @can('staff.canAdjust')

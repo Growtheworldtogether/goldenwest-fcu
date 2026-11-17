@@ -19,6 +19,9 @@ class StaffPolicy
     public function viewAudit(User $u): bool { return $this->has($u, 'audit.view'); }
     public function answerInquiries(User $u): bool { return $this->has($u, 'tickets.answer'); }
     public function toggleFeatures(User $u): bool { return $this->has($u, 'features.toggle'); }
+    public function reviewKyc(User $u): bool { return $this->has($u, 'kyc.review'); }
+    /** Ending a new external account's waiting period early is a manager decision. */
+    public function waivePayeeWait(User $u): bool { return $this->has($u, 'transactions.approve'); }
     public function editSite(User $u): bool { return $this->has($u, 'site.edit'); }
     public function manageAdmin(User $u): bool { return $this->has($u, 'admin.manage'); }
 

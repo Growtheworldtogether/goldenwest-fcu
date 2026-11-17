@@ -717,3 +717,15 @@ details.more .filters { margin: .75rem 0 0; }
 .status-chip { display: inline-block; padding: .1rem .55rem; border-radius: 3px; font-size: .75rem; font-weight: 700; background: #e6ebe9; color: #3d4a46; }
 .status-chip.draft { background: #fff1c2; color: #6b4c00; } .status-chip.live { background: #d9f2e4; color: #12663a; }
 @media (max-width: 1100px) { .editor { grid-template-columns: 1fr; } .editor .previewbox { position: static; } .editor .previewbox iframe { height: 70vh; } }
+
+/* M4: deposits, external accounts, identity review */
+.choice{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1rem;margin-bottom:.5rem}
+.choicecard{display:block;text-decoration:none;color:inherit;border:1px solid var(--line)}
+.choicecard h3{margin:0 0 .35rem;font-size:1.05rem;color:var(--navy)}
+.choicecard p{margin:0;color:var(--muted);font-size:.95rem}
+.choicecard:hover,.choicecard:focus-visible{border-color:var(--navy)}
+.checkimgs{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:1rem;margin:.75rem 0}
+.checkimgs figure{margin:0}.checkimgs img{width:100%;height:auto;border:1px solid var(--line);border-radius:4px;display:block}
+.checkimgs figcaption{font-size:.85rem;color:var(--muted);margin-top:.3rem}
+.kycimg{max-width:100%;height:auto;border:1px solid var(--line);border-radius:4px;display:block}
+.msg{padding:.75rem 0;border-bottom:1px solid var(--line)}.msg:last-of-type{border-bottom:0}

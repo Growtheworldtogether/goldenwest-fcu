@@ -26,4 +26,21 @@ class TransactionController extends Controller
             'accounts' => $activity->accounts,
         ]);
     }
+
+    /** "Contest this decision" opens a ticket linked to the transaction, or returns the one already open. */
+    public function contest(Request $request, Transaction $transaction, \App\Services\TicketService $tickets)
+    {
+        Gate::authorize('view', $transaction);
+        $data = $request->validate(['message' => ['nullable', 'string', 'max:1000']]);
+
+        try {
+            [$ticket, $created] = $tickets->contest($request->user(), $transaction, $data['message'] ?? null);
+        } catch (\InvalidArgumentException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return redirect()->route('tickets.show', $ticket->reference)->with('toast', $created
+            ? ['type' => 'ok', 'message' => 'We opened ticket '.$ticket->reference.'. A person will review this decision again.']
+            : ['type' => 'info', 'message' => 'You already have an open ticket for this. Ticket '.$ticket->reference.'.']);
+    }
 }

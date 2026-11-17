@@ -24,6 +24,9 @@ class ReasonCodeSeeder extends Seeder
             ['member_support', 'Helping the member with a request', 'impersonation'],
             ['identity_assist', 'Helping the member regain access', 'impersonation'],
             ['investigation', 'Reviewing an account concern', 'impersonation'],
+            ['unclear_image', 'The image is blurry, cropped or hard to read', 'decision'],
+            ['name_mismatch', 'The name does not match our records', 'decision'],
+            ['expired_document', 'The document has expired', 'decision'],
             ['deceased_member', 'Member reported deceased', 'restriction'],
         ] as [$code, $label, $applies]) {
             ReasonCode::updateOrCreate(['code' => $code], ['label' => $label, 'applies_to' => $applies]);

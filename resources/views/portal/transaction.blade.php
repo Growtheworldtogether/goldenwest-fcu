@@ -2,7 +2,7 @@
 @section('title', 'Transaction details')
 @section('band')
 <p class="crumbs2"><a class="plink" href="{{ route('activity') }}">&larr; Activity</a></p>
-<h1>{{ $row['title'] ?? 'Transaction' }}</h1>
+<h1>{{ $rows[0]['title'] ?? 'Transaction' }}</h1>
 <p class="psub">{{ $tx->amount->format() }} &middot; {{ $tx->effective_date->format('F j, Y') }}
     @if ($tx->status->value !== 'completed') &middot; <span class="tag {{ $tx->status->value }}">{{ ['pending' => 'Pending', 'held' => 'On hold', 'rejected' => 'Declined', 'failed' => 'Failed', 'reversed' => 'Reversed', 'approved' => 'Approved'][$tx->status->value] }}</span>@endif</p>
 @endsection
@@ -15,7 +15,10 @@
         <p><strong>{{ $last->decision === 'held' ? 'Why this is on hold' : 'Why this was declined' }}:</strong> {{ $reasons[$last->reason_code] ?? '' }}</p>
         @if ($last->reason_text)<p>{{ $last->reason_text }}</p>@endif
         @if ($last->hold_until)<p>We expect to finish by {{ $last->hold_until->format('F j') }}.</p>@endif
-        <p><a class="btn" href="{{ url('/help#contest') }}">Contest this decision</a></p>
+        <form class="form" method="post" action="{{ route('transactions.contest', $tx->reference) }}" style="margin-top:.9rem">@csrf
+            <label>Tell us why you disagree (optional)<textarea name="message" rows="2" maxlength="1000"></textarea></label>
+            <button class="btn" type="submit">Contest this decision</button>
+        </form>
     </div>
 @elseif ($tx->status->value === 'pending')
     <div class="notice-bar" role="status"><p>We are reviewing this payment. The money is set aside and you will see an update here.</p></div>

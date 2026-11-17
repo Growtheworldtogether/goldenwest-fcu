@@ -32,7 +32,8 @@
         @endif
         <button class="btn" type="submit">Transfer</button>
     </form>
-    <p class="fine" style="margin-top:1rem">Large transfers may be reviewed before they are completed. If so, the money is set aside right away and we show you the status.</p>
+    <p class="fine" style="margin-top:1rem">Sending to an account at another bank? <a class="plink" href="{{ route('transfers.external') }}">Send money to another bank</a>.</p>
+    <p class="fine">Large transfers may be reviewed before they are completed. If so, the money is set aside right away and we show you the status.</p>
 </div>
 @endif
 @endsection
