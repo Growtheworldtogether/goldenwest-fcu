@@ -1,19 +1,14 @@
 @extends('layouts.portal')
 @section('title', $member->name)
-@section('content')
-@php($initials = strtoupper(mb_substr($member->first_name ?? $member->name, 0, 1).mb_substr($member->last_name ?? '', 0, 1)))
-<p style="margin:0 0 .75rem"><a class="plink" href="{{ route('admin.members.index') }}">&larr; Members</a></p>
-
-@if ($errors->any())<div class="flash bad" role="alert">@foreach ($errors->all() as $e){{ $e }} @endforeach</div>@endif
-
-<section class="mhead">
-    <span class="avatar big" aria-hidden="true">{{ $initials }}</span>
-    <div class="mid">
+@section('band')
+<p class="crumbs2"><a href="{{ route('admin.members.index') }}">Members</a> &rsaquo; {{ $member->name }}</p>
+<div class="pband-row">
+    <div>
         <h1>{{ $member->name }}</h1>
-        <p class="meta">Member #{{ $member->member_number }} &middot; {{ $member->email }} &middot; {{ $member->phone }}</p>
+        <p class="psub">Member #{{ $member->member_number }} &middot; {{ $member->email }} &middot; {{ $member->phone }}</p>
         <p class="chips">
-            <span class="tag ok">Joined {{ $member->created_at->format('M j, Y') }}</span>
-            @if ($member->profile)<span class="tag pending">{{ str($member->profile->field_of_membership)->replace('_', ' ')->title() }}</span>@endif
+            <span class="tag">Joined {{ $member->created_at->format('M j, Y') }}</span>
+            @if ($member->profile)<span class="tag">{{ str($member->profile->field_of_membership)->replace('_', ' ')->title() }}</span>@endif
             @if ($restrictions->count())<span class="tag lock">{{ $restrictions->count() }} {{ \Illuminate\Support\Str::plural('restriction', $restrictions->count()) }}</span>@endif
             @if ($waiting->count())<span class="tag held">{{ $waiting->count() }} waiting</span>@endif
         </p>
@@ -23,7 +18,12 @@
         @can('staff.canAdjust')<button type="button" class="btn-s plain" data-open="dlg-adjust">Adjust balance</button>@endcan
         @can('staff.lockAccounts')<button type="button" class="btn-s plain" data-open="dlg-lock">Lock</button>@endcan
     </div>
-</section>
+</div>
+@endsection
+@section('content')
+@php($initials = strtoupper(mb_substr($member->first_name ?? $member->name, 0, 1).mb_substr($member->last_name ?? '', 0, 1)))
+@if ($errors->any())<div class="flash bad" role="alert">@foreach ($errors->all() as $e){{ $e }} @endforeach</div>@endif
+
 
 <div class="mgrid">
     <div class="mmain">
@@ -42,7 +42,7 @@
             @forelse ($transactions as $tx)
                 <div class="arow">
                     <div><a class="plink" href="{{ route('admin.queue.show', $tx->reference) }}">{{ $tx->member_description ?? str($tx->type->value)->replace('_', ' ')->title() }}</a>
-                        <small>{{ $tx->effective_date->format('M j, Y') }} &middot; {{ str($tx->type->value)->replace('_', ' ')->title() }} <span class="tag {{ $tx->status->value === 'completed' ? 'ok' : $tx->status->value }}">{{ $tx->status->value }}</span></small></div>
+                        <small>{{ $tx->effective_date->format('M j, Y') }} &middot; {{ str($tx->type->value)->replace('_', ' ')->title() }} @if ($tx->status->value !== 'completed')<span class="chip {{ $tx->status->value }}">{{ $tx->status->value }}</span>@endif</small></div>
                     <div class="r"><b>{{ $tx->amount->format() }}</b></div>
                 </div>
             @empty
@@ -83,7 +83,7 @@
         <div class="panel-card">
             <h3>Recent audit</h3>
             <ul class="tl">
-            @forelse ($audit->take(6) as $a)<li><span class="mono">{{ $a->action }}</span><small>{{ $a->created_at->format('M j, g:i a') }}@if ($a->impersonator_id) &middot; staff acting @endif</small></li>@empty<li style="color:var(--muted)">Nothing yet.</li>@endforelse
+            @forelse ($audit->take(6) as $a)<li>{{ ucfirst(str_replace(['.', '_'], ' ', $a->action)) }}<small>{{ $a->created_at->format('M j, g:i a') }}@if ($a->impersonator_id) &middot; staff acting @endif</small></li>@empty<li style="color:var(--muted)">Nothing yet.</li>@endforelse
             </ul>
             @can('staff.viewAudit')<p style="margin:.8rem 0 0"><a class="plink" href="{{ route('admin.audit', ['actor' => $member->email]) }}">Full audit log</a></p>@endcan
         </div>

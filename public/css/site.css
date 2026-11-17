@@ -642,3 +642,12 @@ details.more .filters { margin: .75rem 0 0; }
 .morewrap details.more[open] > summary { margin-bottom: .3rem; }
 
 .portal-body .btn-s.gold:hover { background: #ffd23d; }
+
+/* Form pages: keep a readable width */
+.pmain .panel-card:has(> form.form) { max-width: 640px; }
+.pmain .panel-card:has(> form.form) .form { max-width: none; }
+.pmain .panel-card:has(> .kvlist.single), .pmain .tx-detail { max-width: 760px; }
+.pband .chips { margin: .6rem 0 0; display: flex; gap: .4rem; flex-wrap: wrap; }
+.pband .btn-s.plain { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,.55); }
+.pband .btn-s.plain:hover { background: rgba(255,255,255,.12); }
+.pband .macts { align-self: flex-end; }

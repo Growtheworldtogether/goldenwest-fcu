@@ -12,7 +12,7 @@
     <label>From<input type="date" name="from" value="{{ $filters['from'] ?? '' }}"></label>
     <label>To<input type="date" name="to" value="{{ $filters['to'] ?? '' }}"></label>
     <label style="grid-template-columns:auto 1fr;align-items:center;gap:.5rem"><input type="checkbox" name="acting" value="1" @checked(! empty($filters['acting'])) style="min-height:0;width:auto"> Acting as member only</label>
-    <button class="btn" type="submit">Filter</button>
+    <button class="btn-s" type="submit">Filter</button>
 </form>
 <div class="panel-card flush">
     <div style="overflow-x:auto"><table class="dtable">
@@ -21,10 +21,10 @@
         @forelse ($rows as $r)
             <tr>
                 <td style="white-space:nowrap">{{ $r->created_at->format('M j, g:i:s a') }}</td>
-                <td><span class="mono">{{ $r->action }}</span></td>
+                <td>{{ ucfirst(str_replace(['.', '_'], ' ', $r->action)) }}</td>
                 <td>{{ $users[$r->actor_id] ?? 'System' }}@if ($r->impersonator_id)<span class="sub">acting: {{ $users[$r->impersonator_id] ?? 'staff' }}</span>@endif</td>
                 <td class="hide-s">{{ $r->subject_type }} {{ $r->subject_id }}</td>
-                <td class="hide-s mono">{{ \Illuminate\Support\Str::limit(json_encode($r->new ?? $r->old), 90) }}</td>
+                <td class="hide-s">@php($d = $r->new ?? $r->old){{ is_array($d) && $d ? \Illuminate\Support\Str::limit(collect($d)->map(fn ($v, $k) => str_replace('_', ' ', $k).': '.(is_array($v) ? json_encode($v) : $v))->implode(', '), 110) : '-' }}</td>
             </tr>
         @empty
             <tr><td colspan="5">No entries match.</td></tr>

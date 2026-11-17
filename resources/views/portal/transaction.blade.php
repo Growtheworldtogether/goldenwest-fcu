@@ -21,7 +21,7 @@
     <div class="notice-bar" role="status"><p>We are reviewing this payment. The money is set aside and you will see an update here.</p></div>
 @endif
 
-<div class="panel-card">
+<div class="panel-card tx-detail">
     <dl class="kv">
         <dt>Amount</dt><dd>{{ $tx->amount->format() }}</dd>
         @if ($tx->fee->cents > 0)<dt>Fee</dt><dd>{{ $tx->fee->format() }}</dd>@endif
