@@ -35,23 +35,24 @@
 </div>
 
 @if ($open && $canDecide)
-<div class="cols" style="margin-top:1.25rem">
-    <div class="panel-card"><h3>Approve</h3>
+<div class="panel-card decide" style="margin-top:1.25rem">
+    <h3>Decide</h3>
+    <details class="act" open><summary>Approve</summary>
         <form class="sform" method="post" action="{{ route('admin.queue.act', [$tx->reference, 'approve']) }}">@csrf
-            <label>Note (optional)<input name="note" maxlength="500"></label><button type="submit" class="gold">Approve</button></form></div>
-    <div class="panel-card"><h3>Hold</h3>
+            <label>Note (optional)<input name="note" maxlength="500"></label><button type="submit" class="gold">Approve</button></form></details>
+    <details class="act"><summary>Place on hold</summary>
         <form class="sform" method="post" action="{{ route('admin.queue.act', [$tx->reference, 'hold']) }}">@csrf
             <label>Reason<select name="reason_code" required><option value="">Choose a reason</option>@foreach ($reasons as $c => $l)<option value="{{ $c }}">{{ $l }}</option>@endforeach</select></label>
             <label>What the member sees<textarea name="reason_text" rows="2" required></textarea></label>
-            <label>Expected by (optional)<input type="date" name="until"></label><button type="submit" class="plain">Place on hold</button></form></div>
-    <div class="panel-card"><h3>Reject</h3>
+            <label>Expected by (optional)<input type="date" name="until"></label><button type="submit" class="plain">Place on hold</button></form></details>
+    <details class="act"><summary>Reject</summary>
         <form class="sform" method="post" action="{{ route('admin.queue.act', [$tx->reference, 'reject']) }}">@csrf
             <label>Reason<select name="reason_code" required><option value="">Choose a reason</option>@foreach ($reasons as $c => $l)<option value="{{ $c }}">{{ $l }}</option>@endforeach</select></label>
-            <label>What the member sees<textarea name="reason_text" rows="2" required></textarea></label><button type="submit" class="red">Reject</button></form></div>
+            <label>What the member sees<textarea name="reason_text" rows="2" required></textarea></label><button type="submit" class="red">Reject</button></form></details>
     @if ($tx->status->value === 'held')
-    <div class="panel-card"><h3>Release hold</h3>
+    <details class="act"><summary>Release hold</summary>
         <form class="sform" method="post" action="{{ route('admin.queue.act', [$tx->reference, 'release']) }}">@csrf
-            <label>Note (optional)<input name="note" maxlength="500"></label><button type="submit" class="plain">Release</button></form></div>
+            <label>Note (optional)<input name="note" maxlength="500"></label><button type="submit" class="plain">Release</button></form></details>
     @endif
 </div>
 @elseif ($open)

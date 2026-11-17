@@ -500,3 +500,35 @@ details.act summary { cursor: pointer; font-weight: 700; color: var(--blue); pad
 .tl { list-style: none; margin: 0; padding: 0; } .tl li { padding: .6rem 0; border-bottom: 1px solid #e7ebf6; } .tl li:last-child { border: 0; }
 .tl small { color: var(--muted); display: block; }
 @media (max-width: 480px) { .acting { padding: .5rem .9rem; } }
+
+/* ---------- Member 360 and decision layouts ---------- */
+.mhead { display: flex; align-items: center; gap: 1.25rem; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 1.4rem 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 2px rgba(31,40,105,.05); flex-wrap: wrap; }
+.avatar.big { width: 64px; height: 64px; font-size: 1.4rem; }
+.mhead .mid { flex: 1; min-width: 14rem; }
+.mhead h1 { margin: 0 0 .15rem; }
+.mhead .meta { margin: 0 0 .6rem; color: var(--muted); }
+.mhead .chips { margin: 0; display: flex; gap: .4rem; flex-wrap: wrap; }
+.macts { display: flex; gap: .6rem; flex-wrap: wrap; }
+.mgrid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+.mgrid .sechead { margin-top: 0; }
+.panel-card.rows { padding: .25rem 1.25rem; }
+.arow { display: flex; justify-content: space-between; gap: 1rem; padding: .95rem 0; border-bottom: 1px solid #e7ebf6; align-items: center; }
+.arow:last-child { border-bottom: 0; }
+.arow small { display: block; color: var(--muted); font-size: .875rem; margin-top: .15rem; }
+.arow .r { text-align: right; white-space: nowrap; }
+.arow .r b { font-size: 1.1rem; color: var(--navy); font-variant-numeric: tabular-nums; }
+.mside .panel-card { margin-bottom: 1.25rem; }
+.item { margin: 0 0 .75rem; } .item small { display: block; color: var(--muted); }
+.lockitem { background: #fdecec; border: 1px solid #e3a1a1; border-radius: 10px; padding: .7rem .9rem; }
+dialog { border: 0; border-radius: 16px; padding: 1.5rem; width: min(30rem, calc(100% - 2rem)); box-shadow: 0 20px 60px rgba(10,14,40,.4); }
+dialog::backdrop { background: rgba(10,14,40,.55); }
+dialog .dh { display: flex; justify-content: space-between; align-items: center; margin-bottom: .75rem; }
+dialog .dh h3 { margin: 0; font-size: 1.25rem; color: var(--navy); }
+dialog .x { background: transparent; border: 0; font-size: 1.75rem; line-height: 1; cursor: pointer; color: var(--muted); padding: 0 .25rem; }
+.two2 { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+.decide details.act { border-top: 1px solid #e7ebf6; padding: .35rem 0; }
+.decide details.act:first-of-type { border-top: 0; }
+.decide details.act[open] { padding-bottom: 1rem; }
+.decide .sform { margin-top: .5rem; max-width: 34rem; }
+@media (max-width: 960px) { .mgrid { grid-template-columns: 1fr; } }
+@media (max-width: 480px) { .mhead { padding: 1.1rem; } .macts { width: 100%; } .macts .btn-s { flex: 1; text-align: center; } .two2 { grid-template-columns: 1fr; } .arow { flex-wrap: wrap; } }
