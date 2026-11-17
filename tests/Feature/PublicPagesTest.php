@@ -29,11 +29,10 @@ it('searches the site', function () {
     $this->get('/search?q=auto')->assertOk()->assertSee('Loans');
 });
 
-it('stores contact, appointment and join requests', function () {
+it('stores contact and appointment requests', function () {
     $this->post('/contact', ['name' => 'Maria Alvarez', 'email' => 'maria.alvarez@example.com', 'topic' => 'Accounts', 'message' => 'Question about checking.'])->assertRedirect();
     $this->post('/appointments', ['name' => 'James Carter', 'email' => 'james.carter@example.com', 'phone' => '510-555-0123', 'topic' => 'Business banking', 'location' => 'Oakland', 'preferred_when' => 'Weekdays after 3pm'])->assertRedirect();
-    $this->post('/join', ['name' => 'Linda Nguyen', 'email' => 'linda.nguyen@example.com', 'topic' => 'Checking'])->assertRedirect();
-    expect(\App\Models\Inquiry::count())->toBe(3);
+    expect(\App\Models\Inquiry::count())->toBe(2);
 });
 
 it('validates the contact form', function () {

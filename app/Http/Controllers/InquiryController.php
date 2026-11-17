@@ -39,18 +39,4 @@ class InquiryController extends Controller
 
         return back()->with('sent', 'Your appointment request is in. We will call you to confirm a time within one business day.');
     }
-
-    public function join(Request $request): RedirectResponse
-    {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:120'],
-            'email' => ['required', 'email', 'max:160'],
-            'phone' => ['nullable', 'string', 'max:30'],
-            'topic' => ['required', 'string', 'max:80'],
-        ]);
-
-        Inquiry::create($data + ['type' => 'join']);
-
-        return back()->with('sent', 'Welcome to Golden West. We have your details and will email you the next steps to finish opening your account.');
-    }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -10,18 +10,32 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Fortify\TwoFactorAuthenticatable;
 
 #[Fillable(['name', 'email', 'password', 'first_name', 'last_name', 'phone', 'dob', 'address_line1', 'city', 'state', 'postal_code'])]
-#[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+#[Hidden(['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes'])]
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, TwoFactorAuthenticatable;
 
     /** Accounts this user holds, through account_holders. */
     public function accounts(): BelongsToMany
     {
         return $this->belongsToMany(Account::class, 'account_holders')->withPivot(['role', 'status']);
+    }
+
+    public function profile(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(MemberProfile::class);
+    }
+
+    /** Recovery codes for two-factor sign-in, decrypted. */
+    public function recoveryCodes(): array
+    {
+        return $this->two_factor_recovery_codes
+            ? json_decode(decrypt($this->two_factor_recovery_codes), true)
+            : [];
     }
 
     public function isAdmin(): bool
@@ -42,6 +56,7 @@ class User extends Authenticatable
             'locked_until' => 'datetime',
             'last_login_at' => 'datetime',
             'dob' => 'date',
+            'notification_preferences' => 'array',
         ];
     }
 }

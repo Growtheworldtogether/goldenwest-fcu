@@ -23,7 +23,7 @@
                 <svg class="ico" viewBox="0 0 64 48" aria-hidden="true"><ellipse cx="22" cy="14" rx="14" ry="6"/><path d="M8 14v10c0 3.300 6.300 6 14 6s14-2.700 14-6V14"/><path d="M36 24h20v14c0 3-6 5-14 5"/></svg>
                 <h3>Golden Savings</h3>
                 <p>A place to build a cushion. Earn interest from your first dollar, compounded daily.</p>
-                <ul class="checks"><li>$5 to open</li><li>Set up automatic transfers</li><li>Create savings goals in the app</li></ul>
+                <ul class="checks"><li>No opening deposit</li><li>Set up automatic transfers</li><li>Create savings goals in the app</li></ul>
                 <a class="more" href="{{ url('/join') }}">Open savings</a>
             </article>
             <article class="tile">

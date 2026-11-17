@@ -5,8 +5,8 @@ return [
     'rates' => [
         'deposit' => [
             ['name' => 'Everyday Checking', 'rate' => '0.05%', 'detail' => 'APY on all balances', 'min' => '$0'],
-            ['name' => 'Golden Savings', 'rate' => '3.55%', 'detail' => 'APY on balances of $1 or more', 'min' => '$5'],
-            ['name' => 'Goal Savings', 'rate' => '3.75%', 'detail' => 'APY when you save toward a goal', 'min' => '$25'],
+            ['name' => 'Golden Savings', 'rate' => '3.55%', 'detail' => 'APY on balances of $1 or more', 'min' => '$0'],
+            ['name' => 'Goal Savings', 'rate' => '3.75%', 'detail' => 'APY when you save toward a goal', 'min' => '$0'],
             ['name' => 'Money Market', 'rate' => '4.10%', 'detail' => 'APY on balances of $10,000 or more', 'min' => '$10,000'],
             ['name' => '12-Month Certificate', 'rate' => '4.30%', 'detail' => 'APY, fixed for the term', 'min' => '$500'],
             ['name' => '24-Month Certificate', 'rate' => '4.05%', 'detail' => 'APY, fixed for the term', 'min' => '$500'],

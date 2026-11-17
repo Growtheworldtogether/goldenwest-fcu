@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\InquiryController;
+use App\Http\Controllers\Portal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -54,4 +55,23 @@ Route::get('/search', function (Request $request) {
 
 Route::post('/contact', [InquiryController::class, 'contact'])->middleware('throttle:6,1')->name('contact.send');
 Route::post('/appointments', [InquiryController::class, 'appointment'])->middleware('throttle:6,1')->name('appointments.send');
-Route::post('/join', [InquiryController::class, 'join'])->middleware('throttle:6,1')->name('join.send');
+
+// Online banking. Members must be signed in and have a verified email.
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', Portal\DashboardController::class)->name('dashboard');
+    Route::get('/activity', [Portal\ActivityController::class, 'index'])->name('activity');
+    Route::get('/activity/export', [Portal\ActivityController::class, 'export'])->name('activity.export');
+
+    Route::get('/accounts/open', [Portal\AccountController::class, 'create'])->name('accounts.create');
+    Route::post('/accounts/open', [Portal\AccountController::class, 'store'])->name('accounts.store');
+    Route::get('/accounts/{account}', [Portal\ActivityController::class, 'account'])->whereNumber('account')->name('accounts.show');
+    Route::get('/accounts/{account}/export', [Portal\ActivityController::class, 'export'])->whereNumber('account')->name('accounts.export');
+
+    Route::get('/transfers/new', [Portal\TransferController::class, 'create'])->name('transfers.create');
+    Route::post('/transfers', [Portal\TransferController::class, 'store'])->middleware('throttle:20,1')->name('transfers.store');
+    Route::get('/transactions/{transaction:reference}', [Portal\TransactionController::class, 'show'])->name('transactions.show');
+
+    Route::get('/security-settings', Portal\SecurityController::class)->name('security.settings');
+    Route::get('/profile', [Portal\ProfileController::class, 'edit'])->name('profile');
+    Route::put('/profile/notifications', [Portal\ProfileController::class, 'preferences'])->name('profile.notifications');
+});

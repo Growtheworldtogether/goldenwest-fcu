@@ -68,3 +68,32 @@ function transfer(Account $from, Account $to, int $cents, ?string $key = null, T
         initiatedBy: $by,
     ));
 }
+
+/** A signed-up, email-verified member with the starter savings and checking accounts. @return array{0: User, 1: Account, 2: Account} */
+function verifiedMember(string $name = 'Maria Alvarez'): array
+{
+    $user = makeUser('user', $name);
+    $user->forceFill(['first_name' => explode(' ', $name)[0], 'last_name' => explode(' ', $name)[1] ?? '', 'email_verified_at' => now()])->save();
+    [$savings, $checking] = app(App\Services\AccountOpening::class)->openStarterAccounts($user);
+
+    return [$user, $checking->refresh(), $savings->refresh()];
+}
+
+function deposit(Account $account, int $cents, string $description = 'Direct deposit, payroll'): App\Models\Transaction
+{
+    return app(TransferService::class)->execute(new TransferRequest(
+        type: TransactionType::Deposit, amount: Money::cents($cents), idempotencyKey: 'dep:'.uniqid('', true),
+        toAccountId: $account->id, memberDescription: $description,
+    ));
+}
+
+function registrationData(array $overrides = []): array
+{
+    return array_merge([
+        'first_name' => 'Linda', 'last_name' => 'Nguyen', 'email' => 'linda.nguyen@example.com',
+        'phone' => '408-555-0149', 'dob' => '1985-04-12', 'ssn_last4' => '4821',
+        'address_line1' => '1876 Story Rd', 'city' => 'San Jose', 'state' => 'CA', 'postal_code' => '95122',
+        'field_of_membership' => 'lives_in_region', 'eligibility_state' => 'CA',
+        'password' => 'Correct-Horse-9', 'password_confirmation' => 'Correct-Horse-9', 'terms' => '1',
+    ], $overrides);
+}
