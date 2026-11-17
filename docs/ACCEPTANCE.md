@@ -15,7 +15,7 @@ Use two browsers or a private window for member and staff at the same time.
 
 ## 2. Member basics (Maria)
 
-4. Sign in as Maria. The top bar shows the previous sign-in. The dashboard lists accounts, recent activity, announcements and a beneficiary and loan summary.
+4. Sign in as Maria. The top bar shows the previous sign-in. The dashboard lists accounts, recent activity and the current announcement.
 5. Activity: filter by date, search for a merchant, export CSV. The totals match the rows.
 6. Transfer $50 from Checking to Savings. A toast confirms; both balances change; the transaction page shows both sides. Submit the same form twice quickly: only one transfer happens.
 7. Try to send more than the balance. A clear error toast; nothing moves.
@@ -31,7 +31,7 @@ Use two browsers or a private window for member and staff at the same time.
 
 15. Sign in as Robert (member) and request a $2,000 wire from his checking to a made-up recipient. It says it is waiting for review and the amount and fee are set aside.
 16. Sign in as `manager@`. Open Queue, find the wire, open it. Approve it. Robert's balance is final; the wire shows as sent.
-17. Request a large transfer that needs two people (at or above the dual-approval threshold in Settings). The first approval does not post it; a second staff member's approval does; the same person cannot approve twice.
+17. As `admin@`, post a balance adjustment of $25,000 or more (the dual-approval amount). It waits instead of posting; one other staff member's approval is not enough, a second one posts it; nobody can approve their own request or approve twice. Adjustments from $5,000 up wait for one other person.
 18. Reject a transaction without a reason: the form refuses. With a reason: the member sees the reason on the transaction.
 19. As Robert, send an international wire (needs the feature, already on): choose a country, enter a SWIFT code and IBAN. A wrong SWIFT country or a bad IBAN is refused; Russia is not offered.
 
@@ -39,7 +39,7 @@ Use two browsers or a private window for member and staff at the same time.
 
 20. Member 360 for Maria: accounts, recent activity, cards, loans, crypto, joint accounts, flags and the audit trail for her.
 21. Lock one account with a reason. As Maria, a transfer from it is refused with the reason. Unlock it.
-22. Adjust a balance with a description and a reason code. A Manager over $5,000 is refused; the Super Admin is not. The member sees the description, not the staff note.
+22. Adjust a balance with a description and a reason code. A Manager over $5,000 is refused; the Super Admin is not (large ones wait for a second person, as in step 17). The member sees the description, not the staff note.
 23. Create a new member account, then **Add account history**: pick a balance, a start date, an end date and "a medium amount". The account now has dated activity that ends on exactly that balance, and `php artisan ledger:verify` still passes.
 24. Identity review: approve a document as Compliance.
 25. Support: open Priya's ticket as `support@`, reply, mark resolved. Priya sees the reply and gets an email that does not include the message text.
@@ -51,7 +51,7 @@ Use two browsers or a private window for member and staff at the same time.
 
 29. Loans: as Linda, the application shows "in review". As `manager@`, open it under Loans, ask for more information, then approve with a rate. Linda gets emails for each step and the money lands in her account.
 30. Crypto: as Angela, open Crypto. Balances are shown in dollars first. Confirm her pending deposit as `manager@` or Compliance; she gets an email. Send a small amount to a valid address; it waits for staff.
-31. Joint account: as James, open Joint & beneficiaries; his checking has two holders. Invite another member by email, accept as them, approve as staff. Remove a holder; any loan autopay or card tied to them moves or stops, and they are told by email.
+31. Joint account: as James, open Joint accounts; his checking has two holders. Invite another member by email, accept as them, approve as staff. Remove a holder; any loan autopay or card tied to them moves or stops, and they are told by email.
 
 ## 6. Safety checks
 
