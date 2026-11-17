@@ -14,6 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias(['staff' => \App\Http\Middleware\EnsureStaff::class, 'member.area' => \App\Http\Middleware\EnsureMemberArea::class, 'feature' => \App\Http\Middleware\EnsureFeature::class]);
         $middleware->appendToGroup('web', \App\Http\Middleware\ApplyImpersonation::class);
+        $middleware->appendToGroup('web', \App\Http\Middleware\ThrottleAuthForms::class);
+        $middleware->appendToGroup('web', \App\Http\Middleware\SecurityHeaders::class);
         $middleware->redirectUsersTo(fn () => auth()->user()?->isAdmin() ? '/admin' : '/dashboard');
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -25,6 +25,11 @@ class AppServiceProvider extends ServiceProvider
             \Illuminate\Support\Facades\Gate::define('staff.'.$ability, [\App\Policies\StaffPolicy::class, $ability]);
         }
 
+        // Request limits. Money-moving forms also carry their own, tighter limit in routes/web.php.
+        \Illuminate\Support\Facades\RateLimiter::for('portal', fn ($r) => \Illuminate\Cache\RateLimiting\Limit::perMinute(180)->by($r->user()?->id ?: $r->ip()));
+        \Illuminate\Support\Facades\RateLimiter::for('staff', fn ($r) => \Illuminate\Cache\RateLimiting\Limit::perMinute(300)->by($r->user()?->id ?: $r->ip()));
+        \Illuminate\Support\Facades\RateLimiter::for('auth-forms', fn ($r) => \Illuminate\Cache\RateLimiting\Limit::perMinute(8)->by($r->ip()));
+
         // The credit union's name drives the app name (2FA app label, mail footers) and the mail sender name.
         try {
             config(['app.name' => brand('name'), 'mail.from.name' => brand('sender_name')]);

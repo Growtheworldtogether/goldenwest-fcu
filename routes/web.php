@@ -64,7 +64,7 @@ Route::post('/contact', [InquiryController::class, 'contact'])->middleware('thro
 Route::post('/appointments', [InquiryController::class, 'appointment'])->middleware('throttle:6,1')->name('appointments.send');
 
 // Online banking. Members must be signed in and have a verified email.
-Route::middleware(['auth', 'verified', 'member.area'])->group(function () {
+Route::middleware(['auth', 'verified', 'member.area', 'throttle:portal'])->group(function () {
     Route::get('/dashboard', Portal\DashboardController::class)->name('dashboard');
     Route::get('/activity', [Portal\ActivityController::class, 'index'])->name('activity');
     Route::get('/activity/export', [Portal\ActivityController::class, 'export'])->name('activity.export');
@@ -181,7 +181,7 @@ Route::middleware('auth')->group(function () {
 Route::post('/exit-member', [Admin\ImpersonationController::class, 'stop'])->middleware('auth')->name('impersonate.stop');
 
 // Staff console. Needs a staff title, two-step verification on, and a short idle timeout.
-Route::middleware(['auth', 'staff'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'staff', 'throttle:staff'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', Admin\DashboardController::class)->name('home');
     Route::get('/security', Portal\SecurityController::class)->middleware('password.confirm')->name('security');
     Route::get('/members', [Admin\MemberController::class, 'index'])->name('members.index');
