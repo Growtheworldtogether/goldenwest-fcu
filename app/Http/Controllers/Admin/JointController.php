@@ -42,7 +42,7 @@ class JointController extends Controller
             return back()->with('toast', ['type' => 'bad', 'message' => $e->getMessage()]);
         }
 
-        return back()->with('toast', ['type' => 'ok', 'message' => $d['decision'] === 'approve' ? 'Approved. Both holders can see the account now.' : 'Declined. Both members can see the reason.']);
+        return back()->with('toast', ['type' => 'ok', 'message' => $d['decision'] === 'approve' ? 'Approved. Everyone on the account can see it now.' : 'Declined. Both members can see the reason.']);
     }
 
     public function remove(Request $request, User $user, JointService $svc)

@@ -2,7 +2,7 @@
 @section('title', 'Joint accounts')
 @section('band')
 <h1>Joint accounts</h1>
-<p class="psub">Approve new joint holders and handle removals the other holder has not agreed to.</p>
+<p class="psub">Approve new joint holders and handle removals the holder has not agreed to.</p>
 @endsection
 @section('content')
 <nav class="tabs" aria-label="Filter">

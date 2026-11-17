@@ -248,7 +248,7 @@
 @can('staff.lockAccounts')
 <dialog id="dlg-deceased"><div class="dh"><h3>Mark as deceased</h3><button type="button" class="x" data-close aria-label="Close">&times;</button></div>
     <form class="sform" method="post" action="{{ route('admin.deceased', $member) }}">@csrf
-        <p class="fine" style="margin:0">Their sign-in stops and their cards are cancelled. Accounts only they hold are fully locked. Joint accounts stay open for the other holder. Payouts are then done with documented adjustments.</p>
+        <p class="fine" style="margin:0">Their sign-in stops and their cards are cancelled. Accounts only they hold are fully locked. Joint accounts stay open for the other holders. Payouts are then done with documented adjustments.</p>
         <label>What was received (for example the death certificate)<textarea name="note" rows="3" maxlength="1000" required></textarea></label>
         <button type="submit">Mark as deceased</button>
     </form></dialog>

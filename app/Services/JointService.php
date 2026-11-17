@@ -20,7 +20,10 @@ use InvalidArgumentException;
  */
 class JointService
 {
-    public const MAX_HOLDERS = 2;
+    public static function maxHolders(): int
+    {
+        return max(2, (int) config('bank.max_joint_holders'));
+    }
 
     public function holderRow(Account $account, User|int $user): ?AccountHolder
     {
@@ -38,8 +41,8 @@ class JointService
         if ($by->kyc_status !== 'verified') {
             throw new InvalidArgumentException('Verify your identity before adding a joint holder.');
         }
-        if ($this->activeHolders($account)->count() >= self::MAX_HOLDERS) {
-            throw new InvalidArgumentException('This account already has the most holders we allow.');
+        if ($this->activeHolders($account)->count() >= self::maxHolders()) {
+            throw new InvalidArgumentException('This account already has the most holders we allow ('.self::maxHolders().').');
         }
         if (JointRequest::where('account_id', $account->id)->where('type', 'invite')->whereIn('status', ['invited', 'review'])->exists()) {
             throw new InvalidArgumentException('There is already an invitation open for this account. Cancel it first to invite someone else.');
@@ -104,7 +107,7 @@ class JointService
             $invitee = $req->subject;
 
             if ($approve) {
-                if ($this->activeHolders($account)->count() >= self::MAX_HOLDERS) {
+                if ($this->activeHolders($account)->count() >= self::maxHolders()) {
                     throw new InvalidArgumentException('The account already has the most holders we allow.');
                 }
                 if ($invitee->status !== 'active' || $invitee->kyc_status !== 'verified') {
@@ -130,15 +133,15 @@ class JointService
         $this->removeHolder($account, $member, $member, 'member_left');
     }
 
-    /** One holder asks to take the other off. The other holder must agree. */
+    /** One holder asks to take another off. The holder being removed must agree. */
     public function requestRemoval(User $by, Account $account, User $target): JointRequest
     {
         $this->assertManageable($by, $account);
         if ($by->is($target) || ! $this->holderRow($account, $target)) {
-            throw new InvalidArgumentException('Choose the other holder of this account.');
+            throw new InvalidArgumentException('Choose another holder of this account.');
         }
         if (JointRequest::where('account_id', $account->id)->where('type', 'removal')->where('status', 'consent')->exists()) {
-            throw new InvalidArgumentException('A removal request is already waiting for the other holder.');
+            throw new InvalidArgumentException('A removal request is already waiting for an answer.');
         }
         $req = JointRequest::create([
             'reference' => $this->reference(), 'type' => 'removal', 'account_id' => $account->id, 'requested_by' => $by->id,
@@ -174,7 +177,7 @@ class JointService
         Audit::record('joint.removal_cancelled', $req->account, null, null, $by->id);
     }
 
-    /** Staff take a holder off when the other holder has not consented, with a reason. */
+    /** Staff take a holder off when they have not consented, with a reason. */
     public function adminRemove(Account $account, User $target, User $staff, string $reasonCode, string $reasonText): void
     {
         if (trim($reasonText) === '') {
@@ -199,7 +202,7 @@ class JointService
             if (! $row) {
                 throw new InvalidArgumentException('That person is not a holder of this account.');
             }
-            $others = AccountHolder::where('account_id', $account->id)->where('status', 'active')->where('user_id', '!=', $target->id)->get();
+            $others = AccountHolder::where('account_id', $account->id)->where('status', 'active')->where('user_id', '!=', $target->id)->orderBy('added_at')->orderBy('id')->get();
             if ($others->isEmpty()) {
                 throw new InvalidArgumentException('An account needs at least one holder. To close it, contact Customer Care.');
             }

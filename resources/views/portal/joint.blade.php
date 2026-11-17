@@ -2,7 +2,7 @@
 @section('title', 'Joint accounts')
 @section('band')
 <h1>Joint accounts</h1>
-<p class="psub">Share an account with someone you trust. Both holders can see it and use it.</p>
+<p class="psub">Share an account with people you trust. Everyone on it can see it and use it.</p>
 @endsection
 @section('content')
 @include('portal._people-tabs')
@@ -48,7 +48,7 @@
             </tr>
         @endforeach
         </tbody></table>
-        @if ($hs->count() < \App\Services\JointService::MAX_HOLDERS)
+        @if ($hs->count() < \App\Services\JointService::maxHolders())
             @if ($verified)
             <details class="act" @if ($pick === $a->id) open @endif style="margin-top:.8rem"><summary>Add a joint holder</summary>
                 <form class="sform" method="post" action="{{ route('joint.invite') }}">@csrf<input type="hidden" name="account_id" value="{{ $a->id }}">
@@ -78,5 +78,5 @@
     @endforeach
 </tbody></table></div>
 @endif
-<p class="fine">Both holders have full access. A lock on the account or on either holder applies to everyone on it. Taking someone off needs their agreement, or a Customer Care review.</p>
+<p class="fine">Every holder has full access. A lock on the account, or on any holder, applies to everyone on it. Taking someone off needs their agreement, or a Customer Care review.</p>
 @endsection

@@ -22,7 +22,7 @@
             @endforeach
             </tbody></table>
         @endif
-        @if ($a->users()->count() > 1)<p class="fine" style="margin:.6rem 0 0">This is a joint account. Either holder can change its beneficiaries.</p>@endif
+        @if ($a->users()->count() > 1)<p class="fine" style="margin:.6rem 0 0">This is a joint account. Any holder can change its beneficiaries.</p>@endif
     </div>
 @empty
     <div class="panel-card"><div class="empty"><b>No accounts yet</b>Open an account to name beneficiaries.</div></div>

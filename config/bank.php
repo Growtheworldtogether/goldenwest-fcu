@@ -33,4 +33,6 @@ return [
 
     // Spending insights: a budget warns at this share of its limit
     'budget_warn_percent' => 80,
+    // Most people who can hold one account together.
+    'max_joint_holders' => 4,
 ];

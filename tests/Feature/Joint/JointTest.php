@@ -158,6 +158,7 @@ it('refuses invitations to unknown, unverified, existing or self, and a second o
     [$c] = verifiedMember('Third Person');
     $c->forceFill(['kyc_status' => 'verified'])->save();
     makeJoint($a->refresh(), $b->refresh(), $ac);
+    config(['bank.max_joint_holders' => 2]);
     expect($msg(fn () => $svc->invite($a, $ac, $c->email)))->toContain('most holders');
     expect($msg(fn () => $svc->invite($c, $ac, $a->email)))->toContain('not a holder');
 });
@@ -332,4 +333,44 @@ it('shows the staff joint page and the Member 360 panel', function () {
 it('shows the holders panel on the account page', function () {
     [$a, , $ac] = pair();
     $this->actingAs($a)->get("/accounts/{$ac->id}")->assertOk()->assertSee('Primary holder')->assertSee('Add a joint holder')->assertSee('None named');
+});
+
+it('lets up to the configured number of people share an account', function () {
+    [$a, $b, $ac] = pair();
+    $people = [verifiedMember('Third Person')[0], verifiedMember('Fourth Person')[0], verifiedMember('Fifth Person')[0]];
+    foreach ($people as $p) {
+        $p->forceFill(['kyc_status' => 'verified'])->save();
+    }
+    $svc = app(JointService::class);
+    makeJoint($a, $b, $ac);
+    foreach (array_slice($people, 0, 2) as $p) {
+        makeJoint($a, $p->refresh(), $ac);
+    }
+    expect($svc->activeHolders($ac))->toHaveCount(4);
+    expect(fn () => $svc->invite($a, $ac, $people[2]->email))->toThrow(InvalidArgumentException::class, '(4)');
+
+    // Everyone sees the account, and a lock on any one holder stops it for all.
+    foreach ([$b, ...array_slice($people, 0, 2)] as $p) {
+        expect($p->accounts()->where('accounts.id', $ac->id)->exists())->toBeTrue();
+    }
+    app(App\Services\RestrictionService::class)->lock(makeStaff('Manager'), null, $people[0], AccountRestriction::FULL_LOCK, 'account_review', 'Review');
+    expect(fn () => transfer($ac, $b->accounts()->where('accounts.id', '!=', $ac->id)->first(), 100, null, TransactionType::Transfer, $b->id))->toThrow(TransferException::class);
+});
+
+it('removes one of several holders with only their own consent, and promotes the longest-standing holder if the primary leaves', function () {
+    [$a, $b, $ac] = pair();
+    [$c] = verifiedMember('Third Person');
+    $c->forceFill(['kyc_status' => 'verified'])->save();
+    $svc = app(JointService::class);
+    makeJoint($a, $b, $ac);
+    $this->travel(1)->days();
+    makeJoint($a, $c->refresh(), $ac);
+
+    $req = $svc->requestRemoval($a, $ac, $c);
+    $svc->respondToRemoval($req, $c, true);
+    expect($svc->activeHolders($ac))->toHaveCount(2)->and($svc->holderRow($ac, $b))->not->toBeNull();
+
+    makeJoint($a, $c, $ac);
+    $svc->leave($a, $ac);
+    expect($svc->holderRow($ac, $b)->role)->toBe('primary')->and($svc->holderRow($ac, $c)->role)->toBe('joint');
 });
