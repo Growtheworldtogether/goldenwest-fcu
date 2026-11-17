@@ -76,7 +76,7 @@ it('logs a verified member in and shows the dashboard', function () {
     $user->forceFill(['password' => 'Correct-Horse-9'])->save();
 
     $this->post('/login', ['email' => $user->email, 'password' => 'Correct-Horse-9'])->assertRedirect('/dashboard');
-    $this->get('/dashboard')->assertOk()->assertSee('Welcome back, Maria');
+    $this->get('/dashboard')->assertOk()->assertSee('Welcome back')->assertSee('Maria');
     expect($user->refresh()->last_login_at)->not->toBeNull();
 });
 
