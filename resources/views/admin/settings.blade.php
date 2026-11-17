@@ -1,7 +1,10 @@
 @extends('layouts.portal')
 @section('title', 'Settings')
+@section('band')
+<h1>Settings</h1>
+<p class="psub">Super Admin only.</p>
+@endsection
 @section('content')
-<div class="pagehead"><div><h1>Settings</h1><p class="psub">Super Admin only.</p></div></div>
 
 <h2 class="group-title" style="margin-top:0">Acting as a member</h2>
 <form method="post" action="{{ route('admin.settings.update') }}" class="panel-card flush srows">

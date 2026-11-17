@@ -1,8 +1,10 @@
 @extends('layouts.portal')
 @section('title', 'Audit log')
-@section('content')
+@section('band')
 <h1>Audit log</h1>
 <p class="psub">Every staff action, decision, lock and sign-in. Entries cannot be edited or removed.</p>
+@endsection
+@section('content')
 <form class="filters panel-card" method="get" style="padding:1rem 1.25rem">
     <label>Action contains<input name="action" value="{{ $filters['action'] ?? '' }}" placeholder="for example: restriction"></label>
     <label>Person<input name="actor" value="{{ $filters['actor'] ?? '' }}" placeholder="Name or email"></label>

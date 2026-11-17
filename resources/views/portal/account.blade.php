@@ -1,19 +1,19 @@
 @extends('layouts.portal')
 @section('title', $account->nickname)
-@section('content')
 @php($kinds = ['share_savings' => 'Savings', 'share_draft' => 'Checking', 'money_market' => 'Money market'])
+@section('band')
 <p class="crumbs2"><a href="{{ route('dashboard') }}">Accounts</a> &rsaquo; {{ $account->nickname }}</p>
-<div class="pagehead">
+<div class="pband-row">
     <div><h1>{{ $account->nickname }}</h1><p class="psub">{{ $kinds[$account->product->kind] ?? $account->product->name }} {{ $account->masked() }}</p></div>
-    <a class="btn-s" href="{{ route('transfers.create', ['from' => $account->id]) }}">Transfer money</a>
+    <a class="btn-s gold" href="{{ route('transfers.create', ['from' => $account->id]) }}">Transfer money</a>
 </div>
-
-<div class="strip money">
+<div class="figs">
     <div><b>{{ $account->available_balance->format() }}</b><span>Available balance</span></div>
     <div><b>{{ $account->balance->format() }}</b><span>Current balance</span></div>
     @if ($account->held_balance->cents > 0)<div><b>{{ $account->held_balance->format() }}</b><span>On hold</span></div>@endif
 </div>
-
+@endsection
+@section('content')
 <div class="mgrid">
     <div class="mmain">
         <div class="table-title" style="margin-top:0"><h2>Transactions</h2></div>

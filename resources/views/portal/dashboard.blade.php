@@ -1,9 +1,11 @@
 @extends('layouts.portal')
 @section('title', 'Accounts')
-@section('content')
-@php($kinds = ['share_savings' => 'Savings', 'share_draft' => 'Checking', 'money_market' => 'Money market'])
+@section('band')
 <h1>Accounts</h1>
 <p class="psub">Welcome back, {{ auth()->user()->first_name ?? auth()->user()->name }}.</p>
+@endsection
+@section('content')
+@php($kinds = ['share_savings' => 'Savings', 'share_draft' => 'Checking', 'money_market' => 'Money market'])
 
 @foreach ($locks as $lock)
     <div class="notice-bar" role="status">

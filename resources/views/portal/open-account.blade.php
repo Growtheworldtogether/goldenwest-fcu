@@ -1,8 +1,10 @@
 @extends('layouts.portal')
 @section('title', 'Open an account')
-@section('content')
+@section('band')
 <h1>Open another account</h1>
 <p class="psub">There is no fee and no opening deposit. Your account is ready right away.</p>
+@endsection
+@section('content')
 <div class="panel-card">
     <form class="form" method="post" action="{{ route('accounts.store') }}">
         @csrf

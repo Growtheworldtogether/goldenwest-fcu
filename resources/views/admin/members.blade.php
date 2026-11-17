@@ -1,8 +1,10 @@
 @extends('layouts.portal')
 @section('title', 'Members')
-@section('content')
+@section('band')
 <h1>Members</h1>
 <p class="psub">Search by name, email, member number, phone or the last digits of an account number.</p>
+@endsection
+@section('content')
 <form class="sform" method="get" style="grid-template-columns:1fr auto;align-items:end;max-width:40rem;margin-bottom:1.25rem">
     <label>Search<input type="search" name="q" value="{{ $q }}" autofocus></label>
     <button type="submit">Search</button>

@@ -1,11 +1,13 @@
 @extends('layouts.portal')
 @section('title', 'Transaction')
+@section('band')
+<p class="crumbs2"><a class="plink" href="{{ route('admin.queue.index') }}">&larr; Review queue</a></p>
+<h1>{{ $tx->amount->format() }} {{ str($tx->type->value)->replace('_', ' ') }}</h1>
+<p class="psub"><span class="tag {{ $tx->status->value === 'completed' ? 'ok' : $tx->status->value }}">{{ $tx->status->value }}</span> &middot; {{ $tx->created_at->format('M j, Y g:i a') }} &middot; Ref {{ $tx->reference }}</p>
+@endsection
 @section('content')
 @php($open = in_array($tx->status->value, ['pending', 'held']))
 @php($owner = $owners[$tx->from_account_id] ?? $owners[$tx->to_account_id] ?? null)
-<p style="margin:0 0 .5rem"><a class="plink" href="{{ route('admin.queue.index') }}">&larr; Review queue</a></p>
-<h1>{{ $tx->amount->format() }} {{ str($tx->type->value)->replace('_', ' ') }}</h1>
-<p class="psub"><span class="tag {{ $tx->status->value === 'completed' ? 'ok' : $tx->status->value }}">{{ $tx->status->value }}</span> &middot; {{ $tx->created_at->format('M j, Y g:i a') }} &middot; Ref {{ $tx->reference }}</p>
 @if ($errors->any())<div class="flash bad" role="alert">@foreach ($errors->all() as $e){{ $e }} @endforeach</div>@endif
 
 <div class="cols">

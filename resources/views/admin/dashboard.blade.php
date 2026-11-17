@@ -1,7 +1,10 @@
 @extends('layouts.portal')
 @section('title', 'Overview')
+@section('band')
+<h1>Overview</h1>
+<p class="psub">{{ now()->format('l, F j') }}</p>
+@endsection
 @section('content')
-<div class="pagehead"><div><h1>Overview</h1><p class="psub">{{ now()->format('l, F j') }}</p></div></div>
 
 <div class="strip">
     @can('staff.viewQueue')

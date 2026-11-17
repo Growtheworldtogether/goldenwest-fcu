@@ -1,9 +1,11 @@
 @extends('layouts.portal')
 @section('title', 'Security')
-@section('content')
 @php($admin = request()->routeIs('admin.*'))
+@section('band')
 <h1>Security center</h1>
 <p class="psub">{{ $admin ? 'Two-step verification is optional but recommended for staff.' : 'Manage how you sign in and review recent activity on your profile.' }}</p>
+@endsection
+@section('content')
 
 @if (! $confirmed && ! $enabled)
     <div class="notice-bar" role="status"><p><strong>Two-step verification is off.</strong> Add a second step at sign in so a stolen password alone can't get into your account.</p></div>

@@ -2,10 +2,13 @@
 @php($labels = ['pending' => 'Pending', 'held' => 'On hold', 'rejected' => 'Declined', 'failed' => 'Failed', 'reversed' => 'Reversed', 'approved' => 'Approved'])
 @php([$pendingRows, $postedRows] = collect($rows)->partition(fn ($r) => in_array($r['tx']->status->value, ['pending', 'held'])))
 <div class="panel-card flush">
-    <form class="searchbar" method="get">
+    <form class="searchform" method="get">
+    <div class="searchbar">
         <input type="search" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Search by merchant, memo or amount" aria-label="Search transactions">
         <button class="btn-s" type="submit">Search</button>
         <a class="plink" href="{{ $exportUrl }}">Download transactions</a>
+    </div>
+    <div class="morewrap">
         <details class="more" @if (collect($filters)->except(['q', 'page'])->filter()->isNotEmpty()) open @endif>
             <summary>More filters</summary>
             <div class="filters">
@@ -32,7 +35,9 @@
                 <label>From<input type="date" name="from" value="{{ $filters['from'] ?? '' }}"></label>
                 <label>To<input type="date" name="to" value="{{ $filters['to'] ?? '' }}"></label>
             </div>
+            <div class="filter-actions"><button class="btn-s sm" type="submit">Apply filters</button><a class="plink" href="{{ url()->current() }}">Clear all</a></div>
         </details>
+    </div>
     </form>
 
     @if (count($rows))
@@ -48,7 +53,7 @@
                     <td style="white-space:nowrap">{{ $r['tx']->effective_date->format('M j, Y') }}</td>
                     <td>
                         <a class="main" href="{{ route('transactions.show', $r['tx']->reference) }}">{{ $r['title'] }}</a>
-                        @if ($r['tx']->status->value !== 'completed')<small><b>{{ $labels[$r['tx']->status->value] ?? '' }}</b></small>@endif
+                        @if ($r['tx']->status->value !== 'completed')<span class="chip {{ $r['tx']->status->value }}">{{ $labels[$r['tx']->status->value] ?? '' }}</span>@endif
                         @if ($r['tx']->memo)<small>{{ $r['tx']->memo }}</small>@endif
                     </td>
                     @unless ($account)<td class="hide-s">{{ $r['account']->nickname }}<small>{{ $r['account']->masked() }}</small></td>@endunless

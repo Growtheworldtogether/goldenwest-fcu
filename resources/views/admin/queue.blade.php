@@ -1,7 +1,10 @@
 @extends('layouts.portal')
 @section('title', 'Review queue')
+@section('band')
+<h1>Review queue</h1>
+<p class="psub">Oldest first. Open an item to approve, hold or reject it.</p>
+@endsection
 @section('content')
-<div class="pagehead"><div><h1>Review queue</h1><p class="psub">Oldest first. Open an item to approve, hold or reject it.</p></div></div>
 <nav class="tabs" aria-label="Filter">
     @foreach (['open' => 'Needs action', 'pending' => 'Pending', 'held' => 'On hold', 'all' => 'Everything'] as $k => $l)
         <a href="{{ route('admin.queue.index', ['status' => $k]) }}" @if ($filter === $k) aria-current="page" @endif>{{ $l }}</a>

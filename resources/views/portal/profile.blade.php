@@ -1,8 +1,10 @@
 @extends('layouts.portal')
 @section('title', 'Profile')
-@section('content')
+@section('band')
 <h1>Profile and alerts</h1>
 <p class="psub">Member since {{ $user->profile?->membership_opened_at?->format('F Y') ?? $user->created_at->format('F Y') }}</p>
+@endsection
+@section('content')
 
 <div class="table-title" style="margin-top:0"><h2>Personal information</h2><button type="button" class="linkbtn" data-open="dlg-contact">Edit phone and address</button></div>
 <div class="panel-card flush">

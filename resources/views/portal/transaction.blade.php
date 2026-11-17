@@ -1,11 +1,13 @@
 @extends('layouts.portal')
 @section('title', 'Transaction details')
-@section('content')
-@php($row = $rows[0] ?? null)
-<p style="margin:0 0 .5rem"><a class="plink" href="{{ route('activity') }}">&larr; Activity</a></p>
+@section('band')
+<p class="crumbs2"><a class="plink" href="{{ route('activity') }}">&larr; Activity</a></p>
 <h1>{{ $row['title'] ?? 'Transaction' }}</h1>
 <p class="psub">{{ $tx->amount->format() }} &middot; {{ $tx->effective_date->format('F j, Y') }}
     @if ($tx->status->value !== 'completed') &middot; <span class="tag {{ $tx->status->value }}">{{ ['pending' => 'Pending', 'held' => 'On hold', 'rejected' => 'Declined', 'failed' => 'Failed', 'reversed' => 'Reversed', 'approved' => 'Approved'][$tx->status->value] }}</span>@endif</p>
+@endsection
+@section('content')
+@php($row = $rows[0] ?? null)
 
 @php($last = $decisions->first())
 @if ($last && in_array($last->decision, ['held', 'rejected']))

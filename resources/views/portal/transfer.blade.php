@@ -1,8 +1,10 @@
 @extends('layouts.portal')
 @section('title', 'Transfer')
-@section('content')
+@section('band')
 <h1>Transfer money</h1>
 <p class="psub">Move money between your own Golden West accounts. It is free and takes effect right away.</p>
+@endsection
+@section('content')
 @if ($accounts->count() < 2)
     <div class="panel-card"><p style="margin:0">You need at least two accounts to transfer between them. <a class="plink" href="{{ route('accounts.create') }}">Open another account</a>, it is free.</p></div>
 @else

@@ -1,8 +1,10 @@
 @extends('layouts.portal')
 @section('title', 'Inquiries')
-@section('content')
+@section('band')
 <h1>Inquiries</h1>
 <p class="psub">Messages and appointment requests from the website.</p>
+@endsection
+@section('content')
 <nav class="tabs"><a href="{{ route('admin.inquiries.index') }}" @if ($show === 'open') aria-current="page" @endif>Open</a><a href="{{ route('admin.inquiries.index', ['show' => 'handled']) }}" @if ($show === 'handled') aria-current="page" @endif>Handled</a></nav>
 <div class="panel-card flush">
 @forelse ($inquiries as $i)
