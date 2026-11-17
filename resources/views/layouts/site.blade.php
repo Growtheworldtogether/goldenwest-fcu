@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Golden West Federal Credit Union | Banking built around you')</title>
     <meta name="description" content="@yield('description', 'Golden West Federal Credit Union has served members across the West since 1958. Joining and opening an account is free.')">
-    <meta name="theme-color" content="#1f2869">
+    <meta name="theme-color" content="#14403a">
     <link rel="preload" href="{{ asset('fonts/SourceSans3.woff2') }}" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="{{ asset('fonts/Oswald.woff2') }}" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="{{ asset('css/site.css') }}">
@@ -27,7 +27,7 @@
 <header class="site-head">
     <div class="head-in">
         <a class="brand" href="{{ url('/') }}" aria-label="Golden West Federal Credit Union, home">
-            <svg class="brand-mark" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="23" fill="#1f2869"/><circle cx="23" cy="26" r="9" fill="#f5bd02"/><path d="M6 36h34" stroke="#f5bd02" stroke-width="3" stroke-linecap="round"/><path d="M23 7v5M10 13l3.500 3.500M36 13l-3.500 3.500" stroke="#f5bd02" stroke-width="2.600" stroke-linecap="round"/></svg>
+            <svg class="brand-mark" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="23" fill="#14403a"/><circle cx="23" cy="26" r="9" fill="#f5bd02"/><path d="M6 36h34" stroke="#f5bd02" stroke-width="3" stroke-linecap="round"/><path d="M23 7v5M10 13l3.500 3.500M36 13l-3.500 3.500" stroke="#f5bd02" stroke-width="2.600" stroke-linecap="round"/></svg>
             <span class="brand-name">Golden West<small>FEDERAL CREDIT UNION</small></span>
         </a>
 
@@ -102,7 +102,7 @@
         <div class="foot-grid">
             <div>
                 <a class="brand" href="{{ url('/') }}">
-                    <svg class="brand-mark" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="23" fill="#1f2869"/><circle cx="23" cy="26" r="9" fill="#f5bd02"/><path d="M6 36h34" stroke="#f5bd02" stroke-width="3" stroke-linecap="round"/><path d="M23 7v5M10 13l3.500 3.500M36 13l-3.500 3.500" stroke="#f5bd02" stroke-width="2.600" stroke-linecap="round"/></svg>
+                    <svg class="brand-mark" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="23" fill="#14403a"/><circle cx="23" cy="26" r="9" fill="#f5bd02"/><path d="M6 36h34" stroke="#f5bd02" stroke-width="3" stroke-linecap="round"/><path d="M23 7v5M10 13l3.500 3.500M36 13l-3.500 3.500" stroke="#f5bd02" stroke-width="2.600" stroke-linecap="round"/></svg>
                     <span class="brand-name">Golden West<small>FEDERAL CREDIT UNION</small></span>
                 </a>
                 <p class="lede">Golden West Federal Credit Union has served California and the West since 1958. With 46 branches across five states, personal and business banking, and secure digital tools, we help more than 280,000 members save, borrow and plan with confidence.</p>
