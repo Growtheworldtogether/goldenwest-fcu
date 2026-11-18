@@ -169,6 +169,9 @@ final class Installer
         if (! config('app.key')) {
             $env['APP_KEY'] = 'base64:'.base64_encode(random_bytes(32));
         }
+        if ($db['driver'] === 'sqlite') {
+            $env['DB_DATABASE'] = database_path('database.sqlite');
+        }
         if ($db['driver'] === 'mysql') {
             $env += ['DB_HOST' => $db['host'], 'DB_PORT' => $db['port'], 'DB_DATABASE' => $db['name'], 'DB_USERNAME' => $db['user'], 'DB_PASSWORD' => $db['pass'] ?? ''];
         }
@@ -187,6 +190,12 @@ final class Installer
             config(['database.connections.sqlite.database' => database_path('database.sqlite')]);
         }
         DB::purge();
+        // Things built at boot still hold the connection and cache store from before the answers were applied
+        // (the permission registrar keeps its own cache store). Until the install is done they use files.
+        config(['cache.default' => 'file', 'session.driver' => 'file', 'permission.cache.store' => 'file']);
+        app('cache')->forgetDriver('database');
+        app('cache')->forgetDriver('file');
+        app()->forgetInstance(\Spatie\Permission\PermissionRegistrar::class);
         config(['app.timezone' => $d['tz']]);
         date_default_timezone_set($d['tz']);
 
