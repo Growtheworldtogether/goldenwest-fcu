@@ -41,7 +41,7 @@
             </ol>
             <p class="fine">Lost or stolen card outside business hours? Call the same number and choose the card option. It is answered around the clock.</p>
         </div>
-        <aside class="aside on-dark"><h3>Report a suspicious message</h3><p>Forward a suspicious message or describe what happened and our fraud team will review it.</p><a class="btn" href="{{ url('/contact') }}">Send a report</a></aside>
+        <div class="splitcol">@include('partials.bodyphoto', ['name' => 'security-report'])<aside class="aside on-dark"><h3>Report a suspicious message</h3><p>Forward a suspicious message or describe what happened and our fraud team will review it.</p><a class="btn" href="{{ url('/contact') }}">Send a report</a></aside></div>
     </div>
 </section>
 @endsection

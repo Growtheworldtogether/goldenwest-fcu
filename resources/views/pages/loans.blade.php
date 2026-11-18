@@ -54,11 +54,11 @@
             <ul class="checks"><li>Fixed rates, so your payment never changes</li><li>No application fee, no origination fee</li><li>No penalty for paying early</li><li>A real person reviews every decision, and you can contest one at any time</li><li>Terms from 12 to 72 months</li></ul>
             <p class="fine">Rates shown are the lowest available and depend on creditworthiness, term and loan amount. Annual percentage rates are accurate as of the date shown on the Rates page.</p>
         </div>
-        <aside class="aside on-dark">
+        <div class="splitcol">@include('partials.bodyphoto', ['name' => 'loans-lender'])<aside class="aside on-dark">
             <h3>Estimate a payment</h3>
             <p>A $20,000 auto loan at 5.49% APR for 60 months has a payment of about $382 a month.</p>
             <a class="btn" href="{{ url('/appointments') }}">Speak with a lender</a>
-        </aside>
+        </aside></div>
     </div>
 </section>
 @endsection

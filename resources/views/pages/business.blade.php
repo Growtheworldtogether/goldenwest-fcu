@@ -24,7 +24,7 @@
             <p>Every business client has a dedicated relationship banker and a direct phone line. Whether you are opening your first account or financing your third location, you work with the same person.</p>
             <p>Our teams serve businesses in California, Nevada, Arizona, Oregon and Washington, from sole proprietors to companies with hundreds of employees.</p>
         </div>
-        <aside class="aside on-dark"><h3>Business Customer Care</h3><p>Call <a href="tel:{{ brand('tel') }}">{{ brand('support_phone') }}</a> and choose the business option. Monday through Friday, 7am to 8pm PT.</p><a class="btn" href="{{ url('/contact') }}">Send a message</a></aside>
+        <div class="splitcol">@include('partials.bodyphoto', ['name' => 'business-banker'])<aside class="aside on-dark"><h3>Business Customer Care</h3><p>Call <a href="tel:{{ brand('tel') }}">{{ brand('support_phone') }}</a> and choose the business option. Monday through Friday, 7am to 8pm PT.</p><a class="btn" href="{{ url('/contact') }}">Send a message</a></aside></div>
     </div>
 </section>
 @endsection

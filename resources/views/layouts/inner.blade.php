@@ -2,7 +2,9 @@
 
 @section('content')
     @php($cp = site_page())
-    <section class="phero on-dark">
+    @php($heroPhoto = page_photo($cp))
+    <section class="phero on-dark {{ $heroPhoto ? 'has-photo' : '' }}">
+        @if ($heroPhoto)<div class="phero-photo photo" data-img="{{ $heroPhoto }}" role="presentation" aria-hidden="true"></div>@endif
         <div class="phero-in">
             <ol class="crumbs" aria-label="Breadcrumb">
                 <li><a href="{{ url('/') }}">Home</a></li>

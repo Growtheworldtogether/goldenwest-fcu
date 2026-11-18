@@ -896,3 +896,11 @@ details.more .filters { margin: .75rem 0 0; }
 .side::-webkit-scrollbar-track { background: transparent; }
 .side::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, .18); border-radius: 4px; border: 2px solid var(--navy); }
 .side::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, .36); }
+
+/* Page banners with a photo, and photos inside pages */
+.phero-photo { position: absolute; top: 0; right: 0; bottom: 0; width: 42%; z-index: 1; clip-path: polygon(26% 0, 100% 0, 100% 100%, 0 100%); }
+.phero.has-photo::after { display: none; }
+.phero.has-photo .phero-in { z-index: 2; }
+.splitcol { display: grid; gap: 1.25rem; align-content: start; }
+.bodyphoto { aspect-ratio: 4 / 3; border-radius: 8px; }
+@media (max-width: 1000px) { .phero-photo { display: none; } .phero.has-photo::after { display: block; } }

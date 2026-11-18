@@ -527,3 +527,8 @@ Every success, error and info message in the interface appears as a **toast**, n
 - **Approval:** when staff approve the business document in the identity queue, `BusinessService::activate()` marks the business `approved`, opens the requested business accounts (with the business daily limit), audits `business.approved` and emails the member. If the document is turned down the member stays verified and uploads a new one from Verify your identity.
 - **After approval:** the page lists the business and its accounts, and offers to open whichever business account the member left out. One business per member.
 - **Shared rules:** `App\Support\BusinessRules` holds the validation for both the join form and this page.
+
+## 10w. Photos on public pages
+
+- Every public page banner has a photo on its right side. `page_photo($page)` uses `public/images/pages/{page}.jpg` when it exists and otherwise a site photo as a stand-in (accounts, business, loans, digital-banking, security, about, community, help, rates, careers, contact, appointments, learn). The photo is hidden under 1000px wide, where the pale banner shape shows instead.
+- Six pages have an optional photo above the dark side box, shown only when the file exists: `accounts-switching`, `security-report`, `digital-enroll`, `loans-lender`, `business-banker`, `community-scholarship` (all `public/images/pages/{name}.jpg`).

@@ -45,11 +45,11 @@
             <ul class="checks"><li>$500 minimum to open</li><li>Terms from 3 months to 5 years</li><li>Choose to receive interest monthly or at maturity</li><li>Ask about early withdrawal terms before you open</li></ul>
             <a class="btn" href="{{ url('/rates') }}">View certificate rates</a>
         </div>
-        <aside class="aside on-dark">
+        <div class="splitcol">@include('partials.bodyphoto', ['name' => 'accounts-switching'])<aside class="aside on-dark">
             <h3>Switching is easy</h3>
             <p>Moving your direct deposit and bill payments takes about 15 minutes. Our team can walk you through it by phone or in a branch.</p>
             <a class="btn" href="{{ url('/appointments') }}">Talk to a banker</a>
-        </aside>
+        </aside></div>
     </div>
 </section>
 

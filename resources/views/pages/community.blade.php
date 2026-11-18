@@ -23,7 +23,7 @@
             <p>Each spring we award scholarships to members who are headed to college or trade school. Applications open in January, and awards are based on service, leadership and financial need.</p>
             <a class="btn" href="{{ url('/contact') }}">Ask about scholarships</a>
         </div>
-        <aside class="aside on-dark"><h3>Community Reinvestment</h3><p>{{ brand('short_name') }} is committed to meeting the credit needs of the communities we serve, including low- and moderate-income neighborhoods. Ask any branch for our current Community Reinvestment statement.</p></aside>
+        <div class="splitcol">@include('partials.bodyphoto', ['name' => 'community-scholarship'])<aside class="aside on-dark"><h3>Community Reinvestment</h3><p>{{ brand('short_name') }} is committed to meeting the credit needs of the communities we serve, including low- and moderate-income neighborhoods. Ask any branch for our current Community Reinvestment statement.</p></aside></div>
     </div>
 </section>
 @endsection
