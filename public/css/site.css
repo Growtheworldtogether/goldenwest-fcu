@@ -84,10 +84,10 @@ h1, h2, h3 { margin: 0; line-height: 1.08; }
 .taskbar button:hover { background: var(--gold-hover); }
 
 /* ---------- Hero ---------- */
-.hero { position: relative; height: clamp(520px, 44.5vw, 660px); background: var(--navy); overflow: hidden; }
+.hero { position: relative; height: clamp(520px, 44.5vw, 760px); background: var(--navy); overflow: hidden; }
 .slide { position: absolute; inset: 0; display: none; }
 .slide.on { display: block; }
-.slide > .photo { position: absolute; inset: 0; }
+.slide > .photo { position: absolute; inset: 0; background-position: center 12%; }
 .panel { position: absolute; top: 0; bottom: 0; right: 0; width: 63%; background: var(--grad); clip-path: polygon(28.6% 0, 100% 0, 100% 100%, 0 100%); }
 .panel-body { position: absolute; top: 50%; transform: translateY(-50%); left: 33%; right: 7%; display: grid; gap: 1.5rem; justify-items: start; color: #fff; }
 .panel-body h2 { font-size: clamp(2.3rem, 4.8vw, 4.4rem); line-height: 1.08; }
