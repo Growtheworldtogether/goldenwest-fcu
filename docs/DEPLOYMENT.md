@@ -35,6 +35,8 @@ Prefer the command line? Copy `.env.example` to `.env`, set the values, run `php
 
 - **The `vendor/` folder:** It is not in git, and without SSH you cannot run Composer on the server. On your own computer, run `composer install --no-dev --optimize-autoloader` in the project folder, then upload the whole folder (including `vendor/`) to the server, or zip it, upload the zip and extract it there.
 
+- **Where the domain points:** Either set the domain's document root to the app's `public` folder, or leave the document root as `public_html`, copy the contents of `public/` into it, and keep the app folder (named `app`) next to `public_html`. `public/index.php` looks in `..` and `../app` for the application, so both layouts work with no edits.
+
 ## Starting over
 
 `php artisan platform:reset` deletes everything (members, staff, ledger, branding, uploaded files) and brings the wizard back. Local or staging only: it cannot be undone.
