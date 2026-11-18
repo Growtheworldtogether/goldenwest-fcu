@@ -583,3 +583,5 @@ First-run wizard (`/setup`, `App\Http\Controllers\SetupController`, `App\Support
 Settings that were hardcoded are now Branding settings: routing number (footer, help, account details, welcome page) and the optional NMLS number (footer, hidden when empty). The shipped Golden West logo files are used only when the name is the built-in one; any other name gets the text wordmark until a logo is uploaded in Admin > Branding.
 
 `php artisan platform:reset` erases everything, including uploads, and brings the wizard back (local and staging use). `docs/DEPLOYMENT.md` covers the server steps. Tests: `SetupWizardTest`.
+
+Form errors: a form that comes back with field errors also raises one red toast (the message itself when there is one error, "Please fix the highlighted fields." when there are several), in `partials/toasts`. The message stays beside its field, and `toast.js` scrolls the first error into view. No second toast is added when an error toast is already showing. Tests: `ErrorToastTest`.

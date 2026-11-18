@@ -37,4 +37,11 @@
         while (host.children.length > 4) { dismiss(host.firstElementChild); }
     };
     Array.prototype.forEach.call(host.querySelectorAll('.toast'), arm);
+
+    // After a failed submit, bring the first field error into view (skipped for errors inside a closed dialog).
+    var firstErr = document.querySelector('.err');
+    if (firstErr && firstErr.offsetParent !== null) {
+        var r = firstErr.getBoundingClientRect();
+        if (r.top < 0 || r.bottom > window.innerHeight) { firstErr.scrollIntoView({ block: 'center' }); }
+    }
 })();

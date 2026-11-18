@@ -15,6 +15,13 @@
     if ($m = session('sent')) { $queue[] = ['ok', $m]; }
     if ($m = session('error')) { $queue[] = ['bad', $m]; }
     if ($t = session('toast')) { $queue[] = [$t['type'] ?? 'info', $t['message'] ?? '']; }
+    // A form that came back with field errors: one red toast says so, and the message stays beside the field.
+    if (! collect($queue)->contains(fn ($q) => $q[0] === 'bad')) {
+        $fieldErrors = collect($errors->getBags())->flatMap(fn ($bag) => $bag->all())->unique()->values();
+        if ($fieldErrors->isNotEmpty()) {
+            $queue[] = ['bad', $fieldErrors->count() === 1 ? $fieldErrors->first() : 'Please fix the highlighted fields.'];
+        }
+    }
     $icons = [
         'ok' => '<path d="M5 12.5l4.2 4.2L19 7"/>',
         'bad' => '<path d="M12 7v6M12 17h.01"/><circle cx="12" cy="12" r="9"/>',
