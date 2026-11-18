@@ -8,7 +8,13 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class KycDocument extends Model
 {
-    public const TYPES = ['government_id' => 'Government photo ID', 'proof_of_address' => 'Proof of address'];
+    public const TYPES = ['government_id' => 'Government photo ID', 'proof_of_address' => 'Proof of address', 'business_document' => 'Business document'];
+
+    /** Every member gives an ID and proof of address. A member with a business also gives a business document. */
+    public static function requiredFor(User $user): array
+    {
+        return $user->businessProfile()->exists() ? array_keys(self::TYPES) : ['government_id', 'proof_of_address'];
+    }
 
     protected $guarded = [];
 

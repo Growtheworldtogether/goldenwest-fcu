@@ -26,6 +26,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsToMany(Account::class, 'account_holders')->withPivot(['role', 'status'])->wherePivot('status', 'active');
     }
 
+    public function businessProfile(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(BusinessProfile::class);
+    }
+
     public function profile(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(MemberProfile::class);

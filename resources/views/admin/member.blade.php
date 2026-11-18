@@ -8,6 +8,7 @@
         <p class="psub">Member #{{ $member->member_number }} &middot; {{ $member->email }} &middot; {{ $member->phone }}</p>
         <p class="chips">
             <span class="tag">Joined {{ $member->created_at->format('M j, Y') }}</span>
+            @if ($member->businessProfile)<span class="tag">Business: {{ $member->businessProfile->legal_name }}</span>@endif
             @if ($member->profile)<span class="tag">{{ str($member->profile->field_of_membership)->replace('_', ' ')->title() }}</span>@endif
             <span class="tag {{ $member->kyc_status === 'verified' ? 'ok' : 'held' }}">ID {{ $member->kyc_status === 'verified' ? 'verified' : ($member->kyc_status === 'rejected' ? 'rejected' : 'not verified') }}</span>
             @if ($restrictions->count())<span class="tag lock">{{ $restrictions->count() }} {{ \Illuminate\Support\Str::plural('restriction', $restrictions->count()) }}</span>@endif
@@ -39,6 +40,14 @@
                 </div>
             @endforeach
         </div>
+
+        @if ($member->businessProfile)
+            @php($bp = $member->businessProfile)
+            <div class="sechead"><h2>Business</h2></div>
+            <div class="panel-card">
+                <dl class="kvlist" style="padding:0"><dt>Legal name</dt><dd>{{ $bp->legal_name }}</dd><dt>Type</dt><dd>{{ $bp->entityLabel() }}</dd><dt>EIN</dt><dd>{{ $bp->maskedEin() }}</dd><dt>Industry</dt><dd>{{ $bp->industry }}</dd><dt>Started</dt><dd>{{ $bp->started_year }} ({{ $bp->yearsInBusiness() }} {{ \Illuminate\Support\Str::plural('year', $bp->yearsInBusiness()) }})</dd><dt>Address</dt><dd>{{ $bp->address_line1 }}, {{ $bp->city }}, {{ $bp->state }} {{ $bp->postal_code }}</dd></dl>
+            </div>
+        @endif
 
         <div class="sechead"><h2>Recent transactions</h2></div>
         <div class="panel-card rows">

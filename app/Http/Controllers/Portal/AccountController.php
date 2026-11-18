@@ -33,7 +33,7 @@ class AccountController extends Controller
         }
 
         $overdraft = $data['product'] === 'EVERYDAY-CHECKING'
-            ? $user->accounts()->whereHas('product', fn ($q) => $q->where('kind', 'share_savings'))->where('accounts.status', 'active')->orderBy('accounts.id')->value('accounts.id')
+            ? $user->accounts()->whereHas('product', fn ($q) => $q->where('kind', 'share_savings')->where('segment', 'personal'))->where('accounts.status', 'active')->orderBy('accounts.id')->value('accounts.id')
             : null;
 
         $account = $opening->open($user, $data['product'], $data['nickname'] ?? null, $overdraft);

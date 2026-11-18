@@ -70,6 +70,34 @@
             @endforeach
         </div>
         @error('account_choice')<span class="err">{{ $message }}</span>@enderror
+
+        <label class="check bizcheck"><input type="checkbox" name="open_business" id="open-biz" value="1" @checked(old('open_business'))> <span><strong>I also want business accounts</strong><small>For a business you own. You stay the member, and the business accounts sit under your membership.</small></span></label>
+        <div class="bizpanel" id="biz-panel">
+            <label>Legal name of the business<input name="business_name" value="{{ old('business_name') }}" maxlength="120" autocomplete="organization">@error('business_name')<span class="err">{{ $message }}</span>@enderror</label>
+            <div class="row">
+                <label>Type of business
+                    <select name="business_type"><option value="">Choose one</option>@foreach (\App\Models\BusinessProfile::ENTITY_TYPES as $v => $l)<option value="{{ $v }}" @selected(old('business_type') === $v)>{{ $l }}</option>@endforeach</select>
+                    @error('business_type')<span class="err">{{ $message }}</span>@enderror
+                </label>
+                <label>EIN<input name="business_ein" value="{{ old('business_ein') }}" inputmode="numeric" maxlength="10" placeholder="12-3456789" autocomplete="off">@error('business_ein')<span class="err">{{ $message }}</span>@enderror</label>
+            </div>
+            <div class="row">
+                <label>What the business does<input name="business_industry" value="{{ old('business_industry') }}" maxlength="80" placeholder="For example, landscaping">@error('business_industry')<span class="err">{{ $message }}</span>@enderror</label>
+                <label>Year started<input name="business_started_year" value="{{ old('business_started_year') }}" inputmode="numeric" maxlength="4" placeholder="{{ now()->year - 3 }}">@error('business_started_year')<span class="err">{{ $message }}</span>@enderror</label>
+            </div>
+            <label>Business street address<input name="business_address_line1" value="{{ old('business_address_line1') }}" maxlength="160" autocomplete="off">@error('business_address_line1')<span class="err">{{ $message }}</span>@enderror</label>
+            <div class="row row3">
+                <label>City<input name="business_city" value="{{ old('business_city') }}" maxlength="80" autocomplete="off">@error('business_city')<span class="err">{{ $message }}</span>@enderror</label>
+                <label>State<input name="business_state" value="{{ old('business_state') }}" maxlength="2" minlength="2" autocomplete="off" style="text-transform:uppercase">@error('business_state')<span class="err">{{ $message }}</span>@enderror</label>
+                <label>ZIP code<input name="business_postal_code" value="{{ old('business_postal_code') }}" pattern="\d{5}(-\d{4})?" inputmode="numeric" autocomplete="off">@error('business_postal_code')<span class="err">{{ $message }}</span>@enderror</label>
+            </div>
+            <div class="choices">
+                @foreach (\App\Models\BusinessProfile::ACCOUNT_CHOICES as $value => $label)
+                    <label class="choice"><input type="radio" name="business_accounts" value="{{ $value }}" @checked(old('business_accounts', 'both') === $value)><span><strong>{{ $label }}</strong><small>{{ ['both' => 'Business Checking for day-to-day money, plus Business Savings for reserves and taxes.', 'checking' => 'Business Checking with a business debit card and a $50,000 daily limit.', 'savings' => 'Business Savings that earns dividends.'][$value] }}</small></span></label>
+                @endforeach
+            </div>
+            @error('business_accounts')<span class="err">{{ $message }}</span>@enderror
+        </div>
     </fieldset>
 
     <fieldset class="step" data-step="5" data-title="Documents">
@@ -84,6 +112,11 @@
             <small class="hint">A recent utility bill, bank statement or lease that shows your name and home address.</small>
             <input type="file" name="address_document" accept="image/png,image/jpeg,image/webp,application/pdf" required>
             @error('address_document')<span class="err">{{ $message }}</span>@enderror
+        </label>
+        <label class="bizdoc">Business document
+            <small class="hint">Articles of organization or incorporation, a business license, or an IRS letter that shows the business name and EIN.</small>
+            <input type="file" name="business_document" accept="image/png,image/jpeg,image/webp,application/pdf">
+            @error('business_document')<span class="err">{{ $message }}</span>@enderror
         </label>
     </fieldset>
 
@@ -136,6 +169,19 @@
     }
     sel.addEventListener('change', syncEligibility); syncEligibility();
 
+    // Business accounts: the panel and the extra document only show when asked for.
+    var bizBox = document.getElementById('open-biz'), bizPanel = document.getElementById('biz-panel'), bizDoc = form.querySelector('.bizdoc');
+    var bizFields = ['business_name', 'business_type', 'business_ein', 'business_industry', 'business_started_year', 'business_address_line1', 'business_city', 'business_state', 'business_postal_code'];
+    function syncBiz() {
+        var on = bizBox.checked;
+        bizPanel.hidden = !on; bizDoc.hidden = !on;
+        bizFields.forEach(function (n) { form.elements[n].required = on; });
+        form.elements.business_document.required = on;
+    }
+    bizBox.addEventListener('change', syncBiz); syncBiz();
+    form.querySelector('[name=business_state]').addEventListener('input', function () { this.value = this.value.toUpperCase().replace(/[^A-Z]/g, ''); });
+    form.querySelector('[name=business_ein]').addEventListener('input', function () { var d = this.value.replace(/\D/g, '').slice(0, 9); this.value = d.length > 2 ? d.slice(0, 2) + '-' + d.slice(2) : d; });
+
     // Password rules, live.
     var rules = { len: function (v) { return v.length >= 12; }, lower: function (v) { return /[a-z]/.test(v); }, upper: function (v) { return /[A-Z]/.test(v); }, num: function (v) { return /\d/.test(v); }, match: function (v) { return v !== '' && v === pw2.value; } };
     function syncRules() {
@@ -175,7 +221,10 @@
         if (n === 'dob' && (v.rangeOverflow || v.badInput)) return 'You must be at least 18 to open an account.';
         if (n === 'ssn_last4' && !v.valid) return 'Enter exactly four digits.';
         if (n === 'postal_code' && !v.valid) return 'Enter a five-digit ZIP code.';
-        if (n === 'state' && !v.valid) return 'Use the two-letter state code, such as CA.';
+        if ((n === 'state' || n === 'business_state') && !v.valid) return 'Use the two-letter state code, such as CA.';
+        if (n === 'business_ein' && !v.valid) return 'An EIN has nine digits, such as 12-3456789.';
+        if (n === 'business_started_year' && !/^(19|20)\d\d$/.test(f.value)) return 'Enter a four-digit year.';
+        if (n === 'business_postal_code' && !v.valid) return 'Enter a five-digit ZIP code.';
         if (n === 'email' && !v.valid) return 'Enter a valid email address.';
         if (n === 'referred_by_member_number' && !v.valid) return 'A member number has seven digits.';
         if (n === 'password' && v.tooShort) return 'Use at least 12 characters.';
@@ -187,6 +236,7 @@
             if (f.closest('[hidden]') || f.disabled) return;
             clearErr(f);
             var bad = !f.checkValidity() ? message(f) : null;
+            if (!bad && f.name === 'business_started_year' && f.value && (!/^(19|20)\d\d$/.test(f.value) || +f.value > new Date().getFullYear())) bad = 'Enter the four-digit year the business started.';
             if (!bad && f.name === 'password' && !(rules.lower(f.value) && rules.upper(f.value) && rules.num(f.value))) bad = 'Include an uppercase letter, a lowercase letter and a number.';
             if (!bad && f.name === 'password_confirmation' && f.value !== pw.value) bad = 'The two passwords do not match.';
             if (!bad && f.type === 'file' && f.files[0] && f.files[0].size > 8 * 1024 * 1024) bad = 'The file must be 8 MB or smaller.';
@@ -205,6 +255,11 @@
             ['Email', g('email'), 2], ['Mobile phone', g('phone'), 2], ['Address', g('address_line1') + ', ' + g('city') + ', ' + g('state') + ' ' + g('postal_code'), 2], ['Accounts', choiceName(), 3],
             ['Government ID', fileName('id_document'), 4], ['Proof of address', fileName('address_document'), 4], ['Password', '•'.repeat(12), 5]
         ];
+        if (bizBox.checked) {
+            var bt = form.elements.business_type, ba = form.querySelector('[name=business_accounts]:checked');
+            rows.splice(8, 0, ['Business', g('business_name') + ', ' + (bt.options[bt.selectedIndex] || {}).text + ', EIN ending ' + g('business_ein').slice(-4), 3], ['Business accounts', ba ? ba.parentNode.querySelector('strong').textContent : '', 3]);
+            rows.splice(rows.findIndex(function (r) { return r[0] === 'Proof of address'; }) + 1, 0, ['Business document', fileName('business_document'), 4]);
+        }
         var dl = document.getElementById('review'); dl.innerHTML = '';
         rows.forEach(function (r) {
             var dt = document.createElement('dt'), dd = document.createElement('dd'), a = document.createElement('button');

@@ -46,4 +46,21 @@ final class AccountOpening
             default => $this->openStarterAccounts($user),
         };
     }
+
+    /** Business accounts sit under the owner's membership. They get a higher daily limit and no overdraft link. */
+    public function openBusiness(User $user, string $choice): array
+    {
+        $codes = match ($choice) {
+            'checking' => ['BUSINESS-CHECKING'],
+            'savings' => ['BUSINESS-SAVINGS'],
+            default => ['BUSINESS-CHECKING', 'BUSINESS-SAVINGS'],
+        };
+
+        return array_map(function (string $code) use ($user) {
+            $account = $this->open($user, $code);
+            $account->update(['daily_limit' => (int) config('bank.business_daily_limit')]);
+
+            return $account;
+        }, $codes);
+    }
 }

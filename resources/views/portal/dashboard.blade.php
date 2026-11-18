@@ -50,7 +50,7 @@
             <tbody>
             @foreach ($accounts as $a)
                 <tr>
-                    <td><a class="main" href="{{ route('accounts.show', $a) }}">{{ $a->nickname }}</a><small>{{ $kinds[$a->product->kind] ?? $a->product->name }} {{ $a->masked() }}</small></td>
+                    <td><a class="main" href="{{ route('accounts.show', $a) }}">{{ $a->nickname }}</a><small>{{ $a->kindLabel() }} {{ $a->masked() }}</small></td>
                     <td class="num">{{ $a->available_balance->format() }}@if ($a->held_balance->cents > 0)<small>{{ $a->held_balance->format() }} on hold</small>@endif</td>
                     <td class="num hide-s">{{ $a->balance->format() }}</td>
                     <td class="go"><a class="plink" href="{{ route('transfers.create', ['from' => $a->id]) }}">Transfer</a></td>

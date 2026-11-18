@@ -881,3 +881,11 @@ details.more .filters { margin: .75rem 0 0; }
 .welcome.is-done .finished { animation: stepin .4s ease; }
 @media (prefers-reduced-motion: reduce) { .welcome .runlist li.now .mark { animation: none; } .welcome .runbar i { transition: none; } .welcome.is-done .finished { animation: none; } }
 .welcome .finished:focus { outline: none; }
+
+/* Join: business accounts */
+.bizcheck { display: flex !important; gap: .7rem; align-items: flex-start; padding-top: .4rem; }
+.bizcheck input { margin-top: .35rem; flex: none; }
+.bizcheck strong { display: block; color: var(--navy); }
+.bizcheck small { display: block; font-weight: 400; color: var(--muted); }
+.bizpanel { display: grid; gap: 1rem; padding: 1rem; background: #f3f6f4; border-radius: 8px; }
+.bizpanel[hidden], .bizdoc[hidden] { display: none; }

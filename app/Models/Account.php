@@ -51,6 +51,14 @@ class Account extends Model
         return $this->hasMany(LedgerEntry::class);
     }
 
+    /** "Savings", "Checking", "Business checking" and so on, for lists. */
+    public function kindLabel(): string
+    {
+        $label = ['share_savings' => 'Savings', 'share_draft' => 'Checking', 'money_market' => 'Money market'][$this->product->kind] ?? $this->product->name;
+
+        return $this->product->isBusiness() ? 'Business '.strtolower($label) : $label;
+    }
+
     /** "••••4821" for screens and logs. The full number is never logged. */
     public function masked(): string
     {

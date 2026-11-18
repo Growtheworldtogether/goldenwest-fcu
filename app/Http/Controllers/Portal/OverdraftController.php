@@ -19,6 +19,7 @@ class OverdraftController extends Controller
         return view('portal.overdraft', [
             'checking' => $checking,
             'sources' => $accounts->filter(fn ($a) => in_array($a->product->kind, ['share_savings', 'money_market'], true)),
+            'isBusiness' => $checking->mapWithKeys(fn ($a) => [$a->id => $a->product->isBusiness()]),
             'fee' => \App\Support\Money::cents((int) config('bank.overdraft_transfer_fee')),
             'recent' => Transaction::with(['fromAccount', 'toAccount'])->where('type', TransactionType::OverdraftTransfer->value)->whereIn('to_account_id', $checking->pluck('id'))->latest('id')->limit(10)->get(),
         ]);
@@ -31,6 +32,10 @@ class OverdraftController extends Controller
         $id = $request->filled('source_id') ? (int) $request->input('source_id') : null;
         if ($id !== null) {
             $ok = $u->accounts()->whereHas('product', fn ($q) => $q->whereIn('kind', ['share_savings', 'money_market']))->where('accounts.id', $id)->where('accounts.status', 'active')->where('accounts.type', 'standard')->where('accounts.id', '!=', $account->id)->exists();
+            $source = $ok ? $u->accounts()->with('product')->where('accounts.id', $id)->first() : null;
+            if ($source && $source->product->isBusiness() !== $account->load('product')->product->isBusiness()) {
+                $ok = false;
+            }
             if (! $ok) {
                 return back()->with('toast', ['type' => 'bad', 'message' => 'Choose one of your savings or money market accounts.']);
             }

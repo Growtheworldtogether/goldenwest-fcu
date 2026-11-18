@@ -22,7 +22,7 @@
         <div class="acctlist">
             @foreach ($accounts as $a)
                 <div class="acct">
-                    <div><strong>{{ $a->nickname ?: $a->product->name }}</strong><small>{{ ['share_savings' => 'Savings', 'share_draft' => 'Checking', 'money_market' => 'Money market'][$a->product->kind] ?? 'Account' }}</small></div>
+                    <div><strong>{{ $a->nickname ?: $a->product->name }}</strong><small>{{ $a->kindLabel() }}@if ($a->product->isBusiness() && $user->businessProfile) &middot; {{ $user->businessProfile->legal_name }}@endif</small></div>
                     <dl>
                         <dt>Account number</dt><dd>{{ $a->account_number }}</dd>
                         <dt>Routing number</dt><dd>121478906</dd>
@@ -32,7 +32,7 @@
             @endforeach
         </div>
 
-        <p class="fine">{{ $docs >= 2 ? 'Your ID and proof of address are with our review team, usually for one business day. Until you are verified you cannot deposit checks or move money in from another bank.' : 'Please upload your ID and proof of address from Verify your identity in online banking.' }}
+        <p class="fine">{{ $docs >= 2 ? 'Your documents are with our review team, usually for one business day. Until you are verified you cannot deposit checks or move money in from another bank.' : 'Please upload your documents from Verify your identity in online banking.' }}
         @unless ($user->hasVerifiedEmail()) We also sent a link to {{ $user->email }}. Open it to confirm your email address.@endunless</p>
         <a class="btn" href="{{ route('dashboard') }}">Go to my dashboard</a>
     </div>

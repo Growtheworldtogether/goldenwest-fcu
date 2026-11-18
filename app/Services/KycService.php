@@ -64,7 +64,7 @@ final class KycService
     public function refreshStatus(User $member): void
     {
         $current = KycDocument::where('user_id', $member->id)->where('status', '!=', 'replaced')->get()->groupBy('type');
-        $approved = collect(array_keys(KycDocument::TYPES))->every(fn ($t) => $current->get($t, collect())->contains('status', 'approved'));
+        $approved = collect(KycDocument::requiredFor($member))->every(fn ($t) => $current->get($t, collect())->contains('status', 'approved'));
         $rejected = $current->flatten()->contains('status', 'rejected');
         // A member verified before documents were collected stays verified until a document is turned down.
         if ($member->kyc_status === 'verified' && ! $approved && ! $rejected) {

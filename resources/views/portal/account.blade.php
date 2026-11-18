@@ -4,7 +4,7 @@
 @section('band')
 <p class="crumbs2"><a href="{{ route('dashboard') }}">Accounts</a> &rsaquo; {{ $account->nickname }}</p>
 <div class="pband-row">
-    <div><h1>{{ $account->nickname }}</h1><p class="psub">{{ $kinds[$account->product->kind] ?? $account->product->name }} {{ $account->masked() }}</p></div>
+    <div><h1>{{ $account->nickname }}</h1><p class="psub">{{ $account->kindLabel() }} {{ $account->masked() }}</p></div>
     <a class="btn-s gold" href="{{ route('transfers.create', ['from' => $account->id]) }}">Transfer money</a>
 </div>
 <div class="figs">
