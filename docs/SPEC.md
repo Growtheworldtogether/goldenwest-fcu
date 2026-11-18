@@ -495,3 +495,10 @@ Every success, error and info message in the interface appears as a **toast**, n
 ## 10r. Confirming an email without mail
 
 `php artisan members:verify-email someone@example.com` marks an address as confirmed without sending a link. Use it until outgoing mail is set up.
+
+## 10s. Join form: accounts, documents and the welcome page
+
+- The join wizard has seven steps: Eligibility, About you, Contact, Accounts, Documents, Password, Review.
+- **Accounts:** `account_choice` is `both` (default), `savings` or `checking`. `AccountOpening::openChosen()` opens them; savings is linked as overdraft cover only when both are opened. Money Market can be opened later from online banking; Certificates and Business accounts are not offered at joining.
+- **Documents:** a government photo ID (`id_document`) and proof of address (`address_document`) are required, PNG, JPG, WebP or PDF up to 8 MB. They are stored through `KycService::submit()` inside the join transaction, so an unusable file sends the form back and nothing is created. The member's `kyc_status` is `pending` until staff review them. The Verify your identity page is still there for replacements.
+- **Welcome page (`/welcome`):** registration redirects here. A short animated check (five steps, skipped with reduced motion or no script) ends in "Congratulations" with member number, each new account's number, the routing number and balance, and a Go to my dashboard button. It is open for 30 minutes after joining (`welcome_until` in the session); otherwise it redirects to the dashboard. It needs sign-in but not a confirmed email.

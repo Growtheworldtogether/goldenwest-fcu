@@ -846,3 +846,38 @@ details.more .filters { margin: .75rem 0 0; }
   .review dd { margin-bottom: .6rem; }
 }
 @media (prefers-reduced-motion: reduce) { .wizard .step.enter { animation: none; } .wiz-nav .dot { transition: none; } }
+
+/* Join: account choice and documents */
+.choices { display: grid; gap: .6rem; }
+.choice { display: flex !important; grid-template-columns: none; gap: .75rem; align-items: flex-start; padding: .9rem 1rem; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; background: #fff; }
+.choice:has(input:checked) { border-color: var(--navy); background: #f3f6f4; }
+.choice input { margin-top: .3rem; flex: none; }
+.choice strong { display: block; color: var(--navy); }
+.choice small { display: block; color: var(--muted); font-weight: 400; margin-top: .15rem; }
+.form .hint { color: var(--muted); font-weight: 400; font-size: .875rem; }
+.form input[type=file] { padding: .6rem; border: 1px dashed #9aa9a2; border-radius: 6px; background: #fafcfb; font: inherit; }
+
+/* Welcome after joining */
+.welcome .runlist { list-style: none; margin: 1.25rem 0 1rem; padding: 0; display: grid; gap: .75rem; }
+.welcome .runlist li { display: flex; gap: .8rem; align-items: center; color: var(--muted); font-weight: 600; }
+.welcome .mark { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #c9d4ce; flex: none; display: grid; place-items: center; font-size: .8rem; color: #fff; }
+.welcome .runlist li.now { color: var(--navy); }
+.welcome .runlist li.now .mark { border-color: var(--blue); border-top-color: transparent; animation: spin .8s linear infinite; }
+.welcome .runlist li.ok { color: var(--ink); }
+.welcome .runlist li.ok .mark { background: var(--blue); border-color: var(--blue); }
+.welcome .runlist li.ok .mark::after { content: "\2713"; font-weight: 700; }
+.welcome .runbar { height: 6px; background: #e3ebe7; border-radius: 3px; overflow: hidden; }
+.welcome .runbar i { display: block; height: 100%; width: 0; background: var(--blue); transition: width .7s ease; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.welcome .finished h3 { margin: .2rem 0 .4rem; }
+.welcome .acctlist { display: grid; gap: .75rem; margin: 1rem 0; }
+.welcome .acct { border: 1px solid var(--line); border-radius: 8px; padding: .9rem 1rem; }
+.welcome .acct > div > strong { display: block; color: var(--navy); }
+.welcome .acct small { color: var(--muted); }
+.welcome .acct dl { display: grid; grid-template-columns: max-content 1fr; gap: .25rem 1.25rem; margin: .6rem 0 0; }
+.welcome .acct dt { color: var(--muted); font-size: .9375rem; }
+.welcome .acct dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+.welcome.is-running .finished, .welcome.is-done .runlist, .welcome.is-done .runbar { display: none; }
+.welcome.is-done .finished { animation: stepin .4s ease; }
+@media (prefers-reduced-motion: reduce) { .welcome .runlist li.now .mark { animation: none; } .welcome .runbar i { transition: none; } .welcome.is-done .finished { animation: none; } }
+.welcome .finished:focus { outline: none; }

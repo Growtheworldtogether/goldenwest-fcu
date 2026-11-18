@@ -94,6 +94,9 @@ function registrationData(array $overrides = []): array
         'phone' => '408-555-0149', 'dob' => '1985-04-12', 'ssn_last4' => '4821',
         'address_line1' => '1876 Story Rd', 'city' => 'San Jose', 'state' => 'CA', 'postal_code' => '95122',
         'field_of_membership' => 'lives_in_region', 'eligibility_state' => 'CA',
+        'account_choice' => 'both',
+        'id_document' => Illuminate\Http\UploadedFile::fake()->image('id.jpg', 800, 500),
+        'address_document' => Illuminate\Http\UploadedFile::fake()->image('bill.jpg', 800, 1000),
         'password' => 'Correct-Horse-9', 'password_confirmation' => 'Correct-Horse-9', 'terms' => '1',
     ], $overrides);
 }

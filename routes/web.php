@@ -63,6 +63,9 @@ Route::get('/brand/favicon', [MediaController::class, 'favicon'])->name('brand.f
 Route::post('/contact', [InquiryController::class, 'contact'])->middleware('throttle:6,1')->name('contact.send');
 Route::post('/appointments', [InquiryController::class, 'appointment'])->middleware('throttle:6,1')->name('appointments.send');
 
+// Shown once, right after joining. Needs a signed-in member but not a confirmed email.
+Route::get('/welcome', Portal\WelcomeController::class)->middleware(['auth', 'member.area'])->name('welcome');
+
 // Online banking. Members must be signed in and have a verified email.
 Route::middleware(['auth', 'verified', 'member.area', 'throttle:portal'])->group(function () {
     Route::get('/dashboard', Portal\DashboardController::class)->name('dashboard');

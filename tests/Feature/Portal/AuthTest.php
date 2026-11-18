@@ -13,7 +13,7 @@ uses(RefreshDatabase::class);
 beforeEach(fn () => seedReference());
 
 it('opens a member with a savings and a checking account for free', function () {
-    $this->post('/register', registrationData())->assertRedirect('/dashboard');
+    $this->post('/register', registrationData())->assertRedirect('/welcome');
 
     $user = User::where('email', 'linda.nguyen@example.com')->firstOrFail();
     $accounts = $user->accounts()->with('product')->get();
@@ -144,9 +144,9 @@ it('accepts a recovery code once', function () {
     expect($user->refresh()->recoveryCodes())->not->toContain($code);
 });
 
-it('shows the join form as five steps and keeps the sign-in and join photos', function () {
+it('shows the join form as seven steps and keeps the sign-in and join photos', function () {
     $html = $this->get('/register')->assertOk()->assertSee('Open my accounts')->assertSee('images/branch.jpg', false)->getContent();
-    foreach (['Eligibility', 'About you', 'Contact', 'Password', 'Review'] as $i => $title) {
+    foreach (['Eligibility', 'About you', 'Contact', 'Accounts', 'Documents', 'Password', 'Review'] as $i => $title) {
         expect($html)->toContain('data-step="'.($i + 1).'" data-title="'.$title.'"');
     }
     $this->get('/login')->assertOk()->assertSee('images/branch.jpg', false);
@@ -155,7 +155,7 @@ it('shows the join form as five steps and keeps the sign-in and join photos', fu
 
 it('sends a new member to the dashboard even if a staff page was requested earlier', function () {
     $this->get('/admin')->assertRedirect();
-    $this->post('/register', registrationData())->assertRedirect('/dashboard');
+    $this->post('/register', registrationData())->assertRedirect('/welcome');
 });
 
 it('does not send a member to a staff page after sign-in', function () {
@@ -164,4 +164,47 @@ it('does not send a member to a staff page after sign-in', function () {
     $this->post('/logout');
     $this->get('/admin');
     $this->post('/login', ['email' => 'linda.nguyen@example.com', 'password' => registrationData()['password']])->assertRedirect('/dashboard');
+});
+
+
+it('opens only the accounts the member asked for', function () {
+    $this->post('/register', registrationData(['account_choice' => 'savings']));
+    expect(User::firstWhere('email', 'linda.nguyen@example.com')->accounts()->with('product')->get()->pluck('product.kind')->all())->toBe(['share_savings']);
+});
+
+it('opens only checking when asked, with no overdraft link', function () {
+    $this->post('/register', registrationData(['account_choice' => 'checking']));
+    $a = User::firstWhere('email', 'linda.nguyen@example.com')->accounts()->with('product')->get();
+    expect($a->pluck('product.kind')->all())->toBe(['share_draft'])->and($a->first()->overdraft_account_id)->toBeNull();
+});
+
+it('takes a government ID and proof of address with the application', function () {
+    $this->post('/register', registrationData())->assertRedirect('/welcome');
+    $user = User::firstWhere('email', 'linda.nguyen@example.com');
+    expect($user->kyc_status)->toBe('pending');
+    expect(\App\Models\KycDocument::where('user_id', $user->id)->pluck('type')->sort()->values()->all())->toBe(['government_id', 'proof_of_address']);
+});
+
+it('will not join without both documents', function () {
+    $this->post('/register', registrationData(['id_document' => null]))->assertSessionHasErrors('id_document');
+    $this->post('/register', registrationData(['address_document' => null]))->assertSessionHasErrors('address_document');
+    expect(User::where('email', 'linda.nguyen@example.com')->exists())->toBeFalse();
+});
+
+it('rolls the join back when a document is not a usable image', function () {
+    $bad = \Illuminate\Http\UploadedFile::fake()->create('id.pdf', 10, 'application/pdf');
+    $this->post('/register', registrationData(['id_document' => $bad]))->assertSessionHasErrors('id_document');
+    expect(User::where('email', 'linda.nguyen@example.com')->exists())->toBeFalse();
+});
+
+it('shows the new accounts on the welcome page once, then sends the member on', function () {
+    $this->post('/register', registrationData());
+    $this->get('/welcome')->assertOk()->assertSee('Go to my dashboard')->assertSee('121478906')->assertSee('Welcome, Linda');
+    $this->get('/welcome')->assertOk();
+});
+
+it('does not show the welcome page to someone who did not just join', function () {
+    $this->actingAs(makeUser())->get('/welcome')->assertRedirect('/dashboard');
+    auth()->logout();
+    $this->get('/welcome')->assertRedirect('/login');
 });

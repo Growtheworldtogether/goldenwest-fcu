@@ -5,9 +5,9 @@
 @section('art-title', 'Join in about five minutes')
 @section('art-text', 'Free savings and checking, no opening deposit, and a team that knows your name.')
 @section('heading', 'Become a member')
-@section('lede', 'Joining is free. You will have a savings and a checking account as soon as you finish, with no opening deposit.')
+@section('lede', 'Joining is free. Your accounts open as soon as you finish, with no opening deposit.')
 @section('form')
-<form class="form wizard" id="join" method="post" action="{{ route('register.store') }}" style="max-width:none" novalidate>
+<form class="form wizard" id="join" method="post" action="{{ route('register.store') }}" enctype="multipart/form-data" style="max-width:none" novalidate>
     @csrf
     <ol class="wiz-nav" id="wiz-nav" hidden aria-label="Progress"></ol>
     <p class="wiz-count" id="wiz-count" hidden aria-live="polite"></p>
@@ -58,7 +58,36 @@
         </div>
     </fieldset>
 
-    <fieldset class="step" data-step="4" data-title="Password">
+    <fieldset class="step" data-step="4" data-title="Accounts">
+        <legend>Choose your accounts</legend>
+        <p class="fine" style="margin:0">Both are free, with no minimum balance. You can open more accounts any time after you join.</p>
+        <div class="choices">
+            @foreach ($choices as $value => $label)
+                <label class="choice"><input type="radio" name="account_choice" value="{{ $value }}" @checked(old('account_choice', 'both') === $value)>
+                    <span><strong>{{ $label }}</strong>
+                    <small>{{ ['both' => 'Everyday Checking for debit card and bills, plus Golden Savings. Savings backs up checking against overdrafts.', 'savings' => 'Golden Savings, our share savings account that earns dividends.', 'checking' => 'Everyday Checking with a debit card, bill pay and checks.'][$value] }}</small></span>
+                </label>
+            @endforeach
+        </div>
+        @error('account_choice')<span class="err">{{ $message }}</span>@enderror
+    </fieldset>
+
+    <fieldset class="step" data-step="5" data-title="Documents">
+        <legend>Confirm who you are</legend>
+        <p class="fine" style="margin:0">Federal rules require us to verify every new member. Upload a clear photo, scan or PDF of each, up to 8 MB. They are stored privately and only our identity team can open them.</p>
+        <label>Government photo ID
+            <small class="hint">A driver license, state ID or passport. The photo and name must be easy to read.</small>
+            <input type="file" name="id_document" accept="image/png,image/jpeg,image/webp,application/pdf" required>
+            @error('id_document')<span class="err">{{ $message }}</span>@enderror
+        </label>
+        <label>Proof of address
+            <small class="hint">A recent utility bill, bank statement or lease that shows your name and home address.</small>
+            <input type="file" name="address_document" accept="image/png,image/jpeg,image/webp,application/pdf" required>
+            @error('address_document')<span class="err">{{ $message }}</span>@enderror
+        </label>
+    </fieldset>
+
+    <fieldset class="step" data-step="6" data-title="Password">
         <legend>Create your login</legend>
         <div class="row">
             <label>Password<input type="password" name="password" id="pw" required autocomplete="new-password" minlength="12">@error('password')<span class="err">{{ $message }}</span>@enderror</label>
@@ -74,7 +103,7 @@
         <label class="check"><input type="checkbox" id="showpw"> <span>Show password</span></label>
     </fieldset>
 
-    <fieldset class="step" data-step="5" data-title="Review">
+    <fieldset class="step" data-step="7" data-title="Review">
         <legend>Review and finish</legend>
         <dl class="review" id="review"></dl>
         <label class="check"><input type="checkbox" name="terms" value="1" @checked(old('terms')) required> <span>I agree to the <a href="{{ url('/terms') }}" target="_blank" rel="noopener" style="color:var(--blue)">Terms of Use</a> and have read the <a href="{{ url('/privacy') }}" target="_blank" rel="noopener" style="color:var(--blue)">Privacy notice</a>.</span></label>
@@ -141,7 +170,8 @@
     }
     function message(f) {
         var v = f.validity, n = f.name;
-        if (v.valueMissing) return f.type === 'checkbox' ? 'Please agree to continue.' : 'This is required.';
+        if (v.valueMissing) return f.type === 'checkbox' ? 'Please agree to continue.' : f.type === 'file' ? 'Choose a file to upload.' : 'This is required.';
+        if (f.type === 'file' && f.files[0] && f.files[0].size > 8 * 1024 * 1024) return 'The file must be 8 MB or smaller.';
         if (n === 'dob' && (v.rangeOverflow || v.badInput)) return 'You must be at least 18 to open an account.';
         if (n === 'ssn_last4' && !v.valid) return 'Enter exactly four digits.';
         if (n === 'postal_code' && !v.valid) return 'Enter a five-digit ZIP code.';
@@ -153,23 +183,27 @@
     }
     function validate(step) {
         var ok = true, first = null;
-        step.querySelectorAll('input, select').forEach(function (f) {
+        step.querySelectorAll('input:not([type=radio]), select').forEach(function (f) {
             if (f.closest('[hidden]') || f.disabled) return;
             clearErr(f);
             var bad = !f.checkValidity() ? message(f) : null;
             if (!bad && f.name === 'password' && !(rules.lower(f.value) && rules.upper(f.value) && rules.num(f.value))) bad = 'Include an uppercase letter, a lowercase letter and a number.';
             if (!bad && f.name === 'password_confirmation' && f.value !== pw.value) bad = 'The two passwords do not match.';
+            if (!bad && f.type === 'file' && f.files[0] && f.files[0].size > 8 * 1024 * 1024) bad = 'The file must be 8 MB or smaller.';
             if (bad) { setErr(f, bad); ok = ok && false; first = first || f; }
         });
         if (first) first.focus();
         return ok;
     }
+    function choiceName() { var r = form.querySelector('[name=account_choice]:checked'); return r ? r.parentNode.querySelector('strong').textContent : 'Savings and checking'; }
+    function fileName(n) { var f = form.elements[n]; return f && f.files[0] ? f.files[0].name : 'Not chosen'; }
     function buildReview() {
         var g = function (n) { var f = form.elements[n]; return f ? f.value.trim() : ''; };
         var how = sel.options[sel.selectedIndex].text + (sel.value === 'family_member' ? ' (member ' + g('referred_by_member_number') + ')' : ', ' + g('eligibility_state'));
         var rows = [
             ['Eligibility', how, 0], ['Name', g('first_name') + ' ' + g('last_name'), 1], ['Date of birth', g('dob'), 1], ['Social Security number', 'Ending in ••••', 1],
-            ['Email', g('email'), 2], ['Mobile phone', g('phone'), 2], ['Address', g('address_line1') + ', ' + g('city') + ', ' + g('state') + ' ' + g('postal_code'), 2], ['Password', '•'.repeat(12), 3]
+            ['Email', g('email'), 2], ['Mobile phone', g('phone'), 2], ['Address', g('address_line1') + ', ' + g('city') + ', ' + g('state') + ' ' + g('postal_code'), 2], ['Accounts', choiceName(), 3],
+            ['Government ID', fileName('id_document'), 4], ['Proof of address', fileName('address_document'), 4], ['Password', '•'.repeat(12), 5]
         ];
         var dl = document.getElementById('review'); dl.innerHTML = '';
         rows.forEach(function (r) {
@@ -187,7 +221,7 @@
         count.textContent = 'Step ' + (i + 1) + ' of ' + steps.length + ': ' + steps[i].dataset.title;
         nav.querySelectorAll('li').forEach(function (li, k) { li.classList.toggle('current', k === i); li.classList.toggle('done', k < i || (k <= reached && k !== i)); li.querySelector('button').disabled = k > reached; if (k === i) li.querySelector('button').setAttribute('aria-current', 'step'); else li.querySelector('button').removeAttribute('aria-current'); });
         if (last) buildReview();
-        if (focus) { var f = steps[i].querySelector('input:not([type=checkbox]), select'); var vis = f && !f.closest('[hidden]') ? f : steps[i].querySelector('legend'); if (vis) { if (!vis.hasAttribute('tabindex') && vis.tagName === 'LEGEND') vis.setAttribute('tabindex', '-1'); vis.focus({ preventScroll: true }); } form.scrollIntoView({ block: 'start', behavior: 'smooth' }); }
+        if (focus) { var f = steps[i].querySelector('input:not([type=checkbox]):not([type=radio]), select'); var vis = f && !f.closest('[hidden]') ? f : steps[i].querySelector('legend'); if (vis) { if (!vis.hasAttribute('tabindex') && vis.tagName === 'LEGEND') vis.setAttribute('tabindex', '-1'); vis.focus({ preventScroll: true }); } form.scrollIntoView({ block: 'start', behavior: 'smooth' }); }
     }
     function go() { if (validate(steps[current])) show(current + 1, true); }
     next.addEventListener('click', go);

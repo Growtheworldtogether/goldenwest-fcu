@@ -36,4 +36,14 @@ final class AccountOpening
 
         return [$savings, $checking];
     }
+
+    /** What a new member chose on the join form: both accounts, savings only or checking only. */
+    public function openChosen(User $user, string $choice): array
+    {
+        return match ($choice) {
+            'savings' => [$this->open($user, 'GOLDEN-SAVINGS')],
+            'checking' => [$this->open($user, 'EVERYDAY-CHECKING')],
+            default => $this->openStarterAccounts($user),
+        };
+    }
 }

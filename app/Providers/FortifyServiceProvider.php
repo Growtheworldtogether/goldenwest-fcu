@@ -45,7 +45,7 @@ class FortifyServiceProvider extends ServiceProvider
             return null;
         });
         Fortify::loginView(fn () => view('auth.login'));
-        Fortify::registerView(fn () => view('auth.register', ['fields' => \App\Services\SiteContent::resolve(CreateNewUser::FIELDS)]));
+        Fortify::registerView(fn () => view('auth.register', ['fields' => \App\Services\SiteContent::resolve(CreateNewUser::FIELDS), 'choices' => CreateNewUser::ACCOUNT_CHOICES]));
         Fortify::requestPasswordResetLinkView(fn () => view('auth.forgot-password'));
         Fortify::resetPasswordView(fn (Request $request) => view('auth.reset-password', ['request' => $request]));
         Fortify::verifyEmailView(fn () => view('auth.verify-email'));
