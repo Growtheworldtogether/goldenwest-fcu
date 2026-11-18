@@ -6,6 +6,7 @@ use App\Services\Brand;
 use App\Support\Installer;
 use App\Support\Routing;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
@@ -26,7 +27,7 @@ class SetupController extends Controller
         $data = ['step' => $step, 'steps' => self::STEPS, 'd' => $request->session()->get('setup', []), 'done' => $this->done($request)];
         if ($step === 'key') {
             $data['keyFile'] = 'storage/app/install-key.txt';
-            $data['local'] = app()->isLocal();
+            $data['local'] = ! Installer::keyRequired($request);
             Installer::key();
         }
         if ($step === 'check') {
@@ -64,13 +65,20 @@ class SetupController extends Controller
 
     private function saveKey(Request $request)
     {
-        if (app()->isLocal()) {
+        if (! Installer::keyRequired($request)) {
             return null;
+        }
+        $limit = 'setup-key:'.$request->ip();
+        if (RateLimiter::tooManyAttempts($limit, 5)) {
+            throw ValidationException::withMessages(['key' => 'Too many tries. Wait '.ceil(RateLimiter::availableIn($limit) / 60).' minutes, then try again.']);
         }
         $request->validate(['key' => ['required', 'string']]);
         if (! hash_equals(Installer::key(), strtoupper(trim((string) $request->input('key'))))) {
+            RateLimiter::hit($limit, 900);
             throw ValidationException::withMessages(['key' => 'That is not the key in the file. Open the file on the server and copy it exactly.']);
         }
+
+        RateLimiter::clear($limit);
 
         return null;
     }

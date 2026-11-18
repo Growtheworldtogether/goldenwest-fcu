@@ -14,7 +14,7 @@ Any host that runs PHP 8.3 or newer with a database works: a VPS, a managed Lara
 1. Put the code on the server and point the web root at the `public/` folder.
 2. `composer install --no-dev --optimize-autoloader`, then `npm ci && npm run build` (or upload the built `public/build` folder). Make `storage/`, `bootstrap/cache/` and the app folder (for the `.env` file) writable by the web user.
 3. Open the site in a browser. It goes straight to the **setup wizard** (`/setup`). It needs no `.env` file, no database and no command line:
-   - **Owner key**: copy the 8-character code from `storage/app/install-key.txt` (skipped when `APP_ENV=local`).
+   - **Owner key**: copy the 8-character code from `storage/app/install-key.txt` (skipped only when you open the page from the server itself; 5 wrong tries lock it for 15 minutes).
    - **Server check**: PHP version, extensions, writable folders, https.
    - **Your credit union**: name, web address, support contacts, routing number, colours, time zone. These become the Branding settings; logos are uploaded later in Admin, then Branding.
    - **Database**: a SQLite file, or MySQL/MariaDB. The connection is tested.

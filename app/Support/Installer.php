@@ -48,6 +48,14 @@ final class Installer
         self::$memo = null;
     }
 
+    /** Only a browser on this same machine skips the owner key. Anything arriving through a proxy or from another address must show it. */
+    public static function keyRequired(\Illuminate\Http\Request $request): bool
+    {
+        $local = in_array($request->server('REMOTE_ADDR'), ['127.0.0.1', '::1'], true) && ! $request->hasHeader('X-Forwarded-For') && ! $request->hasHeader('Forwarded');
+
+        return ! $local;
+    }
+
     /** The owner key. Made on first use and kept in a file only someone with server access can read. */
     public static function key(): string
     {

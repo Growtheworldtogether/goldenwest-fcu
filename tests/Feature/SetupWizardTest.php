@@ -41,9 +41,29 @@ it('hides setup once the lock exists', function () {
 });
 
 it('refuses a wrong owner key and accepts the right one', function () {
+    $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.9']);
     $this->get('/setup/key')->assertOk()->assertSee('install-key.txt');
     $this->post('/setup/key', ['key' => 'WRONGKEY'])->assertSessionHasErrors('key');
     $this->post('/setup/key', ['key' => strtolower(Installer::key())])->assertRedirect('/setup/check');
+});
+
+it('requires the key even when APP_ENV is local, unless the browser is on the server itself', function () {
+    config(['app.env' => 'local']);
+    $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.9'])->post('/setup/key', ['key' => 'WRONGKEY'])->assertSessionHasErrors('key');
+    // Same machine, but arriving through a proxy: still needs the key.
+    $this->withServerVariables(['REMOTE_ADDR' => '127.0.0.1'])->withHeader('X-Forwarded-For', '203.0.113.9')->post('/setup/key', ['key' => 'WRONGKEY'])->assertSessionHasErrors('key');
+    // On the server itself, no key.
+    $this->flushHeaders();
+    $this->withServerVariables(['REMOTE_ADDR' => '127.0.0.1'])->post('/setup/key', [])->assertRedirect('/setup/check');
+});
+
+it('locks the key step after five wrong tries', function () {
+    $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.20']);
+    foreach (range(1, 5) as $i) {
+        $this->post('/setup/key', ['key' => 'WRONGKEY'.$i]);
+    }
+    $this->post('/setup/key', ['key' => Installer::key()])->assertSessionHasErrors('key');
+    expect(session('errors')->first('key'))->toContain('Too many tries');
 });
 
 it('will not open a step before the ones before it are done', function () {
