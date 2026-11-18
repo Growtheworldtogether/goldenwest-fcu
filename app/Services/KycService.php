@@ -54,6 +54,10 @@ final class KycService
             ]);
             $doc->update(['status' => $approve ? 'approved' : 'rejected', 'reviewed_by' => $staff->id, 'reviewed_at' => now()]);
             $this->refreshStatus($doc->user);
+            if ($approve && $doc->type === 'business_document') {
+                app(BusinessService::class)->activate($doc->user, $staff);
+                $this->refreshStatus($doc->user->refresh());
+            }
             Audit::record($approve ? 'kyc.approved' : 'kyc.rejected', $doc, ['status' => 'pending'], ['status' => $doc->status, 'reason' => $reasonCode], $staff->id);
 
             return $doc->refresh();
@@ -65,7 +69,7 @@ final class KycService
     {
         $current = KycDocument::where('user_id', $member->id)->where('status', '!=', 'replaced')->get()->groupBy('type');
         $approved = collect(KycDocument::requiredFor($member))->every(fn ($t) => $current->get($t, collect())->contains('status', 'approved'));
-        $rejected = $current->flatten()->contains('status', 'rejected');
+        $rejected = $current->filter(fn ($docs, $type) => in_array($type, KycDocument::requiredFor($member), true))->flatten()->contains('status', 'rejected');
         // A member verified before documents were collected stays verified until a document is turned down.
         if ($member->kyc_status === 'verified' && ! $approved && ! $rejected) {
             return;

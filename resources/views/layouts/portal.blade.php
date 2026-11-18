@@ -76,6 +76,7 @@
         ...(\App\Services\Features::enabled($user, 'wires') ? [['wires.index', 'Wires', 'wire', ['wires.*']]] : []),
         ['deposits.index', 'Deposit', 'deposit', ['deposits.*', 'payees.*', 'kyc.*', 'transfers.external*']],
         ['accounts.create', 'Open an account', 'open', ['accounts.create']],
+        ['business.show', 'Business', 'loan', ['business.*']],
         ['bills.index', 'Bill pay', 'bill', ['bills.*']],
         ['beneficiaries.index', 'Beneficiaries', 'people', ['beneficiaries.*', 'joint.*']],
         ['goals.index', 'Goals', 'goal', ['goals.*']],

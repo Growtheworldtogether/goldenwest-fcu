@@ -13,6 +13,14 @@ class KycDocument extends Model
     /** Every member gives an ID and proof of address. A member with a business also gives a business document. */
     public static function requiredFor(User $user): array
     {
+        $profile = $user->businessProfile;
+
+        return $profile && ! $profile->isPending() ? array_keys(self::TYPES) : ['government_id', 'proof_of_address'];
+    }
+
+    /** What the member can upload on the verification page. A business waiting for approval still needs its document. */
+    public static function uploadableFor(User $user): array
+    {
         return $user->businessProfile()->exists() ? array_keys(self::TYPES) : ['government_id', 'proof_of_address'];
     }
 

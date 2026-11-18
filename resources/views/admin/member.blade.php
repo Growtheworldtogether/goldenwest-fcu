@@ -8,7 +8,7 @@
         <p class="psub">Member #{{ $member->member_number }} &middot; {{ $member->email }} &middot; {{ $member->phone }}</p>
         <p class="chips">
             <span class="tag">Joined {{ $member->created_at->format('M j, Y') }}</span>
-            @if ($member->businessProfile)<span class="tag">Business: {{ $member->businessProfile->legal_name }}</span>@endif
+            @if ($member->businessProfile)<span class="tag {{ $member->businessProfile->isPending() ? 'held' : '' }}">Business: {{ $member->businessProfile->legal_name }}{{ $member->businessProfile->isPending() ? ' (waiting for approval)' : '' }}</span>@endif
             @if ($member->profile)<span class="tag">{{ str($member->profile->field_of_membership)->replace('_', ' ')->title() }}</span>@endif
             <span class="tag {{ $member->kyc_status === 'verified' ? 'ok' : 'held' }}">ID {{ $member->kyc_status === 'verified' ? 'verified' : ($member->kyc_status === 'rejected' ? 'rejected' : 'not verified') }}</span>
             @if ($restrictions->count())<span class="tag lock">{{ $restrictions->count() }} {{ \Illuminate\Support\Str::plural('restriction', $restrictions->count()) }}</span>@endif

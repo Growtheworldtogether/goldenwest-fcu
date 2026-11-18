@@ -72,6 +72,9 @@ Route::middleware(['auth', 'verified', 'member.area', 'throttle:portal'])->group
     Route::get('/activity', [Portal\ActivityController::class, 'index'])->name('activity');
     Route::get('/activity/export', [Portal\ActivityController::class, 'export'])->name('activity.export');
 
+    Route::get('/my-business', [Portal\BusinessController::class, 'show'])->name('business.show');
+    Route::post('/my-business', [Portal\BusinessController::class, 'store'])->middleware('throttle:5,1')->name('business.store');
+    Route::post('/my-business/accounts', [Portal\BusinessController::class, 'open'])->middleware('throttle:10,1')->name('business.open');
     Route::get('/accounts/open', [Portal\AccountController::class, 'create'])->name('accounts.create');
     Route::post('/accounts/open', [Portal\AccountController::class, 'store'])->name('accounts.store');
     Route::get('/accounts/{account}', [Portal\ActivityController::class, 'account'])->whereNumber('account')->name('accounts.show');

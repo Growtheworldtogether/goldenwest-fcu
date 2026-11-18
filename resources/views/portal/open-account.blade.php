@@ -19,4 +19,5 @@
     </form>
     <p class="fine" style="margin-top:1rem">Rates are on our <a class="plink" href="{{ url('/rates') }}">Rates page</a>. Money Market earns its top rate on balances of $10,000 or more.</p>
 </div>
+<p class="fine" style="margin-top:1rem">Own a business? <a class="plink" href="{{ route('business.show') }}">Add a business and open business accounts.</a></p>
 @endsection

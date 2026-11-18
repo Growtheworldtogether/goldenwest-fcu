@@ -14,7 +14,7 @@ class KycController extends Controller
     {
         $docs = KycDocument::with('decisions')->where('user_id', $request->user()->id)->where('status', '!=', 'replaced')->latest('id')->get()->keyBy('type');
 
-        return view('portal.verification', ['docs' => $docs, 'reasons' => ReasonCode::pluck('label', 'code'), 'status' => $request->user()->kyc_status, 'types' => KycDocument::requiredFor($request->user())]);
+        return view('portal.verification', ['docs' => $docs, 'reasons' => ReasonCode::pluck('label', 'code'), 'status' => $request->user()->kyc_status, 'types' => KycDocument::uploadableFor($request->user())]);
     }
 
     public function store(Request $request, KycService $kyc)
