@@ -163,3 +163,14 @@ it('checks for updates from the page, and starts and cancels a job, without touc
     expect((new Updater($base, $public))->job())->toBeNull()
         ->and(AuditLog::where('action', 'system.update_cancelled')->exists())->toBeTrue();
 });
+
+it('keeps the update pages reachable while the site is down for an update', function () {
+    $admin = makeStaff('Super Admin');
+    Artisan::call('down', ['--secret' => 'abc']);
+    try {
+        $this->get('/')->assertStatus(503);
+        $this->actingAs($admin)->get('/admin/system/progress')->assertRedirect(route('admin.system'));
+    } finally {
+        Artisan::call('up');
+    }
+});
