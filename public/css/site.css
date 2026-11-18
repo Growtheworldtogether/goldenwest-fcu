@@ -889,3 +889,10 @@ details.more .filters { margin: .75rem 0 0; }
 .bizcheck small { display: block; font-weight: 400; color: var(--muted); }
 .bizpanel { display: grid; gap: 1rem; padding: 1rem; background: #f3f6f4; border-radius: 8px; }
 .bizpanel[hidden], .bizdoc[hidden] { display: none; }
+
+/* Online banking sidebar scrollbar: thin, dark, and only as visible as it needs to be */
+.side { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .22) transparent; }
+.side::-webkit-scrollbar { width: 8px; }
+.side::-webkit-scrollbar-track { background: transparent; }
+.side::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, .18); border-radius: 4px; border: 2px solid var(--navy); }
+.side::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, .36); }
