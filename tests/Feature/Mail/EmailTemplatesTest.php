@@ -138,3 +138,16 @@ it('has a command to test the mail settings', function () {
     Notification::fake();
     $this->artisan('mail:test', ['email' => 'owner@example.com'])->expectsOutputToContain('Mailer:')->assertSuccessful();
 });
+
+it('never prints a raw link in the text of an email', function () {
+    $user = makeUser();
+    $emails = [
+        (new MemberNotice('Subject', ['Line.'], 'Open online banking', url('/dashboard')))->toMail($user),
+        (new Illuminate\Auth\Notifications\VerifyEmail)->toMail($user),
+        (new Illuminate\Auth\Notifications\ResetPassword('tok'))->toMail($user),
+    ];
+    foreach ($emails as $mail) {
+        $visible = strip_tags(preg_replace('/<style.*?<\/style>/s', '', (string) $mail->render()));
+        expect($visible)->not->toContain('http')->not->toContain('trouble clicking');
+    }
+});
