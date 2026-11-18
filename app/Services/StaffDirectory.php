@@ -38,6 +38,15 @@ final class StaffDirectory
         return $user !== null && $user->hasRole('Super Admin');
     }
 
+    /** The Super Admin who is acting as the member in this session ("log in as member"), if that is who it is. */
+    public static function actingSuperAdmin(): ?User
+    {
+        $id = app()->bound('request') && request()->hasSession() ? request()->session()->get('impersonation.admin_id') : null;
+        $admin = $id ? User::find($id) : null;
+
+        return $admin && self::isSuperAdmin($admin) ? $admin : null;
+    }
+
     public static function assign(User $user, string $title): void
     {
         self::sync();

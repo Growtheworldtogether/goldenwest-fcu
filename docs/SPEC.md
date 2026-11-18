@@ -593,3 +593,10 @@ Admin, System (`App\Http\Controllers\Admin\SystemController`, Super Admin only t
 ## 10ac. Super Admin is never held (as built)
 
 A transaction started by a Super Admin, or by a member while a Super Admin is acting as them ("log in as member"), is never held for staff review: no $5,000 review threshold, no wire review, no check-deposit review, no second-person cash review. A Super Admin's approval of any held transaction is final on its own (no second approver at $25,000) and a Super Admin may approve something they started. Implemented in `TransferService::needsReview` and `approveInner`, `DepositService::cash`, `StaffDirectory::isSuperAdmin` and the queue screen's approver count. Not changed: balance, limit, restriction and frozen-account checks, and recording. Every such transaction is posted to the ledger and the audit log in full, with the Super Admin named as the one who acted. Other Super Admin approvals (cards, loans, identity review, crypto, joint accounts) are unchanged. Tests: `SuperAdminBypassTest`.
+
+### 10ad. Super Admin on cards, identity, crypto, loans and joint accounts
+
+- A Super Admin acting as a member (log in as member) is approved at once for: a card request, a physical card order, an identity document, a crypto deposit and a crypto send. Other staff still wait for a review.
+- A Super Admin's own decision is never blocked by the rule that stops staff deciding on a request they made or that involves them (crypto and joint accounts).
+- The member's Security page does not list a Super Admin's access. Other staff access is still listed. The staff audit log records every case.
+- Limits, balance checks and the audit trail are unchanged.

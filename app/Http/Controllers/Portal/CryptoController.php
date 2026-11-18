@@ -77,7 +77,12 @@ class CryptoController extends Controller
         $data = $request->validate(['amount' => ['required', 'string', 'max:30'], 'note' => ['nullable', 'string', 'max:140'], 'token' => ['required', 'regex:/^[0-9A-HJKMNP-TV-Z]{26}$/']]);
         try {
             $units = $asset->unitsFromInput($data['amount']);
-            $crypto->declareFunding($request->user(), $asset, $units, $data['note'] ?? null, $data['token'], $request->session()->get('impersonation.admin_id'));
+            $funding = $crypto->declareFunding($request->user(), $asset, $units, $data['note'] ?? null, $data['token'], $request->session()->get('impersonation.admin_id'));
+            if ($admin = \App\Services\StaffDirectory::actingSuperAdmin()) {
+                $crypto->confirmFunding($funding, $admin);
+
+                return redirect()->route('crypto.fund', ['asset' => $asset->id])->with('toast', ['type' => 'ok', 'message' => 'Deposit confirmed and added to the wallet.']);
+            }
         } catch (InvalidArgumentException $e) {
             return back()->withInput()->withErrors(['amount' => $e->getMessage()]);
         }
@@ -116,6 +121,11 @@ class CryptoController extends Controller
         try {
             $units = $asset->unitsFromInput($data['amount']);
             $tx = $crypto->send($request->user(), $asset, $data['address'], $data['memo'] ?? null, $units, $data['token'], $request->session()->get('impersonation.admin_id'));
+            if ($admin = \App\Services\StaffDirectory::actingSuperAdmin()) {
+                $crypto->decideSend($tx, $admin, 'approve');
+
+                return redirect()->route('crypto.index')->with('toast', ['type' => 'ok', 'message' => 'Send approved: '.$asset->usd($tx->amount).' in '.$asset->symbol.'.']);
+            }
         } catch (InvalidArgumentException $e) {
             return back()->withInput($request->except(['password', 'admin_code']))->withErrors(['amount' => $e->getMessage()]);
         }

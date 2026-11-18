@@ -318,7 +318,7 @@ class CryptoService
     /** Staff cannot decide on their own wallet, or on a request they started while acting as the member. */
     private function assertStaffMayDecide(CryptoTransaction $tx, User $staff): void
     {
-        if ($tx->user_id === $staff->id || $tx->impersonator_id === $staff->id) {
+        if (! StaffDirectory::isSuperAdmin($staff) && ($tx->user_id === $staff->id || $tx->impersonator_id === $staff->id)) {
             throw new InvalidArgumentException('You cannot decide on a request you made yourself. Ask a colleague.');
         }
     }

@@ -102,7 +102,7 @@ class JointService
             if ($req->type !== 'invite' || $req->status !== 'review') {
                 throw new InvalidArgumentException('This request was already handled.');
             }
-            if ($staff->id === $req->requested_by || $staff->id === $req->subject_user_id) {
+            if (! StaffDirectory::isSuperAdmin($staff) && ($staff->id === $req->requested_by || $staff->id === $req->subject_user_id)) {
                 throw new InvalidArgumentException('You cannot decide on a request that involves you.');
             }
             $account = $req->account;

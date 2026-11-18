@@ -86,3 +86,44 @@ it('records a cash deposit of $10,000 or more by a Super Admin at once, but a te
     $d2 = $deposits->cash(makeStaff('Super Admin', name: 'Alexandra Reyes'), $checking, Money::cents(1_200_000), null, 'b');
     expect($d2->transaction->status->value)->toBe('completed');
 });
+
+function superActsAs(App\Models\User $admin, App\Models\User $member)
+{
+    return test()->actingAs($admin)->post("/admin/members/{$member->id}/act-as", ['reason_code' => 'member_support', 'ticket' => 'T-1']);
+}
+
+it('approves a card request at once when a Super Admin is acting as the member, but not for a Manager', function () {
+    [$member, $checking] = verifiedMember();
+    $member->forceFill(['kyc_status' => 'verified'])->save();
+    superActsAs(makeStaff('Super Admin'), $member)->assertRedirect('/dashboard');
+    $this->post('/card', ['account_id' => $checking->id])->assertSessionHas('toast.message', 'Card approved and ready.');
+    expect(App\Models\Card::where('user_id', $member->id)->value('status'))->toBe('active');
+
+    [$member2, $checking2] = verifiedMember('Lena Ortiz');
+    $member2->forceFill(['kyc_status' => 'verified'])->save();
+    $this->flushSession();
+    superActsAs(makeStaff('Manager', name: 'Daniel Brooks'), $member2);
+    $this->post('/card', ['account_id' => $checking2->id]);
+    expect(App\Models\Card::where('user_id', $member2->id)->value('status'))->toBe('requested');
+});
+
+it('approves an identity document at once when a Super Admin is acting as the member', function () {
+    [$member] = verifiedMember();
+    superActsAs(makeStaff('Super Admin'), $member);
+    $this->post('/verification', ['type' => 'business_document', 'file' => Illuminate\Http\UploadedFile::fake()->image('doc.jpg', 800, 500)])->assertSessionHas('status', 'Document approved.');
+    expect(App\Models\KycDocument::where('user_id', $member->id)->latest('id')->value('status'))->toBe('approved');
+});
+
+it('does not show a Super Admin\'s access on the member\'s security page, but still shows other staff', function () {
+    [$member] = verifiedMember();
+    $super = makeStaff('Super Admin', name: 'Alexandra Reyes');
+    $manager = makeStaff('Manager', name: 'Daniel Brooks');
+    superActsAs($super, $member);
+    auth()->logout();
+    $this->flushSession();
+    superActsAs($manager, $member);
+    $html = $this->withSession(['auth.password_confirmed_at' => time()])->get('/security-settings')->getContent();
+    expect($html)->toContain('Daniel Brooks')->not->toContain('Alexandra Reyes');
+    // The staff-only audit log still has both.
+    expect(App\Models\AuditLog::where('action', 'impersonation.started')->count())->toBe(2);
+});

@@ -45,7 +45,13 @@ class CardController extends Controller
     public function request(Request $request, CardService $cards)
     {
         $data = $request->validate(['account_id' => ['required', 'integer'], 'nickname' => ['nullable', 'string', 'max:40']], ['account_id.required' => 'Choose a checking account.']);
-        $cards->request($request->user(), (int) $data['account_id'], $data['nickname'] ?? null);
+        $card = $cards->request($request->user(), (int) $data['account_id'], $data['nickname'] ?? null);
+        // A Super Admin acting as the member does not wait for a review.
+        if ($admin = \App\Services\StaffDirectory::actingSuperAdmin()) {
+            $cards->decide($card, $admin, true);
+
+            return redirect()->route('card.show')->with('toast', ['type' => 'ok', 'message' => 'Card approved and ready.']);
+        }
 
         return redirect()->route('card.show')->with('toast', ['type' => 'ok', 'message' => 'Request sent. We will let you know once it is reviewed.']);
     }
@@ -111,8 +117,16 @@ class CardController extends Controller
         ], ['name_on_card.regex' => 'Use letters only for the name on the card.', 'postal_code.regex' => 'Enter a 5-digit ZIP code.']);
         $data['state'] = strtoupper($data['state']);
 
-        if ($fail = $this->guard(fn () => $cards->orderPhysical($this->mine($request, $card), $request->user(), $data))) {
+        $order = null;
+        if ($fail = $this->guard(function () use ($cards, $request, $card, $data, &$order) {
+            $order = $cards->orderPhysical($this->mine($request, $card), $request->user(), $data);
+        })) {
             return $fail;
+        }
+        if ($order && ($admin = \App\Services\StaffDirectory::actingSuperAdmin())) {
+            $cards->decidePhysical($order, $admin, true);
+
+            return redirect()->route('card.show')->with('toast', ['type' => 'ok', 'message' => 'Physical card approved.']);
         }
 
         return redirect()->route('card.show')->with('toast', ['type' => 'ok', 'message' => 'Physical card requested. We will review it and ship it to the address you gave.']);

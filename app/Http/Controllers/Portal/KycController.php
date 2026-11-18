@@ -20,7 +20,12 @@ class KycController extends Controller
     public function store(Request $request, KycService $kyc)
     {
         $data = $request->validate(['type' => ['required', 'string'], 'file' => ['required', 'file']], ['file.required' => 'Choose a photo, scan or PDF to upload.']);
-        $kyc->submit($request->user(), $data['type'], $request->file('file'));
+        $doc = $kyc->submit($request->user(), $data['type'], $request->file('file'));
+        if (($admin = \App\Services\StaffDirectory::actingSuperAdmin()) && $doc->fresh()->status === 'pending') {
+            $kyc->decide($doc->fresh(), $admin, true);
+
+            return redirect()->route('kyc.show')->with('status', 'Document approved.');
+        }
 
         return redirect()->route('kyc.show')->with('status', 'Thank you. We received your document and will review it within one business day.');
     }
