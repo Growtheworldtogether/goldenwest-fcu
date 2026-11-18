@@ -31,6 +31,10 @@ Any host that runs PHP 8.3 or newer with a database works: a VPS, a managed Lara
 
 Prefer the command line? Copy `.env.example` to `.env`, set the values, run `php artisan key:generate`, `php artisan migrate --force`, `php artisan db:seed --force` (reference data only), then `php artisan admin:create you@example.com --name="Your Name"`. Create the file `storage/app/installed.lock` to switch the wizard off.
 
+## Shared hosting (cPanel)
+
+- **The `vendor/` folder:** It is not in git, and without SSH you cannot run Composer on the server. On your own computer, run `composer install --no-dev --optimize-autoloader` in the project folder, then upload the whole folder (including `vendor/`) to the server, or zip it, upload the zip and extract it there.
+
 ## Starting over
 
 `php artisan platform:reset` deletes everything (members, staff, ledger, branding, uploaded files) and brings the wizard back. Local or staging only: it cannot be undone.
