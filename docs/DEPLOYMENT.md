@@ -4,7 +4,7 @@ Any host that runs PHP 8.3 or newer with a database works: a VPS, a managed Lara
 
 ## Before you start
 
-- PHP 8.3+ with `bcmath`, `ctype`, `curl`, `fileinfo`, `gd` (with WebP support), `mbstring`, `openssl`, `pdo` and the driver for your database, `tokenizer`, `xml`, `zip`.
+- PHP 8.3+ with `ctype`, `curl`, `fileinfo`, `gd` (with WebP support), `mbstring`, `openssl`, `pdo` and the driver for your database, `tokenizer`, `xml`, `zip`.
 - MySQL 8 or Postgres for anything more than a demo. SQLite is fine for one person looking at it.
 - A domain with HTTPS. The security headers and the secure cookie both assume it.
 - Composer on the server, or build the `vendor/` folder elsewhere and upload it. Node is only needed to build the CSS and scripts.
@@ -12,34 +12,32 @@ Any host that runs PHP 8.3 or newer with a database works: a VPS, a managed Lara
 ## Steps
 
 1. Put the code on the server and point the web root at the `public/` folder.
-2. `cp .env.example .env`, then set:
-   - `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://your-domain`
-   - the `DB_*` values
-   - `SESSION_SECURE_COOKIE=true`
-   - the `MAIL_*` values for a real sender (SMTP2GO, Mailtrap, SES). Without them, email is only written to the log.
-   - optionally `COINGECKO_API_KEY` for a higher price-refresh limit
-3. `composer install --no-dev --optimize-autoloader`
-4. `php artisan key:generate`
-5. `npm ci && npm run build` (or upload the built `public/build` folder).
-6. `php artisan migrate --force`
-7. Load the reference data the site needs. The seeder that creates demo members refuses to run in production, so run just these:
-   ```sh
-   php artisan db:seed --class=ProductSeeder --force
-   php artisan db:seed --class=ReasonCodeSeeder --force
-   php artisan admin:sync
+2. `composer install --no-dev --optimize-autoloader`, then `npm ci && npm run build` (or upload the built `public/build` folder). Make `storage/`, `bootstrap/cache/` and the app folder (for the `.env` file) writable by the web user.
+3. Open the site in a browser. It goes straight to the **setup wizard** (`/setup`). It needs no `.env` file, no database and no command line:
+   - **Owner key**: copy the 8-character code from `storage/app/install-key.txt` (skipped when `APP_ENV=local`).
+   - **Server check**: PHP version, extensions, writable folders, https.
+   - **Your credit union**: name, web address, support contacts, routing number, colours, time zone. These become the Branding settings; logos are uploaded later in Admin, then Branding.
+   - **Database**: a SQLite file, or MySQL/MariaDB. The connection is tested.
+   - **Email**: SMTP2GO (or any SMTP) details, tested; or "later" to log mail until you add them.
+   - **First administrator**: a Super Admin with a 12+ character password.
+   - **Install**: writes `.env`, creates the tables, loads the reference data (products, reason codes, loan products, crypto assets), saves the branding, creates the administrator, and locks the wizard. After that `/setup` returns 404.
+4. Sign in at `/login`, turn on two-step verification from the Security page, then review Admin, then Branding.
+5. `php artisan storage:link`, then `php artisan optimize` (run `optimize` again after every deploy).
+6. Add the scheduler cron line, or nothing scheduled will run (loan autopay, bill payments, crypto prices):
    ```
-8. Create the first staff account: `php artisan admin:create you@example.com --name="Your Name"`. It asks for a password of at least 12 characters. Sign in at `/login`, then turn on two-step verification from the Security page.
-9. `php artisan storage:link`, then make `storage/` and `bootstrap/cache/` writable by the web user.
-10. `php artisan optimize` (caches config, routes and views). Run it again after every deploy.
-11. Add the scheduler cron line, or nothing scheduled will run (loan autopay, bill payments, crypto prices):
-    ```
-    * * * * * cd /path/to/app && php artisan schedule:run >> /dev/null 2>&1
-    ```
-12. If the site sits behind a load balancer or proxy, trust it so HTTPS and client addresses are read correctly: add `$middleware->trustProxies(at: '*');` (or the proxy's address) inside `withMiddleware` in `bootstrap/app.php`.
+   * * * * * cd /path/to/app && php artisan schedule:run >> /dev/null 2>&1
+   ```
+7. If the site sits behind a load balancer or proxy, trust it so HTTPS and client addresses are read correctly: add `$middleware->trustProxies(at: '*');` (or the proxy's address) inside `withMiddleware` in `bootstrap/app.php`.
 
-## For a demo with members and history
+Prefer the command line? Copy `.env.example` to `.env`, set the values, run `php artisan key:generate`, `php artisan migrate --force`, `php artisan db:seed --force` (reference data only), then `php artisan admin:create you@example.com --name="Your Name"`. Create the file `storage/app/installed.lock` to switch the wizard off.
 
-On a throwaway server or staging copy, run `APP_ENV=local php artisan migrate:fresh --seed` once, then switch back. Never do this on a server with real sign-ups: `migrate:fresh` deletes everything.
+## Starting over
+
+`php artisan platform:reset` deletes everything (members, staff, ledger, branding, uploaded files) and brings the wizard back. Local or staging only: it cannot be undone.
+
+## Demo data
+
+A fresh install has no members and no history. To fill a throwaway copy with a believable demo credit union, run `php artisan db:seed --class=DemoDataSeeder` (refuses in production). Never on a site with real sign-ups.
 
 ## After each deploy
 

@@ -66,6 +66,8 @@
             <label>Support email<input type="email" name="support_email" value="{{ old('support_email', $b['support_email']) }}" required>@error('support_email')<span class="err">{{ $message }}</span>@enderror</label>
             <label>Support phone<input name="support_phone" value="{{ old('support_phone', $b['support_phone']) }}" required>@error('support_phone')<span class="err">{{ $message }}</span>@enderror</label>
             <label>Support hours<input name="support_hours" value="{{ old('support_hours', $b['support_hours']) }}" required maxlength="120">@error('support_hours')<span class="err">{{ $message }}</span>@enderror</label>
+            <label>Routing number<input name="routing_number" value="{{ old('routing_number', $b['routing_number']) }}" required inputmode="numeric" maxlength="9" pattern="[0-9]{9}"><small>Shown to members for direct deposit and transfers.</small>@error('routing_number')<span class="err">{{ $message }}</span>@enderror</label>
+            <label>NMLS number<input name="nmls_number" value="{{ old('nmls_number', $b['nmls_number']) }}" inputmode="numeric" maxlength="12"><small>Shown in the site footer. Leave empty to hide it.</small>@error('nmls_number')<span class="err">{{ $message }}</span>@enderror</label>
             <label>Email sender name<input name="sender_name" value="{{ old('sender_name', $b['sender_name']) }}" required maxlength="120"><small>The "from" name on mail. The sender address stays in server settings.</small></label>
         </div>
     </div>

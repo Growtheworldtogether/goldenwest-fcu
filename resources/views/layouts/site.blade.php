@@ -36,7 +36,7 @@
 
         <div class="head-right" id="site-nav">
             <ul class="util">
-                <li class="plain">Routing #: 121478906</li>
+                <li class="plain">Routing #: {{ brand('routing_number') }}</li>
                 <li><a href="{{ url('/learn') }}">Insights &amp; Stories</a></li>
                 <li><a href="{{ url('/rates') }}">Rates</a></li>
                 <li><a href="{{ url('/community') }}">Community</a></li>
@@ -125,7 +125,7 @@
             </div>
             <div>
                 <h3>Contact Us</h3>
-                <p class="contact">Customer Care: <a href="tel:{{ brand('tel') }}">{{ brand('support_phone') }}</a><br>{{ brand('support_hours') }}<br>Routing number: 121478906<br>NMLS number: 482915</p>
+                <p class="contact">Customer Care: <a href="tel:{{ brand('tel') }}">{{ brand('support_phone') }}</a><br>{{ brand('support_hours') }}<br>Routing number: {{ brand('routing_number') }}@if (brand('nmls_number'))<br>NMLS number: {{ brand('nmls_number') }}@endif</p>
                 <p class="apps"><a class="app" href="#"><img src="{{ asset('images/app-store-badge.png') }}" alt="Download on the App Store" width="130" height="39"></a><a class="app" href="#"><img src="{{ asset('images/google-play-badge.png') }}" alt="Get it on Google Play" width="131" height="39"></a></p>
                 <p class="contact">&copy; {{ date('Y') }} {{ brand('name') }}</p>
             </div>

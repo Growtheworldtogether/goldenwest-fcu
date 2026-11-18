@@ -25,7 +25,7 @@
                     <div><strong>{{ $a->nickname ?: $a->product->name }}</strong><small>{{ $a->kindLabel() }}@if ($a->product->isBusiness() && $user->businessProfile) &middot; {{ $user->businessProfile->legal_name }}@endif</small></div>
                     <dl>
                         <dt>Account number</dt><dd>{{ $a->account_number }}</dd>
-                        <dt>Routing number</dt><dd>121478906</dd>
+                        <dt>Routing number</dt><dd>{{ brand('routing_number') }}</dd>
                         <dt>Balance</dt><dd>$0.00</dd>
                     </dl>
                 </div>

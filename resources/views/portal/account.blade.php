@@ -29,7 +29,7 @@
                 @if ($account->overdraftAccount)<dt>Overdraft from</dt><dd>{{ $account->overdraftAccount->nickname }} {{ $account->overdraftAccount->masked() }}</dd>@endif
             </dl>
             <details style="padding:0 1.25rem 1.1rem"><summary class="plink" style="cursor:pointer">Show account and routing numbers</summary>
-                <dl class="kvlist" style="padding:.8rem 0 0"><dt>Routing</dt><dd>121478906</dd><dt>Account</dt><dd>{{ $account->account_number }}</dd></dl>
+                <dl class="kvlist" style="padding:.8rem 0 0"><dt>Routing</dt><dd>{{ brand('routing_number') }}</dd><dt>Account</dt><dd>{{ $account->account_number }}</dd></dl>
             </details>
         </div>
         @php($holders = app(\App\Services\JointService::class)->activeHolders($account))

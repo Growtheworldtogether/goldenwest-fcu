@@ -147,7 +147,7 @@
 
         <footer class="pfoot">
             <div class="pwrap">
-                <p>Customer Care <a href="tel:{{ brand('tel') }}">{{ brand('support_phone') }}</a> &middot; {{ brand('support_hours') }} &middot; Routing number 121478906</p>
+                <p>Customer Care <a href="tel:{{ brand('tel') }}">{{ brand('support_phone') }}</a> &middot; {{ brand('support_hours') }} &middot; Routing number {{ brand('routing_number') }}</p>
                 <p><a href="{{ url('/privacy') }}">Privacy</a> &middot; <a href="{{ url('/terms') }}">Terms</a> &middot; <a href="{{ url('/disclosures') }}">Disclosures</a> &middot; <a href="{{ url('/security') }}">Security &amp; Fraud Center</a></p>
                 <p class="fine">{{ brand('short_name') }} will never ask for your password or a one-time code by phone, text or email.</p>
             </div>

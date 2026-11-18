@@ -36,7 +36,7 @@ function brandPayload(array $over = []): array
     return array_merge([
         'name' => 'Golden West Federal Credit Union', 'short_name' => 'Golden West', 'descriptor' => 'Federal Credit Union', 'tagline' => 'Banking built around you',
         'brand_color' => '#14403a', 'highlight_color' => '#f5bd02', 'support_email' => 'care@goldenwestfcu.example',
-        'support_phone' => '800-555-0147', 'support_hours' => 'Mon-Fri 7am - 8pm PT', 'sender_name' => 'Golden West Federal Credit Union',
+        'support_phone' => '800-555-0147', 'support_hours' => 'Mon-Fri 7am - 8pm PT', 'routing_number' => '121478906', 'sender_name' => 'Golden West Federal Credit Union',
     ], $over);
 }
 
@@ -195,4 +195,12 @@ it('keeps the company name out of config text', function () {
     foreach (['articles', 'site'] as $f) {
         expect(file_get_contents(config_path($f.'.php')))->not->toContain('Golden West');
     }
+});
+
+it('shows the routing number and NMLS number from Branding, and hides an empty NMLS', function () {
+    BrandSetting::create(['name' => 'Redwood Community Credit Union', 'short_name' => 'Redwood', 'brand_color' => '#14403a', 'highlight_color' => '#f5bd02', 'support_email' => 'a@b.org', 'support_phone' => '800-555-0100',
+        'support_hours' => 'Mon-Fri', 'sender_name' => 'Redwood', 'routing_number' => '011000015', 'nmls_number' => null]);
+    Brand::forget();
+    $html = $this->get('/')->getContent();
+    expect($html)->toContain('Routing number: 011000015')->not->toContain('121478906')->not->toContain('NMLS number');
 });

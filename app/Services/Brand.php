@@ -21,6 +21,8 @@ final class Brand
         'support_email' => 'care@goldenwestfcu.example',
         'support_phone' => '800-555-0147',
         'support_hours' => 'Mon-Fri 7am - 8pm PT, Sat 8am - 5pm PT',
+        'routing_number' => '121478906',
+        'nmls_number' => '482915',
         'sender_name' => 'Golden West Federal Credit Union',
         'footer_text' => null,
         'social_links' => [],
@@ -45,6 +47,9 @@ final class Brand
         });
         $data = array_merge(self::DEFAULTS, array_filter($row ?? [], fn ($v) => $v !== null && $v !== ''));
         $data['social_links'] = $row['social_links'] ?? [];
+        if ($row !== null) {
+            $data['nmls_number'] = $row['nmls_number'] ?? null; // empty means hidden, not the built-in number
+        }
         $data['tel'] = preg_replace('/\D+/', '', $data['support_phone']);
         $data['brand_deep'] = Color::shade($data['brand_color'], -0.06);
         $data['brand_bar'] = Color::shade($data['brand_color'], -0.04);
@@ -81,7 +86,10 @@ final class Brand
         if ($uploaded) {
             return $uploaded;
         }
-        // No upload: use the logo files shipped with the site, when they are there.
+        // No upload: the logo files shipped with the site belong to the built-in name only. Any other credit union gets a text wordmark.
+        if (self::get('name') !== self::DEFAULTS['name']) {
+            return null;
+        }
         $file = 'images/logo-'.($variant === 'dark' ? 'dark' : 'light').'.png';
 
         return is_file(public_path($file)) ? asset($file) : null;

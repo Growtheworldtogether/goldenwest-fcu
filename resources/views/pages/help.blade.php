@@ -10,7 +10,7 @@
     <div class="wrap">
         <h2>Popular questions</h2>
         <div class="faq">
-            <details><summary>How do I find my routing and account numbers?</summary><p>Our routing number is 121478906. Your account number is shown in online banking under Account details, and at the bottom of your checks.</p></details>
+            <details><summary>How do I find my routing and account numbers?</summary><p>Our routing number is {{ brand('routing_number') }}. Your account number is shown in online banking under Account details, and at the bottom of your checks.</p></details>
             <details><summary>How do I order checks?</summary><p>Order from online banking under Account services, or call Customer Care. New checks usually arrive in seven to ten business days.</p></details>
             <details><summary>How do I report a lost or stolen card?</summary><p>Lock it in the mobile app right away, then call <a href="tel:{{ brand('tel') }}">{{ brand('support_phone') }}</a>. We will issue a replacement.</p></details>
             <details><summary>When will my deposit be available?</summary><p>Funds availability depends on the type of deposit. See the Disclosures page for details.</p></details>

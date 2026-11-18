@@ -8,6 +8,9 @@ use App\Http\Controllers\Portal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/setup/{step?}', [\App\Http\Controllers\SetupController::class, 'show'])->name('setup');
+Route::post('/setup/{step}', [\App\Http\Controllers\SetupController::class, 'save'])->name('setup.save');
+
 Route::view('/', 'home')->name('home');
 
 foreach ([
