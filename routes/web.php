@@ -254,6 +254,12 @@ Route::middleware(['auth', 'staff', 'throttle:staff'])->prefix('admin')->name('a
     Route::delete('/site/{page}/draft', [Admin\SiteContentController::class, 'discard'])->name('site.discard');
     Route::post('/site/{page}/rollback/{revision}', [Admin\SiteContentController::class, 'rollback'])->whereNumber('revision')->name('site.rollback');
     Route::post('/site/{page}/reset', [Admin\SiteContentController::class, 'reset'])->name('site.reset');
+    Route::get('/system', [Admin\SystemController::class, 'show'])->middleware('password.confirm')->name('system');
+    Route::post('/system/check', [Admin\SystemController::class, 'check'])->middleware('throttle:10,1')->name('system.check');
+    Route::post('/system/update', [Admin\SystemController::class, 'install'])->middleware(['password.confirm', 'throttle:5,1'])->name('system.update');
+    Route::get('/system/progress', [Admin\SystemController::class, 'progress'])->name('system.progress');
+    Route::post('/system/restore', [Admin\SystemController::class, 'restore'])->middleware(['password.confirm', 'throttle:5,1'])->name('system.restore');
+    Route::post('/system/cancel', [Admin\SystemController::class, 'cancel'])->name('system.cancel');
     Route::get('/settings', [Admin\SettingsController::class, 'edit'])->name('settings');
     Route::put('/settings', [Admin\SettingsController::class, 'update'])->name('settings.update');
 });

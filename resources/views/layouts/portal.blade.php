@@ -66,6 +66,7 @@
         ['admin.emails', 'Emails', 'inbox', ['admin.emails*'], 'staff.editSite'],
         ['admin.site.index', 'Site content', 'pages', ['admin.site.*'], 'staff.editSite'],
         ['admin.settings', 'Settings', 'settings', ['admin.settings*'], 'staff.manageAdmin'],
+        ['admin.system', 'System', 'settings', ['admin.system*'], 'staff.manageAdmin'],
         ['admin.security', 'My security', 'security', ['admin.security'], null],
     ];
     $nav = $staffMode ? collect($staffNav)->filter(fn ($n) => ! $n[4] || \Illuminate\Support\Facades\Gate::allows($n[4]))->map(fn ($n) => array_slice($n, 0, 4))->all() : [

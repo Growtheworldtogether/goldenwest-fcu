@@ -37,6 +37,21 @@ Prefer the command line? Copy `.env.example` to `.env`, set the values, run `php
 
 - **Where the domain points:** Either set the domain's document root to the app's `public` folder, or leave the document root as `public_html`, copy the contents of `public/` into it, and keep the app folder (named `app`) next to `public_html`. `public/index.php` looks in `..` and `../app` for the application, so both layouts work with no edits.
 
+## Updating from GitHub
+
+Sign in as a Super Admin and open **Admin, System**. It shows the installed version, checks GitHub for a newer one, and installs it.
+
+How a new version gets there:
+1. Push your changes to GitHub.
+2. On GitHub open **Actions**, choose **Build release zip**, then **Run workflow**. It builds two zips with the production `vendor/` folder and publishes them on the Releases page: `goldenwest-release.zip` (domain points at `app/public`) and `goldenwest-release-public_html.zip` (public files in `public_html`, app folder beside it).
+3. On the site: **System**, **Check for updates**, then **Install update**. It asks for your password first.
+
+What the update does: downloads the zip for this site's layout and checks it against GitHub's sha256 fingerprint, backs up every file it will change, replaces only the files that differ, runs the database migrations, and clears the caches. The site shows "back in a minute" to visitors for a few seconds while files are swapped. `.env`, `storage/` (uploads and logs), the database, `bootstrap/cache` and any `.htaccess` already in `public_html` are never touched. If a step fails, the backup is put back. **Restore previous version** undoes the last update's files (database changes stay).
+
+The first install still comes from a zip (the Releases page, or the one from this project). Every update after that is a button.
+
+Settings, in `.env`: `UPDATE_REPO` (default `Growtheworldtogether/goldenwest-fcu`) and, for a private repository, `UPDATE_TOKEN` (a GitHub token that can read the repository's contents).
+
 ## Starting over
 
 `php artisan platform:reset` deletes everything (members, staff, ledger, branding, uploaded files) and brings the wizard back. Local or staging only: it cannot be undone.
