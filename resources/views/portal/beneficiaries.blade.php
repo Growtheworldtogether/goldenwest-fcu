@@ -16,9 +16,9 @@
         @if ($list->isEmpty())
             <p style="margin:.6rem 0 0;color:var(--muted)">No beneficiaries named.</p>
         @else
-            <table class="dtable" style="margin-top:.6rem"><thead><tr><th>Name</th><th>Relationship</th><th>Born</th><th>Tier</th><th class="num">Share</th></tr></thead><tbody>
+            <table class="dtable stackl" style="margin-top:.6rem"><thead><tr><th>Name</th><th>Relationship</th><th>Born</th><th>Tier</th><th class="num">Share</th></tr></thead><tbody>
             @foreach ($list as $b)
-                <tr><td>{{ $b->name }}</td><td>{{ \App\Services\BeneficiaryService::RELATIONSHIPS[$b->relationship] ?? $b->relationship }}</td><td>{{ $b->dob->format('M j, Y') }}</td><td>{{ \App\Services\BeneficiaryService::TIERS[$b->tier] }}</td><td class="num">{{ $b->share_percent }}%</td></tr>
+                <tr><td data-label="Name">{{ $b->name }}</td><td data-label="Relationship">{{ \App\Services\BeneficiaryService::RELATIONSHIPS[$b->relationship] ?? $b->relationship }}</td><td data-label="Born">{{ $b->dob->format('M j, Y') }}</td><td data-label="Tier">{{ \App\Services\BeneficiaryService::TIERS[$b->tier] }}</td><td class="num" data-label="Share">{{ $b->share_percent }}%</td></tr>
             @endforeach
             </tbody></table>
         @endif

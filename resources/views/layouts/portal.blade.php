@@ -168,6 +168,7 @@
     window.matchMedia('(min-width: 961px)').addEventListener('change', function (m) { if (m.matches) { document.body.classList.remove('side-open'); scrim.hidden = true; } });
 })();
 </script>
+<script src="{{ asset('js/align-columns.js') }}" defer></script>
 @stack('scripts')
 @include('partials.toasts')
 </body>

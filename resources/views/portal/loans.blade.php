@@ -34,7 +34,7 @@
 </div>
 
 <div class="table-title"><h2>Loans we offer</h2></div>
-<div class="cols" style="grid-template-columns:repeat(auto-fit,minmax(18rem,1fr))">
+<div class="cols" style="grid-template-columns:repeat(auto-fit,minmax(min(18rem,100%),1fr))">
 @foreach ($products as $p)
     <div class="panel-card"><h3>{{ $p->name }}@if ($p->isBusiness()) <span class="tag">Business</span>@endif</h3><p style="margin:0 0 .5rem">{{ $p->aprRange() }}</p><p class="fine" style="margin:0 0 .8rem">{{ $p->minAmount()->format() }} to {{ $p->maxAmount()->format() }}, {{ $p->revolving ? 'draw and repay, renews each year' : min($p->terms).' to '.max($p->terms).' months' }}</p><a class="btn-s plain sm" href="{{ route('borrow.create', ['type' => $p->code]) }}">Apply</a></div>
 @endforeach

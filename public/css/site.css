@@ -453,7 +453,7 @@ a.stat:hover { border-color: var(--blue); }
 .btn-s.gold { background: var(--gold); color: var(--navy); }
 .btn-s.red, .sform button.red { background: #b3261e; }
 .btn-s.plain, .sform button.plain { background: #fff; color: var(--navy); border: 2px solid var(--navy); }
-.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; align-items: stretch; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 1.25rem; align-items: stretch; }
 .panel-card h3 { margin: 0 0 .6rem; font-size: 1.05rem; color: var(--navy); }
 details.act summary { cursor: pointer; font-weight: 700; color: var(--blue); padding: .4rem 0; }
 .tag.ok { background: #d9f2e4; color: #12663a; } .tag.lock { background: #fbdada; color: #7a1414; }
@@ -959,3 +959,26 @@ details.more .filters { margin: .75rem 0 0; }
 @media (max-width: 960px) { .dashgrid > .mcell:nth-child(2) { order: 3; margin-top: 1.25rem; } .dashgrid > .mcell:nth-child(4) { margin-top: 0; } }
 .dashgrid .table-title { min-height: 2.25rem; }
 @media (max-width: 960px) { .dashgrid > .mcell:nth-child(4) { order: 4; } }
+
+/* Phones: labelled stacked tables, stat strips, form grids */
+.sform { grid-template-columns: minmax(0, 1fr); }
+.col-form, .fields, .fieldset { min-width: 0; }
+@media (max-width: 700px) {
+  .dtable.stackl thead { display: none; }
+  .dtable.stackl tr { display: block; padding: .6rem 0; border-bottom: 1px solid #e4ebe8; }
+  .dtable.stackl tr:last-child { border-bottom: 0; }
+  .dtable.stackl td { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 0; padding: .3rem .9rem; text-align: right; }
+  .dtable.stackl td::before { content: attr(data-label); color: var(--muted); font-weight: 400; text-align: left; }
+  .strip b { font-size: 1.6rem; overflow-wrap: anywhere; }
+  .strip > * { padding: 1rem; }
+  .rte-bar button { height: 40px; }
+  .status-chip { font-size: .8125rem; }
+}
+@media (max-width: 420px) {
+  .strip { grid-template-columns: minmax(0, 1fr); }
+  .strip > * { border-right: 0; border-bottom: 1px solid #e4ebe8; }
+  .strip > *:last-child { border-bottom: 0; }
+}
+@media (max-width: 480px) { .two { grid-template-columns: minmax(0, 1fr) !important; } }
+.dtable td select, .dtable td form { min-width: 0; max-width: 100%; }
+@media (max-width: 340px) { .dtable td form { display: block !important; } .dtable td select { width: 100%; } }

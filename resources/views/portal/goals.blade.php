@@ -8,7 +8,7 @@
 @endsection
 @section('content')
 @if ($goals->count())
-<div class="cols" style="grid-template-columns:repeat(auto-fit,minmax(21rem,1fr))">
+<div class="cols" style="grid-template-columns:repeat(auto-fit,minmax(min(21rem,100%),1fr))">
 @foreach ($goals as $g)
     <div class="panel-card">
         <h3 style="margin-bottom:.15rem">{{ $g->name }} @if ($g->status === 'achieved')<span class="chip completed">Reached</span>@endif</h3>
