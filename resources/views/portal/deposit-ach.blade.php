@@ -16,7 +16,7 @@
         @csrf
         <input type="hidden" name="token" value="{{ $token }}">
         <label>From
-            <select name="payee_id" required>@foreach ($payees as $p)<option value="{{ $p->id }}" @selected((int) old('payee_id') === $p->id)>{{ $p->label() }}@unless ($p->isActive()) (available {{ $p->activates_at->timezone('America/Los_Angeles')->format('M j, g:i a') }})@endunless</option>@endforeach</select>
+            <select name="payee_id" required>@foreach ($payees as $p)<option value="{{ $p->id }}" @selected((int) old('payee_id') === $p->id)>{{ $p->label() }}@unless ($p->isActive()) (available {{ $p->activates_at->timezone(config('app.timezone'))->format('M j, g:i a') }})@endunless</option>@endforeach</select>
             @error('payee_id')<span class="err">{{ $message }}</span>@enderror
         </label>
         <label>Into

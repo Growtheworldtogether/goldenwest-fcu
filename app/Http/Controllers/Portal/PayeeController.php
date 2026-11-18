@@ -36,7 +36,7 @@ class PayeeController extends Controller
         }
         $payee = $payees->add($request->user(), $data);
 
-        return redirect()->route('payees.index')->with('status', $payee->label().' is saved. For your protection it can be used after '.$payee->activates_at->timezone('America/Los_Angeles')->format('M j \a\t g:i a T').'.');
+        return redirect()->route('payees.index')->with('status', $payee->label().' is saved. For your protection it can be used after '.$payee->activates_at->timezone(config('app.timezone'))->format('M j \a\t g:i a T').'.');
     }
 
     public function destroy(Request $request, Payee $payee, PayeeService $payees)

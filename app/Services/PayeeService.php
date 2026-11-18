@@ -66,7 +66,7 @@ final class PayeeService
             throw TransferException::because('payee_unknown', 'Choose one of your saved external accounts.');
         }
         if (! $payee->isActive()) {
-            throw TransferException::because('payee_cooling_off', 'For your protection, a new external account can be used after '.$payee->activates_at->timezone(config('app.display_timezone', 'America/Los_Angeles'))->format('M j \a\t g:i a T').'.');
+            throw TransferException::because('payee_cooling_off', 'For your protection, a new external account can be used after '.$payee->activates_at->timezone(config('app.timezone'))->format('M j \a\t g:i a T').'.');
         }
     }
 

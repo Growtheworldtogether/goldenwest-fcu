@@ -28,3 +28,10 @@ it('shows the time zone next to times that need one', function () {
     $admin = makeStaff('Super Admin');
     $this->actingAs($admin)->get('/admin/audit')->assertOk()->assertSee('When (E', false);
 });
+
+it('shows a new payee\'s ready time in the platform time zone, not Pacific', function () {
+    seedReference();
+    [$member] = verifiedMember();
+    $this->actingAs($member)->post('/payees', ['name' => 'Pat Lee', 'bank_name' => 'Harbor Bank', 'routing_number' => '021000021', 'account_number' => '123456789', 'account_number_confirmation' => '123456789', 'account_type' => 'checking'])
+        ->assertSessionHas('status', fn ($m) => str_contains($m, 'EST') || str_contains($m, 'EDT'));
+});

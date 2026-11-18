@@ -15,7 +15,7 @@
             <tr>
                 <td>{{ $p->name }}@if ($p->bank_name)<small>{{ $p->bank_name }}</small>@endif</td>
                 <td>{{ ucfirst($p->account_type) }} ending {{ $p->last4 }}</td>
-                <td>@if ($p->isActive())<span class="chip completed">Ready to use</span>@else<span class="chip pending">Available {{ $p->activates_at->timezone('America/Los_Angeles')->format('M j, g:i a') }} PT</span>@endif</td>
+                <td>@if ($p->isActive())<span class="chip completed">Ready to use</span>@else<span class="chip pending">Available {{ $p->activates_at->timezone(config('app.timezone'))->format('M j, g:i a') }} PT</span>@endif</td>
                 <td class="go"><form method="post" action="{{ route('payees.destroy', $p) }}" onsubmit="return confirm('Remove this account?')">@csrf @method('DELETE')<button type="submit" class="linkbtn">Remove</button></form></td>
             </tr>
         @endforeach
