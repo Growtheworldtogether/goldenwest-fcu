@@ -203,4 +203,5 @@ it('shows the routing number and NMLS number from Branding, and hides an empty N
     Brand::forget();
     $html = $this->get('/')->getContent();
     expect($html)->toContain('Routing number: 011000015')->not->toContain('121478906')->not->toContain('NMLS number');
+    Brand::forget();
 });
