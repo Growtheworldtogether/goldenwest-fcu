@@ -547,3 +547,5 @@ Fixed from it:
 - Deposits option cards and the dashboard accounts table fit 320 px screens.
 
 Dashboard cards now sit in shared grid rows (`.dashgrid` with `.mcell`): Deposit accounts beside Quick links, then Recent activity beside a Need help card. Cards in a row share top and bottom edges. On phones the order is accounts, activity, quick links, help.
+
+Card alignment sweep: a script checks every page at 1024, 1280 and 1440 px for cards that sit side by side with slightly different tops or bottoms. Fixed from it: Insights now uses shared rows like the dashboard; `.cols` grids stretch cards to equal height (Verification, Borrow); the Deposits option cards use their own `.choicegrid` class, because the join form's `.choice` style was overriding them.

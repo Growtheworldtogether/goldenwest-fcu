@@ -453,7 +453,7 @@ a.stat:hover { border-color: var(--blue); }
 .btn-s.gold { background: var(--gold); color: var(--navy); }
 .btn-s.red, .sform button.red { background: #b3261e; }
 .btn-s.plain, .sform button.plain { background: #fff; color: var(--navy); border: 2px solid var(--navy); }
-.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; align-items: start; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; align-items: stretch; }
 .panel-card h3 { margin: 0 0 .6rem; font-size: 1.05rem; color: var(--navy); }
 details.act summary { cursor: pointer; font-weight: 700; color: var(--blue); padding: .4rem 0; }
 .tag.ok { background: #d9f2e4; color: #12663a; } .tag.lock { background: #fbdada; color: #7a1414; }
@@ -719,7 +719,8 @@ details.more .filters { margin: .75rem 0 0; }
 @media (max-width: 1100px) { .editor { grid-template-columns: 1fr; } .editor .previewbox { position: static; } .editor .previewbox iframe { height: 70vh; } }
 
 /* M4: deposits, external accounts, identity review */
-.choice{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1rem;margin-bottom:.5rem}
+.choicegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1rem;margin-bottom:.5rem;align-items:stretch}
+.choicegrid > .choicecard{height:100%;box-sizing:border-box;margin:0}
 .choicecard{display:block;text-decoration:none;color:inherit;border:1px solid var(--line)}
 .choicecard h3{margin:0 0 .35rem;font-size:1.05rem;color:var(--navy)}
 .choicecard p{margin:0;color:var(--muted);font-size:.95rem}
@@ -946,8 +947,7 @@ details.more .filters { margin: .75rem 0 0; }
   .brand-logo { height: 42px; max-width: 100%; }
   .brand { min-width: 0; padding-block: .75rem; }
 }
-.choice > * { min-width: 0; }
-@media (max-width: 420px) { .choice:has(> .choicecard) { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 420px) { .choicegrid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 340px) { .dtable th, .dtable td { padding: .7rem .4rem; } .dtable .num { font-size: .9375rem; } }
 @media (max-width: 340px) { .dtable.accts td.go, .dtable.accts th:last-child { display: none; } }
 

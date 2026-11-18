@@ -9,7 +9,7 @@
     <div class="notice-bar" role="status"><p><strong>Verify your identity first.</strong> We ask every member to confirm who they are once before they deposit checks or move money from another bank.</p><p><a class="btn" href="{{ route('kyc.show') }}">Verify my identity</a></p></div>
 @endunless
 
-<div class="choice">
+<div class="choicegrid">
     <a class="panel-card choicecard" href="{{ route('deposits.check') }}"><h3>Deposit a check</h3><p>Take a photo of the front and back. A person reviews it, usually the same business day.</p></a>
     <a class="panel-card choicecard" href="{{ route('deposits.ach') }}"><h3>From another bank</h3><p>Pull money from your account at another bank. It arrives the next business day after review.</p></a>
     <a class="panel-card choicecard" href="{{ route('payees.index') }}"><h3>External accounts</h3><p>Add and manage the accounts at other banks you send money to or pull money from.</p></a>

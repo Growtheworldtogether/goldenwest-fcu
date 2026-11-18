@@ -22,8 +22,8 @@
     <div><b>{{ \App\Support\Money::cents($income - $spent)->format() }}</b><span>{{ $income >= $spent ? 'Left over' : 'Over' }}</span></div>
 </div>
 
-<div class="cols tcols">
-<div>
+<div class="cols tcols dashgrid">
+<div class="mcell">
     <div class="panel-card">
         <h3>Spending by category</h3>
         @if ($byCategory)
@@ -33,6 +33,14 @@
             @endforeach
         @else<p class="fine" style="margin:0">No spending this month.</p>@endif
     </div>
+</div>
+<div class="mcell">
+    <div class="panel-card">
+        <h3>Top merchants</h3>
+        @forelse ($merchants as $name => $cents)<p class="item" style="display:flex;justify-content:space-between;margin:.3rem 0"><span>{{ $name }}</span><span>{{ \App\Support\Money::cents($cents)->format() }}</span></p>@empty<p class="fine" style="margin:0">Nothing yet.</p>@endforelse
+    </div>
+</div>
+<div class="mcell">
     <div class="table-title"><h2>Purchases</h2></div>
     <div class="panel-card flush">
     @if (count($rows))
@@ -46,13 +54,9 @@
     @else<div class="empty"><b>No purchases</b>Card purchases, bills and fees show here.</div>@endif
     </div>
 </div>
-<aside>
+<div class="mcell">
+    <div class="table-title"><h2>Budgets</h2></div>
     <div class="panel-card">
-        <h3>Top merchants</h3>
-        @forelse ($merchants as $name => $cents)<p class="item" style="display:flex;justify-content:space-between;margin:.3rem 0"><span>{{ $name }}</span><span>{{ \App\Support\Money::cents($cents)->format() }}</span></p>@empty<p class="fine" style="margin:0">Nothing yet.</p>@endforelse
-    </div>
-    <div class="panel-card" style="margin-top:1.25rem">
-        <h3>Monthly budgets</h3>
         @foreach ($budgets as $b)<p class="item" style="margin:.3rem 0;display:flex;justify-content:space-between"><span>{{ $cats[$b['category']] }}</span><span><span class="chip {{ ['ok' => 'completed', 'near' => 'held', 'over' => 'rejected'][$b['state']] }}">{{ $b['percent'] }}%</span> of {{ \App\Support\Money::cents($b['limit'])->format() }}</span></p>@endforeach
         <form class="sform" method="post" action="{{ route('insights.budget') }}" style="margin-top:.8rem">@csrf
             <label>Category<select name="category">@foreach ($cats as $k => $l)<option value="{{ $k }}">{{ $l }}</option>@endforeach</select></label>
@@ -60,6 +64,7 @@
             <button type="submit" class="plain">Save budget</button>
         </form>
     </div>
-</aside>
+</div>
+
 </div>
 @endsection
