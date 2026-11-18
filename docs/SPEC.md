@@ -485,3 +485,9 @@ Every success, error and info message in the interface appears as a **toast**, n
 
 - `public/images` holds the site photos: `hero-1..3.jpg`, `about.jpg`, `help.jpg`, `learn-1..5.jpg` and `branch.jpg` (sign-in and join). The hero photos are mirrored so the people sit on the left, outside the text panel.
 - The logo files `logo-light.png`, `logo-dark.png` and `favicon.png` are transparent PNGs. `Brand::logoUrl()` and the favicon route use them when nothing has been uploaded on the Branding screen; an upload always wins.
+
+## 10q. Eligible states are a setting
+
+- `App\Support\Region` holds the 50 states and DC. `Region::codes()` returns the open states from the `region_states` setting (JSON), falling back to `config('bank.region_states')`.
+- Settings has a "Where membership is open" checklist (Super Admin). At least one state must stay checked. Changes are audited as `setting.changed`.
+- The join form's state list, its validation message and its eligibility sentence read from `Region`. Marketing copy that says "five states" or lists branch states is still plain text on the Home and About pages.

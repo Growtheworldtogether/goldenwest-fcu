@@ -15,7 +15,7 @@ use Laravel\Fortify\Contracts\CreatesNewUsers;
 
 class CreateNewUser implements CreatesNewUsers
 {
-    /** Ways to qualify for membership. Everything except family_member needs a connection to the five-state region. */
+    /** Ways to qualify for membership. Everything except family_member needs a connection to the region. */
     public const FIELDS = [
         'lives_in_region' => 'I live in one of these states',
         'works_in_region' => 'I work in one of these states',
@@ -26,7 +26,7 @@ class CreateNewUser implements CreatesNewUsers
 
     public function create(array $input): User
     {
-        $states = config('bank.region_states');
+        $states = \App\Support\Region::codes();
 
         Validator::make($input, [
             'first_name' => ['required', 'string', 'max:80'],
@@ -47,7 +47,7 @@ class CreateNewUser implements CreatesNewUsers
         ], [
             'dob.before_or_equal' => 'You must be at least 18 to open an account.',
             'eligibility_state.required_unless' => 'Choose the state that connects you to '.brand('short_name').'.',
-            'eligibility_state.in' => 'We serve California, Nevada, Arizona, Oregon and Washington.',
+            'eligibility_state.in' => 'We serve '.\App\Support\Region::sentence().'.',
             'referred_by_member_number.exists' => 'We could not find that member number.',
             'referred_by_member_number.required_if' => 'Enter your family member\'s member number.',
             'terms.accepted' => 'Please agree to the Terms of Use and Privacy notice.',

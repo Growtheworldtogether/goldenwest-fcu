@@ -21,6 +21,7 @@ class SettingsController extends Controller
             'wireFee' => \App\Services\WireService::fee()->cents / 100,
             'wireFeeIntl' => \App\Services\WireService::fee(true)->cents / 100,
             'wireCutoff' => \App\Services\WireService::cutoff(),
+            'regionCodes' => \App\Support\Region::codes(),
             'staff' => User::where('role', 'admin')->with('adminProfile')->orderBy('name')->get(),
         ]);
     }
@@ -56,6 +57,16 @@ class SettingsController extends Controller
             $newWire = ['fee' => \App\Services\WireService::fee()->cents, 'fee_intl' => \App\Services\WireService::fee(true)->cents, 'cutoff' => \App\Services\WireService::cutoff()];
             if ($oldWire !== $newWire) {
                 Audit::record('setting.changed', null, ['wires' => $oldWire], ['wires' => $newWire], $request->user()->id);
+            }
+        }
+
+        if ($request->has('region_form')) {
+            $regionInput = $request->validate(['region_states' => ['required', 'array', 'min:1'], 'region_states.*' => ['string', \Illuminate\Validation\Rule::in(array_keys(\App\Support\Region::STATES))]], ['region_states.required' => 'Choose at least one state where membership is open.']);
+            $oldRegion = \App\Support\Region::codes();
+            \App\Support\Region::save($regionInput['region_states']);
+            $newRegion = \App\Support\Region::codes();
+            if ($oldRegion !== $newRegion) {
+                Audit::record('setting.changed', null, ['region_states' => $oldRegion], ['region_states' => $newRegion], $request->user()->id);
             }
         }
 

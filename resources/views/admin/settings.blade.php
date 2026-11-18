@@ -25,6 +25,17 @@
         </div>
         <p class="fine" style="margin-bottom:0">Wires requested before the cutoff on a business day are sent that day once approved. Later ones are sent the next business day.</p>
     </div>
+    <div>
+        <h2 style="margin:0 0 .6rem">Where membership is open</h2>
+        <p class="fine" style="margin-top:0">People with a home, job, school or place of worship in a checked state can join. Family of current members can always join.</p>
+        <input type="hidden" name="region_form" value="1">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(11rem,1fr));gap:.4rem .9rem">
+            @foreach (\App\Support\Region::STATES as $code => $name)
+                <label class="chk" style="display:flex;gap:.5rem;align-items:center;font-weight:400"><input type="checkbox" name="region_states[]" value="{{ $code }}" @checked(in_array($code, old('region_states', $regionCodes)))>{{ $name }}</label>
+            @endforeach
+        </div>
+        @error('region_states')<span class="err">{{ $message }}</span>@enderror
+    </div>
     <div><button type="submit" class="btn-s">Save settings</button></div>
 </form>
 

@@ -14,7 +14,7 @@
 
     <fieldset class="step" data-step="1" data-title="Eligibility">
         <legend>How you qualify</legend>
-        <p class="fine" style="margin:0">Membership is open to anyone with a connection to California, Nevada, Arizona, Oregon or Washington, and to family of our members.</p>
+        <p class="fine" style="margin:0">Membership is open to anyone with a connection to {{ \App\Support\Region::sentence('or') }}, and to family of our members.</p>
         <label>I am eligible because
             <select name="field_of_membership" id="fom" required>
                 @foreach ($fields as $value => $label)<option value="{{ $value }}" @selected(old('field_of_membership') === $value)>{{ $label }}</option>@endforeach
@@ -24,7 +24,7 @@
         <label id="state-row">State of your connection
             <select name="eligibility_state" id="elig-state">
                 <option value="">Choose a state</option>
-                @foreach (config('bank.region_states') as $st)<option @selected(old('eligibility_state') === $st)>{{ $st }}</option>@endforeach
+                @foreach (\App\Support\Region::codes() as $st)<option @selected(old('eligibility_state') === $st)>{{ $st }}</option>@endforeach
             </select>
             @error('eligibility_state')<span class="err">{{ $message }}</span>@enderror
         </label>
