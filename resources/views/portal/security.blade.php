@@ -31,7 +31,7 @@
 
 <div class="panel-card flush">
     <div class="grouphead"><h2>Sign-in and security</h2></div>
-    <table class="dtable">
+    <table class="dtable stack">
         <thead><tr><th>Setting</th><th>Status</th><th></th></tr></thead>
         <tbody>
             <tr>

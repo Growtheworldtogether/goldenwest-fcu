@@ -45,7 +45,7 @@
 <div class="mmain">
     <div class="panel-card flush">
         <div class="grouphead"><h2>Deposit accounts</h2><span>Total balance <b>{{ $total->format() }}</b></span></div>
-        <table class="dtable">
+        <table class="dtable accts">
             <thead><tr><th>Account</th><th class="num">Available balance</th><th class="num hide-s">Current balance</th><th></th></tr></thead>
             <tbody>
             @foreach ($accounts as $a)

@@ -23,10 +23,10 @@
         <div class="tblwrap"><table class="tbl">
             <thead><tr><th scope="col">Team</th><th scope="col">Roles</th><th scope="col">Locations</th></tr></thead>
             <tbody>
-                <tr><td>Branch banking</td><td>Member service representative, branch manager, lending officer</td><td>California, Nevada, Arizona, Oregon, Washington</td></tr>
-                <tr><td>Contact center</td><td>Member care specialist, fraud analyst</td><td>Oakland, CA and remote</td></tr>
-                <tr><td>Technology</td><td>Software engineer, security analyst, data analyst</td><td>Oakland, CA and remote</td></tr>
-                <tr><td>Lending and operations</td><td>Underwriter, loan processor, payments specialist</td><td>Oakland, CA and Phoenix, AZ</td></tr>
+                <tr><td data-label="Team">Branch banking</td><td data-label="Roles">Member service representative, branch manager, lending officer</td><td data-label="Locations">California, Nevada, Arizona, Oregon, Washington</td></tr>
+                <tr><td data-label="Team">Contact center</td><td data-label="Roles">Member care specialist, fraud analyst</td><td data-label="Locations">Oakland, CA and remote</td></tr>
+                <tr><td data-label="Team">Technology</td><td data-label="Roles">Software engineer, security analyst, data analyst</td><td data-label="Locations">Oakland, CA and remote</td></tr>
+                <tr><td data-label="Team">Lending and operations</td><td data-label="Roles">Underwriter, loan processor, payments specialist</td><td data-label="Locations">Oakland, CA and Phoenix, AZ</td></tr>
             </tbody>
         </table></div>
         <p class="fine">{{ brand('short_name') }} is an equal opportunity employer. We do not discriminate on the basis of race, color, religion, sex, national origin, age, disability, veteran status or any other protected characteristic.</p>

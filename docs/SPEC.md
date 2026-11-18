@@ -532,3 +532,16 @@ Every success, error and info message in the interface appears as a **toast**, n
 
 - Every public page banner has a photo on its right side. `page_photo($page)` uses `public/images/pages/{page}.jpg` when it exists and otherwise a site photo as a stand-in (accounts, business, loans, digital-banking, security, about, community, help, rates, careers, contact, appointments, learn). The photo is hidden under 1000px wide, where the pale banner shape shows instead.
 - Six pages have an optional photo above the dark side box, shown only when the file exists: `accounts-switching`, `security-report`, `digital-enroll`, `loans-lender`, `business-banker`, `community-scholarship` (all `public/images/pages/{name}.jpg`).
+
+## 10x. Phone layout pass (as built)
+
+An automated check now loads every public, member and staff page at 320, 360 and 390 px wide and flags sideways overflow, cut-off table cells, tap targets under 36 px, text under 12.5 px and form fields squeezed narrow.
+
+Fixed from it:
+- Page banners no longer show the pale shape behind the heading on phones.
+- Rates and Careers tables turn into labelled cards under 600 px.
+- Security settings, Announcements and Site tables stack under 700 px (`.dtable.stack`).
+- Link buttons, small buttons and form fields are at least 40 px tall on phones.
+- Search rows (admin tickets) put the field on its own full-width line.
+- Header logo shrinks under 400 px so the Menu button is not cut off.
+- Deposits option cards and the dashboard accounts table fit 320 px screens.

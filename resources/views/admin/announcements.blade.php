@@ -26,7 +26,7 @@
 <div class="table-title"><h2>Notices</h2></div>
 <div class="panel-card flush">
 @if ($items->count())
-<table class="dtable"><thead><tr><th>Notice</th><th>Audience</th><th>Runs</th><th></th></tr></thead><tbody>
+<table class="dtable stack"><thead><tr><th>Notice</th><th>Audience</th><th>Runs</th><th></th></tr></thead><tbody>
 @foreach ($items as $a)
     <tr>
         <td><strong>{{ $a->title }}</strong><small>{{ $types[$a->type] }} &middot; {{ \Illuminate\Support\Str::limit($a->body, 90) }}</small></td>

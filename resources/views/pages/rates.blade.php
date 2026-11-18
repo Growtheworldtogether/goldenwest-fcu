@@ -13,7 +13,7 @@
             <thead><tr><th scope="col">Account</th><th scope="col">APY</th><th scope="col">Details</th><th scope="col">Minimum to open</th></tr></thead>
             <tbody>
             @foreach ($rates['deposit'] as $r)
-                <tr><th scope="row" style="background:none;color:var(--navy)">{{ $r['name'] }}</th><td class="num">{{ $r['rate'] }}</td><td>{{ $r['detail'] }}</td><td>{{ $r['min'] }}</td></tr>
+                <tr><th scope="row" style="background:none;color:var(--navy)">{{ $r['name'] }}</th><td class="num" data-label="Rate">{{ $r['rate'] }}</td><td data-label="Details">{{ $r['detail'] }}</td><td data-label="Minimum">{{ $r['min'] }}</td></tr>
             @endforeach
             </tbody>
         </table></div>
@@ -27,7 +27,7 @@
             <thead><tr><th scope="col">Loan</th><th scope="col">APR as low as</th><th scope="col">Details</th><th scope="col">Minimum amount</th></tr></thead>
             <tbody>
             @foreach ($rates['loan'] as $r)
-                <tr><th scope="row" style="background:none;color:var(--navy)">{{ $r['name'] }}</th><td class="num">{{ $r['rate'] }}</td><td>{{ $r['detail'] }}</td><td>{{ $r['min'] }}</td></tr>
+                <tr><th scope="row" style="background:none;color:var(--navy)">{{ $r['name'] }}</th><td class="num" data-label="Rate">{{ $r['rate'] }}</td><td data-label="Details">{{ $r['detail'] }}</td><td data-label="Minimum">{{ $r['min'] }}</td></tr>
             @endforeach
             </tbody>
         </table></div>
