@@ -152,3 +152,16 @@ it('shows the join form as five steps and keeps the sign-in and join photos', fu
     $this->get('/login')->assertOk()->assertSee('images/branch.jpg', false);
     $this->get('/forgot-password')->assertOk()->assertSee('images/branch.jpg', false);
 });
+
+it('sends a new member to the dashboard even if a staff page was requested earlier', function () {
+    $this->get('/admin')->assertRedirect();
+    $this->post('/register', registrationData())->assertRedirect('/dashboard');
+});
+
+it('does not send a member to a staff page after sign-in', function () {
+    $this->get('/admin');
+    $this->post('/register', registrationData());
+    $this->post('/logout');
+    $this->get('/admin');
+    $this->post('/login', ['email' => 'linda.nguyen@example.com', 'password' => registrationData()['password']])->assertRedirect('/dashboard');
+});
