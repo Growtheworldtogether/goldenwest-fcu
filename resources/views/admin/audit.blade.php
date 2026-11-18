@@ -16,7 +16,7 @@
 </form>
 <div class="panel-card flush">
     <div style="overflow-x:auto"><table class="dtable">
-        <thead><tr><th>When</th><th>Action</th><th>By</th><th class="hide-s">About</th><th class="hide-s">Details</th></tr></thead>
+        <thead><tr><th>When ({{ now()->format('T') }})</th><th>Action</th><th>By</th><th class="hide-s">About</th><th class="hide-s">Details</th></tr></thead>
         <tbody>
         @forelse ($rows as $r)
             <tr>

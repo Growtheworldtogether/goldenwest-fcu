@@ -569,3 +569,7 @@ Activity emails follow the member's "Deposits, transfers and payments" email pre
 Staff with site access can open Admin > Emails to preview the main emails with the current branding and send themselves a test. `php artisan mail:test someone@example.com` does the same from the command line.
 
 Sending uses SMTP2GO over plain SMTP (`MAIL_MAILER=smtp`, host `mail.smtp2go.com`, port 2525; see `.env.example`). The support email must be a verified sender in SMTP2GO. `APP_URL` must be the real public address so the logo and links work.
+
+## 10z. Time zone (as built)
+
+The platform runs on Eastern time (`APP_TIMEZONE`, default America/New_York). Dates and times shown, business dates (`today()`), the daily jobs (scheduled at 03:15 to 05:30), loan due dates and the wire cutoff all use it. The "Last sign-in" time and the audit log column show the zone abbreviation (EST or EDT). Set `APP_TIMEZONE` once, before real data exists: times are saved in that zone, so changing it later shifts the times already stored. The Customer Care hours shown on the dashboard, Contact and Help pages now come from the Branding setting instead of fixed text, so they can be written in Eastern time there.

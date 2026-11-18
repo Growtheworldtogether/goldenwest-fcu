@@ -44,7 +44,7 @@
             </ol>
             <p>You can also tell us by phone at <a href="tel:{{ brand('tel') }}">{{ brand('support_phone') }}</a> or <a href="{{ url('/contact') }}">send a message</a>.</p>
         </div>
-        <aside class="aside on-dark"><h3>Need a person?</h3><p>Customer Care is open Monday to Friday 7am to 8pm PT and Saturday 8am to 5pm PT.</p><a class="btn" href="{{ url('/contact') }}">Contact us</a></aside>
+        <aside class="aside on-dark"><h3>Need a person?</h3><p>Customer Care hours: {{ brand('support_hours') }}.</p><a class="btn" href="{{ url('/contact') }}">Contact us</a></aside>
     </div>
 </section>
 @endsection

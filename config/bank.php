@@ -16,7 +16,7 @@ return [
     'wire_fee' => 2_500,                    // $25 per outgoing wire, charged to the sending account
     'wire_fee_international' => 4_500,      // $45 per international wire
     'wire_cutoff' => '14:00',               // wires reviewed and sent before this time go out the same business day
-    'wire_timezone' => 'America/Los_Angeles',
+    'wire_timezone' => env('APP_TIMEZONE', 'America/New_York'),
     'overdraft_transfer_fee' => 0,          // charged to the checking account when protection is used
 
     // Virtual card: default limits a member can lower but not raise.

@@ -34,7 +34,7 @@
         <aside class="aside on-dark">
             <h3>Customer Care</h3>
             <p><a href="tel:{{ brand('tel') }}" style="font-size:1.4rem;font-weight:700">{{ brand('support_phone') }}</a></p>
-            <p>Mon-Fri: 7am - 8pm PT<br>Sat: 8am - 5pm PT</p>
+            <p>{{ brand('support_hours') }}</p>
             <p>Lost or stolen card? Call any time, day or night.</p>
             <a class="btn" href="{{ url('/appointments') }}">Schedule an appointment</a>
         </aside>
