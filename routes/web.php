@@ -152,6 +152,7 @@ Route::middleware(['auth', 'verified', 'member.area', 'throttle:portal'])->group
         Route::post('/applications/{application:reference}/reply', [Portal\LoanController::class, 'reply'])->name('reply');
         Route::post('/applications/{application:reference}/withdraw', [Portal\LoanController::class, 'withdraw'])->name('withdraw');
         Route::get('/loans/{loan:reference}', [Portal\LoanController::class, 'show'])->name('show');
+        Route::post('/loans/{loan:reference}/draw', [Portal\LoanController::class, 'draw'])->middleware('throttle:10,1')->name('draw');
         Route::post('/loans/{loan:reference}/pay', [Portal\LoanController::class, 'pay'])->middleware('throttle:10,1')->name('pay');
         Route::post('/loans/{loan:reference}/autopay', [Portal\LoanController::class, 'autopay'])->name('autopay');
     });

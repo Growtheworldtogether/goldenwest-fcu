@@ -20,7 +20,7 @@
         @foreach ($loans as $l)
             <tr>
                 <td><a class="main" href="{{ route('borrow.show', $l->reference) }}">{{ $l->product->name }}</a><small>{{ $l->reference }}</small></td>
-                <td>{{ $l->balanceMoney()->format() }}<small>of {{ $l->principalMoney()->format() }}</small></td>
+                <td>{{ $l->balanceMoney()->format() }}<small>{{ $l->revolving ? 'of a '.$l->principalMoney()->format().' limit' : 'of '.$l->principalMoney()->format() }}</small></td>
                 <td>{{ $l->apr() }}</td>
                 <td>{{ $l->next_due_date?->format('M j, Y') ?? 'None' }}</td>
                 <td><span class="chip {{ ['active' => 'completed', 'paid_off' => 'completed', 'delinquent' => 'rejected'][$l->status] }}">{{ ['active' => 'Current', 'paid_off' => 'Paid off', 'delinquent' => 'Past due'][$l->status] }}</span></td>
@@ -29,14 +29,14 @@
         </tbody>
     </table></div>
     @else
-        <div class="empty"><b>No loans yet</b>Apply for a personal or auto loan and decisions show up here.</div>
+        <div class="empty"><b>No loans yet</b>Apply for a loan and decisions show up here.</div>
     @endif
 </div>
 
 <div class="table-title"><h2>Loans we offer</h2></div>
 <div class="cols" style="grid-template-columns:repeat(auto-fit,minmax(18rem,1fr))">
 @foreach ($products as $p)
-    <div class="panel-card"><h3>{{ $p->name }}</h3><p style="margin:0 0 .5rem">{{ $p->aprRange() }}</p><p class="fine" style="margin:0 0 .8rem">{{ $p->minAmount()->format() }} to {{ $p->maxAmount()->format() }}, {{ min($p->terms) }} to {{ max($p->terms) }} months</p><a class="btn-s plain sm" href="{{ route('borrow.create', ['type' => $p->code]) }}">Apply</a></div>
+    <div class="panel-card"><h3>{{ $p->name }}@if ($p->isBusiness()) <span class="tag">Business</span>@endif</h3><p style="margin:0 0 .5rem">{{ $p->aprRange() }}</p><p class="fine" style="margin:0 0 .8rem">{{ $p->minAmount()->format() }} to {{ $p->maxAmount()->format() }}, {{ $p->revolving ? 'draw and repay, renews each year' : min($p->terms).' to '.max($p->terms).' months' }}</p><a class="btn-s plain sm" href="{{ route('borrow.create', ['type' => $p->code]) }}">Apply</a></div>
 @endforeach
 </div>
 

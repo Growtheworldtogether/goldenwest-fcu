@@ -12,9 +12,16 @@
         <h3>Application</h3>
         <dl class="kv">
             <dt>Member</dt><dd><a class="plink" href="{{ route('admin.members.show', $app->user) }}">{{ $app->user->name }}</a> #{{ $app->user->member_number }} &middot; ID {{ $app->user->kyc_status }}</dd>
-            <dt>Amount</dt><dd>{{ $app->money()->format() }} over {{ $app->term_months }} months</dd>
+            <dt>{{ $app->product->revolving ? 'Credit limit' : 'Amount' }}</dt><dd>{{ $app->money()->format() }}{{ $app->product->revolving ? ', renews each year' : ' over '.$app->term_months.' months' }}</dd>
             <dt>Purpose</dt><dd>{{ $app->purpose }}</dd>
-            <dt>Income</dt><dd>{{ \App\Support\Money::cents($app->annual_income)->format() }} a year, {{ str_replace('_', '-', $app->employment) }}</dd>
+            @if ($app->product->isBusiness() && ($bp = $app->user->businessProfile))
+                <dt>Business</dt><dd>{{ $bp->legal_name }}, {{ $bp->entityLabel() }}, EIN {{ $bp->maskedEin() }}</dd>
+                <dt>In business</dt><dd>Since {{ $bp->started_year }} ({{ $bp->yearsInBusiness() }} {{ \Illuminate\Support\Str::plural('year', $bp->yearsInBusiness()) }}), {{ $bp->industry }}</dd>
+                <dt>Annual revenue</dt><dd>{{ \App\Support\Money::cents($app->annual_income)->format() }}</dd>
+            @else
+                <dt>Income</dt><dd>{{ \App\Support\Money::cents($app->annual_income)->format() }} a year, {{ str_replace('_', '-', $app->employment) }}</dd>
+            @endif
+            @if ($app->collateral)<dt>Equipment</dt><dd>{{ $app->collateral }}, {{ \App\Support\Money::cents($app->collateral_value)->format() }}</dd>@endif
             @if ($app->vehicle_make)<dt>Vehicle</dt><dd>{{ $app->vehicle_year }} {{ $app->vehicle_make }} {{ $app->vehicle_model }}, {{ \App\Support\Money::cents($app->vehicle_value)->format() }}</dd>@endif
             <dt>Deposit to</dt><dd>{{ $app->depositAccount->nickname ?? $app->depositAccount->product->name }} {{ $app->depositAccount->masked() }}</dd>
             <dt>Rate range</dt><dd>{{ $app->product->aprRange() }}</dd>
@@ -30,11 +37,11 @@
 <aside>
 @if ($app->isOpen())
     <div class="panel-card">
-        <h3>Approve and pay out</h3>
+        <h3>{{ $app->product->revolving ? 'Approve the line of credit' : 'Approve and pay out' }}</h3>
         <form class="sform" method="post" action="{{ route('admin.loans.act', $app->reference) }}">@csrf<input type="hidden" name="action" value="approve">
             <label>APR (%)<input name="apr" inputmode="decimal" required placeholder="{{ number_format($app->product->apr_min_bps / 100, 2) }}">@error('apr')<span class="err">{{ $message }}</span>@enderror</label>
-            <label>Amount ($)<input name="amount" inputmode="decimal" value="{{ number_format($app->amount / 100, 2, '.', '') }}">@error('amount')<span class="err">{{ $message }}</span>@enderror</label>
-            <button type="submit" class="gold">Approve and deposit</button>
+            <label>{{ $app->product->revolving ? 'Credit limit ($)' : 'Amount ($)' }}<input name="amount" inputmode="decimal" value="{{ number_format($app->amount / 100, 2, '.', '') }}">@error('amount')<span class="err">{{ $message }}</span>@enderror</label>
+            <button type="submit" class="gold">{{ $app->product->revolving ? 'Approve and open the line' : 'Approve and deposit' }}</button>
         </form>
     </div>
     <div class="panel-card" style="margin-top:1.25rem">

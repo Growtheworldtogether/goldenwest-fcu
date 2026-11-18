@@ -21,13 +21,14 @@
     <div class="notice-bar" role="status"><p><strong>We could not approve this application.</strong> {{ $reasons[$d?->reason_code] ?? '' }}. {{ $d?->reason_text }}</p><p>You are welcome to apply again, or call Customer Care at {{ brand('support_phone') }} to talk it through.</p></div>
 @endif
 @if ($app->status === 'approved' && $app->loan)
-    <div class="panel-card" style="margin-bottom:1.25rem"><h3>Approved</h3><p style="margin:0">{{ $app->loan->principalMoney()->format() }} at {{ $app->loan->apr() }} APR was deposited on {{ $app->loan->disbursed_at->format('F j, Y') }}. <a class="plink" href="{{ route('borrow.show', $app->loan->reference) }}">View your loan</a></p></div>
+    <div class="panel-card" style="margin-bottom:1.25rem"><h3>Approved</h3><p style="margin:0">{{ $app->loan->principalMoney()->format() }} at {{ $app->loan->apr() }} APR {{ $app->loan->revolving ? 'is open as a line of credit since' : 'was deposited on' }} {{ $app->loan->disbursed_at->format('F j, Y') }}. <a class="plink" href="{{ route('borrow.show', $app->loan->reference) }}">View your loan</a></p></div>
 @endif
 <div class="panel-card">
     <dl class="kv">
-        <dt>Amount</dt><dd>{{ $app->money()->format() }}</dd>
-        <dt>Term</dt><dd>{{ $app->term_months }} months</dd>
+        <dt>{{ $app->product->revolving ? 'Credit limit' : 'Amount' }}</dt><dd>{{ $app->money()->format() }}</dd>
+        @unless ($app->product->revolving)<dt>Term</dt><dd>{{ $app->term_months }} months</dd>@endunless
         <dt>Purpose</dt><dd>{{ $app->purpose }}</dd>
+        @if ($app->collateral)<dt>Equipment</dt><dd>{{ $app->collateral }}, {{ \App\Support\Money::cents($app->collateral_value)->format() }}</dd>@endif
         @if ($app->vehicle_make)<dt>Vehicle</dt><dd>{{ $app->vehicle_year }} {{ $app->vehicle_make }} {{ $app->vehicle_model }}</dd>@endif
         <dt>Deposit to</dt><dd>{{ $app->depositAccount->nickname ?? $app->depositAccount->product->name }} {{ $app->depositAccount->masked() }}</dd>
     </dl>

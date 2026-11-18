@@ -29,6 +29,14 @@ class LoanController extends Controller
         return $app;
     }
 
+    /** Business products only show to members who have a business. */
+    private function products(Request $request)
+    {
+        $hasBusiness = $request->user()->businessProfile()->exists();
+
+        return LoanProduct::where('active', true)->when(! $hasBusiness, fn ($q) => $q->where('segment', 'personal'))->orderBy('segment')->orderBy('id')->get();
+    }
+
     private function fail(string $message)
     {
         return back()->with('toast', ['type' => 'bad', 'message' => $message]);
@@ -41,7 +49,7 @@ class LoanController extends Controller
         return view('portal.loans', [
             'loans' => Loan::with('product')->where('user_id', $id)->latest('id')->get(),
             'applications' => LoanApplication::with('product')->where('user_id', $id)->whereIn('status', ['submitted', 'in_review', 'needs_info', 'rejected'])->latest('id')->limit(5)->get(),
-            'products' => LoanProduct::where('active', true)->get(),
+            'products' => $this->products($request),
         ]);
     }
 
@@ -50,9 +58,10 @@ class LoanController extends Controller
         $user = $request->user();
 
         return view('portal.loan-apply', [
-            'products' => LoanProduct::where('active', true)->get(),
+            'products' => $this->products($request),
             'selected' => $request->query('type'),
-            'accounts' => $user->accounts()->where('accounts.status', 'active')->where('accounts.type', 'standard')->get(),
+            'business' => $user->businessProfile,
+            'accounts' => $user->accounts()->with('product')->where('accounts.status', 'active')->where('accounts.type', 'standard')->get(),
         ]);
     }
 
@@ -64,13 +73,20 @@ class LoanController extends Controller
             'term_months' => ['required', 'integer'],
             'purpose' => ['required', 'string', 'max:120'],
             'annual_income' => ['required', 'numeric', 'min:0'],
-            'employment' => ['required', Rule::in(['employed', 'self_employed', 'retired', 'other'])],
+            'employment' => ['nullable', Rule::in(['employed', 'self_employed', 'retired', 'other'])],
+            'collateral' => ['nullable', 'string', 'max:120'], 'collateral_value' => ['nullable', 'numeric', 'min:0'],
             'deposit_account_id' => ['required', 'integer'],
             'vehicle_year' => ['nullable', 'digits:4'], 'vehicle_make' => ['nullable', 'string', 'max:40'], 'vehicle_model' => ['nullable', 'string', 'max:40'],
             'vehicle_value' => ['nullable', 'numeric', 'min:0'],
         ], ['purpose.required' => 'Tell us what the loan is for.', 'amount.required' => 'Enter the amount you would like to borrow.']);
 
         $product = LoanProduct::where('code', $data['product'])->firstOrFail();
+        if (! $product->isBusiness()) {
+            $request->validate(['employment' => ['required']], ['employment.required' => 'Choose your employment.']);
+        }
+        if ($product->isBusiness() && ! $request->user()->businessProfile()->exists()) {
+            abort(404);
+        }
         if ($product->type === 'auto') {
             $request->validate(['vehicle_year' => ['required'], 'vehicle_make' => ['required'], 'vehicle_model' => ['required'], 'vehicle_value' => ['required', 'numeric']], ['vehicle_year.required' => 'Enter the vehicle year.', 'vehicle_make.required' => 'Enter the vehicle make.', 'vehicle_model.required' => 'Enter the vehicle model.', 'vehicle_value.required' => 'Enter the vehicle price.']);
         }
@@ -78,8 +94,9 @@ class LoanController extends Controller
 
         $app = $loans->apply($request->user(), $product, [
             'amount' => $cents($data['amount']), 'term_months' => (int) $data['term_months'], 'purpose' => $data['purpose'], 'annual_income' => $cents($data['annual_income']),
-            'employment' => $data['employment'], 'deposit_account_id' => (int) $data['deposit_account_id'],
+            'employment' => $product->isBusiness() ? 'business' : $data['employment'], 'deposit_account_id' => (int) $data['deposit_account_id'],
             'vehicle_year' => $data['vehicle_year'] ?? null, 'vehicle_make' => $data['vehicle_make'] ?? null, 'vehicle_model' => $data['vehicle_model'] ?? null, 'vehicle_value' => $cents($data['vehicle_value'] ?? null),
+            'collateral' => $data['collateral'] ?? null, 'collateral_value' => $cents($data['collateral_value'] ?? null),
         ]);
 
         return redirect()->route('borrow.application', $app->reference)->with('toast', ['type' => 'ok', 'message' => 'Application '.$app->reference.' received. We will review it and update you here.']);
@@ -123,8 +140,21 @@ class LoanController extends Controller
         return view('portal.loan', [
             'loan' => $loan->load(['product', 'schedule', 'autopayAccount', 'account']),
             'payoff' => $loan->isOpen() ? $loans->payoffAmount($loan) : null,
-            'accounts' => $user->accounts()->where('accounts.status', 'active')->where('accounts.type', 'standard')->get(),
+            'accounts' => $user->accounts()->with('product')->where('accounts.status', 'active')->where('accounts.type', 'standard')->get(),
         ]);
+    }
+
+    public function draw(Request $request, Loan $loan, LoanService $loans)
+    {
+        $data = $request->validate(['account_id' => ['required', 'integer'], 'amount' => ['required', 'numeric', 'min:0.01']], ['amount.required' => 'Enter the amount to draw.']);
+        $this->loan($request, $loan);
+        try {
+            $loans->draw($loan, $request->user(), Money::cents((int) round(((float) $data['amount']) * 100)), (int) $data['account_id']);
+        } catch (TransferException|InvalidArgumentException $e) {
+            return $this->fail($e->getMessage());
+        }
+
+        return back()->with('toast', ['type' => 'ok', 'message' => 'Done. The money is in your account.']);
     }
 
     public function pay(Request $request, Loan $loan, LoanService $loans)

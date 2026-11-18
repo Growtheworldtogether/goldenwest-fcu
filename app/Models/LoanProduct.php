@@ -11,7 +11,12 @@ class LoanProduct extends Model
 
     protected function casts(): array
     {
-        return ['terms' => 'array', 'active' => 'boolean'];
+        return ['terms' => 'array', 'active' => 'boolean', 'revolving' => 'boolean'];
+    }
+
+    public function isBusiness(): bool
+    {
+        return $this->segment === 'business';
     }
 
     public function minAmount(): Money

@@ -13,7 +13,7 @@ class Loan extends Model
 
     protected function casts(): array
     {
-        return ['first_due_date' => 'date', 'next_due_date' => 'date', 'disbursed_at' => 'datetime', 'paid_off_at' => 'datetime'];
+        return ['revolving' => 'boolean', 'last_billed_on' => 'date', 'first_due_date' => 'date', 'next_due_date' => 'date', 'disbursed_at' => 'datetime', 'paid_off_at' => 'datetime'];
     }
 
     public function user(): BelongsTo
@@ -59,6 +59,12 @@ class Loan extends Model
     public function apr(): string
     {
         return number_format($this->apr_bps / 100, 2).'%';
+    }
+
+    /** What can still be drawn on a line of credit. */
+    public function availableCredit(): Money
+    {
+        return Money::cents(max(0, $this->principal - $this->balance));
     }
 
     public function isOpen(): bool

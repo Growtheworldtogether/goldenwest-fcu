@@ -511,3 +511,11 @@ Every success, error and info message in the interface appears as a **toast**, n
 - **Verification:** `KycDocument::requiredFor($user)` is government ID and proof of address, plus the business document when the member has a business. The member is `verified` only when every required document is approved.
 - **Keeping them apart:** overdraft protection can only link accounts of the same segment, and opening a personal checking never links a business savings.
 - **Not built:** opening a business later from online banking, more than one business per member, and extra people who can act on a business account.
+
+## 10u. Business loans
+
+- **Products** (`loan_products.segment = business`, created by migration): Business term loan (7.25% to 13.50% APR, $5,000 to $500,000, 12 to 84 months), Equipment loan (6.50% to 11.99%, $5,000 to $750,000, 24 to 84 months) and Business line of credit (9.00% to 15.00%, limits $10,000 to $250,000, `revolving`). Only members with a business profile see or can apply for them.
+- **Application:** same flow and staff queue as personal loans. The form asks for annual business revenue (stored in `annual_income`, `employment = business`) and, for equipment, what is being bought and its cost (`collateral`, `collateral_value`). Staff see the business name, type, masked EIN, years in business and revenue. Business loans pay out to a business account and personal loans to a personal one; mixing them is refused.
+- **Term and equipment loans:** approved and amortized exactly like personal loans, with the same payments, extra payments, payoff and autopay.
+- **Line of credit:** approval opens the line with nothing owed and moves no money. The owner draws into a business account up to the limit (`LoanService::draw`, posted as a loan disbursement). Interest accrues on the drawn balance only. `LoanService::billLines()` runs in the nightly job and, once a month for any line with a balance, makes a bill of one month of interest plus 1% of the balance (at least $25, never more than what is owed). Paying a bill lowers the balance by its principal. Paying a line off keeps it open. A past-due line cannot be drawn on.
+- **Not built:** collateral documents, personal guarantees, rate-by-credit-score pricing, and annual renewal of the line.

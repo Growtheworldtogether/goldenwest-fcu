@@ -3,12 +3,13 @@
 @section('band')
 <p class="crumbs2"><a class="plink" href="{{ route('borrow.index') }}">&larr; Loans</a></p>
 <h1>{{ $loan->product->name }}</h1>
-<p class="psub">{{ $loan->reference }} &middot; {{ $loan->apr() }} APR &middot; {{ $loan->term_months }} months &middot; <span class="chip {{ ['active' => 'completed', 'paid_off' => 'completed', 'delinquent' => 'rejected'][$loan->status] }}">{{ ['active' => 'Current', 'paid_off' => 'Paid off', 'delinquent' => 'Past due'][$loan->status] }}</span></p>
+<p class="psub">{{ $loan->reference }} &middot; {{ $loan->apr() }} APR &middot; {{ $loan->revolving ? $loan->principalMoney()->format().' limit' : $loan->term_months.' months' }} &middot; <span class="chip {{ ['active' => 'completed', 'paid_off' => 'completed', 'delinquent' => 'rejected'][$loan->status] }}">{{ ['active' => 'Current', 'paid_off' => 'Paid off', 'delinquent' => 'Past due'][$loan->status] }}</span></p>
 @endsection
 @section('content')
 @php($next = $loan->schedule->firstWhere('status', 'due'))
 <div class="strip">
-    <div><b>{{ $loan->balanceMoney()->format() }}</b><span>Balance</span></div>
+    <div><b>{{ $loan->balanceMoney()->format() }}</b><span>{{ $loan->revolving ? 'Drawn' : 'Balance' }}</span></div>
+    @if ($loan->revolving)<div><b>{{ $loan->availableCredit()->format() }}</b><span>Available to draw</span></div>@endif
     <div><b>{{ $next ? $next->amountDue()->format() : '$0.00' }}</b><span>Next payment{{ $next ? ', due '.$next->due_date->format('M j') : '' }}</span></div>
     <div><b>{{ $payoff?->format() ?? '$0.00' }}</b><span>Payoff today</span></div>
 </div>
@@ -16,11 +17,22 @@
 
 @if ($loan->isOpen())
 <div class="cols tcols">
+@if ($loan->revolving)
+<div class="panel-card">
+    <h3>Draw funds</h3>
+    <form class="sform" method="post" action="{{ route('borrow.draw', $loan->reference) }}">@csrf
+        <label>Deposit into<select name="account_id">@foreach ($accounts->filter(fn ($a) => $a->product->isBusiness()) as $a)<option value="{{ $a->id }}">{{ $a->nickname ?? $a->product->name }} {{ $a->masked() }}</option>@endforeach</select></label>
+        <label>Amount ($)<input name="amount" inputmode="decimal" required></label>
+        <button type="submit" class="gold">Draw funds</button>
+    </form>
+    <p class="fine" style="margin-bottom:0">You can draw up to {{ $loan->availableCredit()->format() }}. You pay interest only on what you have drawn. Each month we bill a month of interest plus 1% of the balance, at least $25.</p>
+</div>
+@endif
 <div class="panel-card">
     <h3>Make a payment</h3>
     <form class="sform" method="post" action="{{ route('borrow.pay', $loan->reference) }}">@csrf
         <label>Pay from<select name="account_id">@foreach ($accounts as $a)<option value="{{ $a->id }}">{{ $a->nickname ?? $a->product->name }} {{ $a->masked() }} &middot; {{ $a->available_balance->format() }}</option>@endforeach</select></label>
-        <label>What to pay<select name="kind" id="kind"><option value="next">Next payment ({{ $next?->amountDue()->format() }})</option><option value="extra">An extra amount toward principal</option><option value="payoff">Pay off the loan ({{ $payoff->format() }})</option></select></label>
+        <label>What to pay<select name="kind" id="kind">@if ($next)<option value="next">Next payment ({{ $next->amountDue()->format() }})</option>@endif<option value="extra">An extra amount toward principal</option><option value="payoff">{{ $loan->revolving ? 'Pay off what I owe' : 'Pay off the loan' }} ({{ $payoff->format() }})</option></select></label>
         <label id="amtrow" style="display:none">Extra amount ($)<input name="amount" inputmode="decimal"></label>
         <button type="submit" class="gold">Pay</button>
     </form>
@@ -41,7 +53,7 @@
 </div>
 @endif
 
-<div class="table-title"><h2>Payment schedule</h2></div>
+<div class="table-title"><h2>{{ $loan->revolving ? 'Monthly bills' : 'Payment schedule' }}</h2></div>
 <div class="panel-card flush"><div style="overflow-x:auto"><table class="dtable">
     <thead><tr><th>#</th><th>Due</th><th>Payment</th><th>Principal</th><th>Interest</th><th>Balance after</th><th></th></tr></thead>
     <tbody>

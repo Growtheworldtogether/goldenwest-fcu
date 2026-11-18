@@ -50,9 +50,15 @@ final class LoanService
         if (! in_array((int) $d['term_months'], $product->terms, true)) {
             throw ValidationException::withMessages(['term_months' => 'Choose one of the available terms.']);
         }
-        $account = $member->accounts()->where('accounts.id', $d['deposit_account_id'])->where('accounts.status', 'active')->where('accounts.type', 'standard')->first();
-        if (! $account) {
-            throw ValidationException::withMessages(['deposit_account_id' => 'Choose one of your accounts to receive the money.']);
+        if ($product->isBusiness() && ! $member->businessProfile()->exists()) {
+            throw ValidationException::withMessages(['amount' => 'Business loans are for members with a business. Add your business first.']);
+        }
+        $account = $member->accounts()->with('product')->where('accounts.id', $d['deposit_account_id'])->where('accounts.status', 'active')->where('accounts.type', 'standard')->first();
+        if (! $account || $account->product->isBusiness() !== $product->isBusiness()) {
+            throw ValidationException::withMessages(['deposit_account_id' => $product->isBusiness() ? 'Choose one of your business accounts to receive the money.' : 'Choose one of your personal accounts to receive the money.']);
+        }
+        if ($product->type === 'bequip' && (trim((string) ($d['collateral'] ?? '')) === '' || (int) ($d['collateral_value'] ?? 0) <= 0)) {
+            throw ValidationException::withMessages(['collateral' => 'Describe the equipment and enter what it costs.']);
         }
         if (LoanApplication::where('user_id', $member->id)->whereIn('status', ['submitted', 'in_review', 'needs_info'])->exists()) {
             throw ValidationException::withMessages(['amount' => 'You already have an application in progress. Please wait for it to be decided.']);
@@ -63,6 +69,7 @@ final class LoanService
             'amount' => $d['amount'], 'term_months' => $d['term_months'], 'purpose' => $d['purpose'], 'annual_income' => $d['annual_income'],
             'employment' => $d['employment'], 'deposit_account_id' => $account->id, 'status' => 'submitted',
             'vehicle_year' => $d['vehicle_year'] ?? null, 'vehicle_make' => $d['vehicle_make'] ?? null, 'vehicle_model' => $d['vehicle_model'] ?? null, 'vehicle_value' => $d['vehicle_value'] ?? null,
+            'collateral' => $d['collateral'] ?? null, 'collateral_value' => $d['collateral_value'] ?? null,
         ]);
         Audit::record('loan.applied', $app, null, ['product' => $product->code, 'amount' => $app->amount, 'term' => $app->term_months], $member->id);
 
@@ -140,23 +147,30 @@ final class LoanService
             Decision::create(['decidable_type' => $app->getMorphClass(), 'decidable_id' => $app->id, 'decision' => 'approved', 'decided_by' => $staff->id]);
             $app->update(['status' => 'approved', 'approved_apr_bps' => $aprBps, 'decided_by' => $staff->id, 'decided_at' => now()]);
 
+            $revolving = $product->revolving;
             $loan = Loan::create([
                 'reference' => $this->reference('LN', Loan::class), 'user_id' => $app->user_id, 'loan_application_id' => $app->id, 'loan_product_id' => $product->id,
-                'account_id' => $app->deposit_account_id, 'principal' => $amount, 'balance' => $amount, 'apr_bps' => $aprBps, 'term_months' => $app->term_months,
+                'revolving' => $revolving, 'account_id' => $app->deposit_account_id, 'principal' => $amount, 'balance' => $revolving ? 0 : $amount, 'apr_bps' => $aprBps, 'term_months' => $app->term_months,
                 'status' => 'active', 'first_due_date' => today()->addDays((int) config('bank.loan_first_due_days')), 'next_due_date' => today()->addDays((int) config('bank.loan_first_due_days')),
                 'disbursed_at' => now(),
             ]);
-            $this->writeSchedule($loan, Money::cents($amount), $aprBps, $app->term_months, $loan->first_due_date->toDateTimeImmutable());
-
-            $this->ledger->execute(new TransferRequest(
-                type: TransactionType::LoanDisbursement, amount: Money::cents($amount), idempotencyKey: 'loan-disburse-'.$loan->id,
-                toAccountId: $app->deposit_account_id, initiatedBy: $staff->id, memo: 'Loan '.$loan->reference, memberDescription: $product->name.' funds',
-            ));
+            if ($revolving) {
+                // A line of credit opens with nothing owed. The member draws on it when they need the money.
+                $loan->update(['next_due_date' => null, 'last_billed_on' => today()]);
+            } else {
+                $this->writeSchedule($loan, Money::cents($amount), $aprBps, $app->term_months, $loan->first_due_date->toDateTimeImmutable());
+                $this->ledger->execute(new TransferRequest(
+                    type: TransactionType::LoanDisbursement, amount: Money::cents($amount), idempotencyKey: 'loan-disburse-'.$loan->id,
+                    toAccountId: $app->deposit_account_id, initiatedBy: $staff->id, memo: 'Loan '.$loan->reference, memberDescription: $product->name.' funds',
+                ));
+            }
             Audit::record('loan.approved', $app, null, ['loan' => $loan->reference, 'apr_bps' => $aprBps, 'amount' => $amount], $staff->id);
 
             return $loan;
         });
-        MemberNotice::send($app->user, 'Your loan application '.$app->reference.' was approved', ['Good news: your loan application '.$app->reference.' was approved and the funds were added to your account.', 'Sign in to see your rate, payment schedule and first due date.'], 'See your loan', route('borrow.show', $loan->reference));
+        MemberNotice::send($app->user, 'Your loan application '.$app->reference.' was approved', $app->product->revolving
+            ? ['Good news: your application '.$app->reference.' was approved and your line of credit is open.', 'Sign in to see your limit and rate, and to draw funds when you need them.']
+            : ['Good news: your loan application '.$app->reference.' was approved and the funds were added to your account.', 'Sign in to see your rate, payment schedule and first due date.'], $app->product->revolving ? 'See your line of credit' : 'See your loan', route('borrow.show', $loan->reference));
 
         return $loan;
     }
@@ -179,7 +193,11 @@ final class LoanService
             ));
             $inst->update(['status' => 'paid', 'paid_at' => now(), 'transaction_id' => $tx->id]);
             $next = $loan->schedule()->where('status', 'due')->first();
-            $loan->update(['balance' => $inst->balance_after, 'next_due_date' => $next?->due_date, 'status' => $next ? 'active' : 'paid_off', 'paid_off_at' => $next ? null : now()]);
+            if ($loan->revolving) {
+                $loan->update(['balance' => max(0, $loan->balance - $inst->principal), 'next_due_date' => $next?->due_date, 'status' => 'active']);
+            } else {
+                $loan->update(['balance' => $inst->balance_after, 'next_due_date' => $next?->due_date, 'status' => $next ? 'active' : 'paid_off', 'paid_off_at' => $next ? null : now()]);
+            }
             $this->refreshDelinquency($loan);
             Audit::record('loan.payment', $loan, null, ['installment' => $inst->installment, 'amount' => $inst->amountDue()->cents], $by ?? $loan->user_id);
 
@@ -204,6 +222,12 @@ final class LoanService
                 fromAccountId: $from->id, initiatedBy: $loan->user_id, memo: 'Loan '.$loan->reference.' extra principal', memberDescription: 'Extra payment, '.$loan->product->name,
             ));
 
+            if ($loan->revolving) {
+                $loan->update(['balance' => $loan->balance - $amount->cents]);
+                Audit::record('loan.extra_payment', $loan, ['balance' => $loan->balance + $amount->cents], ['balance' => $loan->balance], $loan->user_id);
+
+                return $loan->refresh();
+            }
             $unpaid = $loan->schedule()->where('status', 'due')->get();
             $first = $unpaid->first();
             $newBalance = $loan->balance - $amount->cents;
@@ -222,7 +246,9 @@ final class LoanService
     {
         $on = ($on ?? today())->copy()->startOfDay();
         $lastPaid = $loan->schedule()->where('status', 'paid')->latest('installment')->first();
-        $since = $lastPaid ? $lastPaid->due_date->copy()->startOfDay() : $loan->disbursed_at->copy()->startOfDay();
+        $since = $loan->revolving
+            ? ($loan->last_billed_on ?? $loan->disbursed_at)->copy()->startOfDay()
+            : ($lastPaid ? $lastPaid->due_date->copy()->startOfDay() : $loan->disbursed_at->copy()->startOfDay());
         $days = max(0, (int) $since->diffInDays($on));
         $interest = (int) round($loan->balance * $loan->apr_bps / 10000 * $days / 365);
         $fees = (int) $loan->schedule()->where('status', 'due')->sum('late_fee');
@@ -241,7 +267,8 @@ final class LoanService
                 fromAccountId: $from->id, initiatedBy: $loan->user_id, memo: 'Loan '.$loan->reference.' payoff', memberDescription: 'Loan payoff, '.$loan->product->name,
             ));
             $loan->schedule()->where('status', 'due')->update(['status' => 'paid', 'paid_at' => now()]);
-            $loan->update(['balance' => 0, 'status' => 'paid_off', 'next_due_date' => null, 'paid_off_at' => now()]);
+            // Paying a line of credit down to zero does not close it. The member can draw again.
+            $loan->update($loan->revolving ? ['balance' => 0, 'status' => 'active', 'next_due_date' => null, 'last_billed_on' => today()] : ['balance' => 0, 'status' => 'paid_off', 'next_due_date' => null, 'paid_off_at' => now()]);
             Audit::record('loan.paid_off', $loan, null, ['amount' => $amount->cents], $loan->user_id);
 
             return $loan->refresh();
@@ -294,12 +321,73 @@ final class LoanService
         return $out;
     }
 
+    // ------------------------------------------------- line of credit
+
+    /** Take money from a line of credit into one of the member's business accounts. */
+    public function draw(Loan $loan, User $member, Money $amount, int $accountId): Loan
+    {
+        return DB::transaction(function () use ($loan, $member, $amount, $accountId) {
+            $loan = Loan::whereKey($loan->id)->lockForUpdate()->first();
+            if ($loan->user_id !== $member->id || ! $loan->revolving || ! $loan->isOpen()) {
+                throw new InvalidArgumentException('You cannot draw on this account.');
+            }
+            if ($loan->status === 'delinquent' || $loan->schedule()->where('status', 'due')->where('late_fee', '>', 0)->exists()) {
+                throw new InvalidArgumentException('Please pay the past-due amount before you draw again.');
+            }
+            if ($amount->cents <= 0) {
+                throw new InvalidArgumentException('Enter an amount to draw.');
+            }
+            if ($amount->cents > $loan->principal - $loan->balance) {
+                throw new InvalidArgumentException('You can draw up to '.$loan->availableCredit()->format().'.');
+            }
+            $to = $member->accounts()->with('product')->where('accounts.id', $accountId)->where('accounts.status', 'active')->where('accounts.type', 'standard')->first();
+            if (! $to || ! $to->product->isBusiness()) {
+                throw new InvalidArgumentException('Choose one of your business accounts to receive the money.');
+            }
+            $this->ledger->execute(new TransferRequest(
+                type: TransactionType::LoanDisbursement, amount: $amount, idempotencyKey: 'loan-draw-'.$loan->id.'-'.now()->format('uv').'-'.random_int(1000, 9999),
+                toAccountId: $to->id, initiatedBy: $member->id, memo: 'Line of credit '.$loan->reference.' draw', memberDescription: 'Line of credit draw',
+            ));
+            $loan->update(['balance' => $loan->balance + $amount->cents, 'last_billed_on' => $loan->last_billed_on ?? today()]);
+            Audit::record('loan.drawn', $loan, ['balance' => $loan->balance - $amount->cents], ['balance' => $loan->balance], $member->id);
+
+            return $loan->refresh();
+        });
+    }
+
+    /**
+     * Once a month a line of credit with a balance gets a bill: a month of interest plus 1% of the balance
+     * (never less than $25, never more than what is owed). Returns how many bills were made.
+     */
+    public function billLines(): int
+    {
+        $made = 0;
+        foreach (Loan::where('revolving', true)->whereIn('status', ['active', 'delinquent'])->where('balance', '>', 0)->get() as $loan) {
+            if ($loan->schedule()->where('status', 'due')->exists() || ! $loan->last_billed_on || $loan->last_billed_on->copy()->addMonth()->gt(today())) {
+                continue;
+            }
+            $interest = (int) round($loan->balance * $loan->apr_bps / 10000 / 12);
+            $principal = min($loan->balance, max((int) round($loan->balance * 0.01), 2_500 - $interest, 0));
+            $due = today()->addDays((int) config('bank.loan_first_due_days'));
+            LoanInstallment::create([
+                'loan_id' => $loan->id, 'installment' => (int) $loan->schedule()->max('installment') + 1, 'due_date' => $due,
+                'principal' => $principal, 'interest' => $interest, 'balance_after' => $loan->balance - $principal,
+            ]);
+            $loan->update(['last_billed_on' => today(), 'next_due_date' => $due]);
+            Audit::record('loan.line_billed', $loan, null, ['interest' => $interest, 'principal' => $principal], null);
+            $made++;
+        }
+
+        return $made;
+    }
+
     // ------------------------------------------------------------ nightly
 
     /** Run once a day: autopay what is due, add late fees after the grace period, flag delinquent loans. @return array{paid:int,failed:int,fees:int} */
     public function processDaily(): array
     {
         $out = ['paid' => 0, 'failed' => 0, 'fees' => 0];
+        $this->billLines();
 
         foreach (Loan::whereIn('status', ['active', 'delinquent'])->whereNotNull('autopay_account_id')->get() as $loan) {
             while (($inst = $loan->schedule()->where('status', 'due')->first()) && $inst->due_date->lte(today())) {
