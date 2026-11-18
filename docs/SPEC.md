@@ -491,3 +491,7 @@ Every success, error and info message in the interface appears as a **toast**, n
 - `App\Support\Region` holds the 50 states and DC. `Region::codes()` returns the open states from the `region_states` setting (JSON), falling back to `config('bank.region_states')`.
 - Settings has a "Where membership is open" checklist (Super Admin). At least one state must stay checked. Changes are audited as `setting.changed`.
 - The join form's state list, its validation message and its eligibility sentence read from `Region`. Marketing copy that says "five states" or lists branch states is still plain text on the Home and About pages.
+
+## 10r. Confirming an email without mail
+
+`php artisan members:verify-email someone@example.com` marks an address as confirmed without sending a link. Use it until outgoing mail is set up.

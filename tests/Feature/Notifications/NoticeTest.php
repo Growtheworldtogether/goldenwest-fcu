@@ -49,3 +49,10 @@ it('emails every active member about new terms', function () {
     $this->artisan('members:notify-terms', ['effective' => '2027-01-15'])->assertSuccessful();
     Notification::assertSentTo($one, MemberNotice::class, fn ($n) => $n->security && str_contains($n->subject, 'Terms of Use'));
 });
+
+it('confirms an email address from the command line', function () {
+    $u = User::factory()->unverified()->create(['email' => 'aoncareer@gmail.com']);
+    $this->artisan('members:verify-email', ['email' => 'AonCareer@gmail.com'])->assertSuccessful();
+    expect($u->fresh()->hasVerifiedEmail())->toBeTrue();
+    $this->artisan('members:verify-email', ['email' => 'nobody@example.com'])->assertFailed();
+});

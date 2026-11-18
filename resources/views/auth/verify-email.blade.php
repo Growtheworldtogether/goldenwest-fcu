@@ -1,7 +1,7 @@
 @extends('layouts.auth')
 @section('title', 'Verify your email | '.brand('name'))
 @section('heading', 'Check your email')
-@section('lede', 'We sent a link to confirm your email address. Open it to finish setting up online banking.')
+@section('lede', 'We sent a link to confirm your email address. Open it to finish setting up your account.')
 @section('form')
 <form class="form" method="post" action="{{ route('verification.send') }}">
     @csrf
