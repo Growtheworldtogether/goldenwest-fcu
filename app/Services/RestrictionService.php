@@ -31,6 +31,9 @@ final class RestrictionService
             'locked_by' => $admin->id, 'locked_at' => now(),
         ]);
         Audit::record('restriction.created', $account ?? $member, null, ['type' => $type, 'reason' => $reasonCode, 'text' => $reasonText], $admin->id);
+        foreach ($account ? $account->users : [$member] as $holder) {
+            \App\Notifications\MemberNotice::send($holder, 'A restriction was placed on your account', ['We placed a restriction on '.($account ? 'one of your accounts' : 'your membership').'. Some actions may not be available until it is removed.', 'Please call Customer Care at '.brand('support_phone').' so we can help.'], null, null, true);
+        }
 
         return $restriction;
     }
@@ -46,6 +49,9 @@ final class RestrictionService
 
         $restriction->update(['unlocked_by' => $admin->id, 'unlocked_at' => now(), 'unlock_note' => $note]);
         Audit::record('restriction.released', $restriction->account ?? $restriction->user, ['type' => $restriction->type], ['note' => $note], $admin->id);
+        foreach ($restriction->account ? $restriction->account->users : [$restriction->user] as $holder) {
+            \App\Notifications\MemberNotice::send($holder, 'The restriction on your account was removed', ['We removed the restriction on '.($restriction->account ? 'your account' : 'your membership').'. Everything should work as usual again.'], 'Open online banking', route('dashboard'), true);
+        }
 
         return $restriction;
     }

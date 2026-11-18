@@ -26,7 +26,7 @@ final class BusinessService
             throw ValidationException::withMessages(['business_name' => 'You already have a business with us.']);
         }
 
-        return DB::transaction(function () use ($member, $d, $document) {
+        $profile = DB::transaction(function () use ($member, $d, $document) {
             $profile = BusinessProfile::create([
                 'user_id' => $member->id, 'status' => 'pending', 'requested_accounts' => $d['business_accounts'],
                 'legal_name' => $d['business_name'], 'entity_type' => $d['business_type'], 'ein' => preg_replace('/\D/', '', $d['business_ein']),
@@ -42,6 +42,9 @@ final class BusinessService
 
             return $profile;
         });
+        MemberNotice::send($member, 'We received your business request', ['We received the details and the document for '.$profile->legal_name.'.', 'Our team is reviewing the document. We will email you when your business accounts are open.'], 'See the status', route('business.show'));
+
+        return $profile;
     }
 
     /** The business document was approved: open what the member asked for. Does nothing if it was already done. */

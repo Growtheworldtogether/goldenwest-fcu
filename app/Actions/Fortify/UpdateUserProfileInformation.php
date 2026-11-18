@@ -30,5 +30,6 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
         ])->save();
 
         Audit::record('profile.updated', $user, $before, $user->only(array_keys($before)), $user->id);
+        \App\Notifications\MemberNotice::send($user, 'Your contact details were updated', ['The phone number or address on your account was just changed.', 'If you made this change, you do not need to do anything. If you did not, call Customer Care right away at '.brand('support_phone').'.'], null, null, true);
     }
 }

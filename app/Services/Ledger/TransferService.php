@@ -149,6 +149,11 @@ final class TransferService
     /** Approve a pending or held transaction. Large amounts need a second, different admin. */
     public function approve(Transaction $transaction, User|int $admin, ?string $note = null): Transaction
     {
+        return $this->tellMember($this->approveInner($transaction, $admin, $note));
+    }
+
+    private function approveInner(Transaction $transaction, User|int $admin, ?string $note = null): Transaction
+    {
         $adminId = $admin instanceof User ? $admin->id : $admin;
 
         return $this->atomic(function () use ($transaction, $adminId, $note) {
@@ -193,6 +198,11 @@ final class TransferService
     /** Reject a pending or held transaction. A reason code and text are required. The reserve is released. */
     public function reject(Transaction $transaction, User|int $admin, string $reasonCode, string $reasonText): Transaction
     {
+        return $this->tellMember($this->rejectInner($transaction, $admin, $reasonCode, $reasonText));
+    }
+
+    private function rejectInner(Transaction $transaction, User|int $admin, string $reasonCode, string $reasonText): Transaction
+    {
         $adminId = $admin instanceof User ? $admin->id : $admin;
         $this->assertReason($reasonCode, $reasonText);
 
@@ -218,6 +228,11 @@ final class TransferService
 
     /** Hold a transaction for review with a reason and an optional expected release date. The reserve stays. */
     public function hold(Transaction $transaction, User|int $admin, string $reasonCode, string $reasonText, ?CarbonInterface $until = null): Transaction
+    {
+        return $this->tellMember($this->holdInner($transaction, $admin, $reasonCode, $reasonText, $until));
+    }
+
+    private function holdInner(Transaction $transaction, User|int $admin, string $reasonCode, string $reasonText, ?CarbonInterface $until = null): Transaction
     {
         $adminId = $admin instanceof User ? $admin->id : $admin;
         $this->assertReason($reasonCode, $reasonText);
@@ -619,5 +634,27 @@ final class TransferService
         if (! ReasonCode::where('code', $code)->exists()) {
             throw TransferException::because('reason_required', 'Choose a valid reason code.');
         }
+    }
+
+    /** One short email when staff decide on a request. No amounts and no reasons travel by email: the member signs in for those. */
+    private function tellMember(Transaction $tx): Transaction
+    {
+        $label = $tx->type->memberLabel();
+        $phone = brand('support_phone');
+        $notice = match ($tx->status) {
+            TransactionStatus::Completed => ['Your '.$label.' was approved', ['We approved your '.$label.'.', 'Sign in to online banking to see it in your activity.']],
+            TransactionStatus::Rejected, TransactionStatus::Failed => ['We could not complete your '.$label, ['We were not able to complete your '.$label.'.', 'Sign in to online banking for details, or call Customer Care at '.$phone.'.']],
+            TransactionStatus::Held => ['We are reviewing your '.$label, ['Our team is reviewing your '.$label.'. This sometimes takes a little longer.', 'You do not need to do anything. We will email you when there is a decision.']],
+            default => null,
+        };
+        if ($notice === null) {
+            return $tx;
+        }
+        $account = $tx->fromAccount ?: $tx->toAccount;
+        foreach ($account?->users ?? [] as $holder) {
+            \App\Notifications\MemberNotice::send($holder, $notice[0], $notice[1], 'Open online banking', route('activity'));
+        }
+
+        return $tx;
     }
 }

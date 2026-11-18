@@ -37,4 +37,19 @@ enum TransactionType: string
     {
         return in_array($this, [self::WireOut], true);
     }
+
+    /** How an email names this kind of request, for example "your wire transfer". */
+    public function memberLabel(): string
+    {
+        return match ($this) {
+            self::Deposit => 'deposit',
+            self::WireOut => 'wire transfer',
+            self::AchOut => 'bank transfer',
+            self::Withdrawal => 'withdrawal',
+            self::BillPayment => 'bill payment',
+            self::CardPurchase => 'card purchase',
+            self::Transfer, self::MemberTransfer, self::OverdraftTransfer => 'transfer',
+            default => 'request',
+        };
+    }
 }

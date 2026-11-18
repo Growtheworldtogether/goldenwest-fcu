@@ -48,7 +48,6 @@ class MemberNotice extends Notification
             $mail->action($this->actionText, $this->actionUrl);
         }
 
-        return $mail->line(brand('short_name').' will never ask for your password or a one-time code by email, phone or text.')
-            ->salutation('The '.brand('short_name').' team');
+        return $mail->salutation('The '.brand('short_name').' team');
     }
 }

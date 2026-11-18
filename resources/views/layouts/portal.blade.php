@@ -63,6 +63,7 @@
         ['admin.inquiries.index', 'Inquiries', 'inbox', ['admin.inquiries.*'], 'staff.answerInquiries'],
         ['admin.audit', 'Audit log', 'audit', ['admin.audit'], 'staff.viewAudit'],
         ['admin.branding', 'Branding', 'palette', ['admin.branding*'], 'staff.editSite'],
+        ['admin.emails', 'Emails', 'inbox', ['admin.emails*'], 'staff.editSite'],
         ['admin.site.index', 'Site content', 'pages', ['admin.site.*'], 'staff.editSite'],
         ['admin.settings', 'Settings', 'settings', ['admin.settings*'], 'staff.manageAdmin'],
         ['admin.security', 'My security', 'security', ['admin.security'], null],

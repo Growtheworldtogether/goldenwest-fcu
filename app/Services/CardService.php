@@ -51,6 +51,14 @@ final class CardService
 
     public function decide(Card $card, User $staff, bool $approve, ?string $reasonCode = null, ?string $reasonText = null): Card
     {
+        $card = $this->decideInner($card, $staff, $approve, $reasonCode, $reasonText);
+        \App\Notifications\MemberNotice::send($card->user, $approve ? 'Your card request was approved' : 'Update on your card request', $approve ? ['Your new card is ready. Sign in to online banking to see it and start using it.'] : ['We could not approve your card request.', 'Sign in to online banking for details, or call Customer Care at '.brand('support_phone').'.'], 'Open online banking', route('card.show'));
+
+        return $card;
+    }
+
+    private function decideInner(Card $card, User $staff, bool $approve, ?string $reasonCode = null, ?string $reasonText = null): Card
+    {
         if ($card->status !== 'requested') {
             throw new InvalidArgumentException('This request was already decided.');
         }
@@ -196,6 +204,7 @@ final class CardService
             $order->update($approve ? ['status' => 'shipped', 'shipped_at' => now()] : ['status' => 'rejected', 'decline_note' => $reasonText]);
             Audit::record($approve ? 'card.physical_shipped' : 'card.physical_rejected', $order->card, null, ['reason' => $reasonCode], $staff->id);
         });
+        \App\Notifications\MemberNotice::send($order->user, $approve ? 'Your physical card is on its way' : 'Update on your physical card order', $approve ? ['We are sending your physical card. It usually arrives within a week or two.'] : ['We could not send a physical card for this order.', 'Sign in to online banking for details, or call Customer Care at '.brand('support_phone').'.'], 'Open online banking', route('card.show'));
     }
 
     /** A merchant asks for an authorization. The hold is made, or the attempt is recorded as declined. */

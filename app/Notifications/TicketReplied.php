@@ -26,7 +26,6 @@ class TicketReplied extends Notification
             ->line('We replied to your support request '.$this->ticket->reference.'.')
             ->line('For your security we do not put the message in this email. Sign in to online banking to read it.')
             ->action('Read the reply', route('tickets.show', $this->ticket->reference))
-            ->line(brand('short_name').' will never ask for your password or a one-time code by email, phone or text.')
             ->salutation('The '.brand('short_name').' team');
     }
 }

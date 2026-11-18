@@ -551,3 +551,21 @@ Dashboard cards now sit in shared grid rows (`.dashgrid` with `.mcell`): Deposit
 Card alignment sweep: a script checks every page at 1024, 1280 and 1440 px for cards that sit side by side with slightly different tops or bottoms. Fixed from it: Insights now uses shared rows like the dashboard; `.cols` grids stretch cards to equal height (Verification, Borrow); the Deposits option cards use their own `.choicegrid` class, because the join form's `.choice` style was overriding them.
 
 Full-data layout sweep: with demo data loaded (transactions, loans, a line of credit, wires, a card, goals, a bill, deposits, business profiles, tickets), a crawler visited 297 pages (member, second member, staff) and the phone and desktop checks were rerun. Fixed: Beneficiaries table stacks with labels on phones (`.dtable.stackl`); stat strips shrink and go single column on small phones; grid minimums use `min(..., 100%)` so Goals, Loans and `.cols` fit 320 px; Insights category select fits; admin editor buttons are 40 px tall on phones. `public/js/align-columns.js` (loaded by the portal layout) snaps side-by-side cards in two-column pages (account, card, ticket, loan application, admin member) to the same top and, when close, the same bottom.
+
+## 10y. Email (as built)
+
+All email shares one layout (`resources/views/vendor/mail`, with `App\Support\MailBrand`). Nothing about the credit union is written into a template: the header logo or name, button and link colours, support phone, hours and email, optional footer text and the "we will never ask for your password" line all come from the Branding settings, so a rebrand changes every email. The From name is the Sender name and the From address is the Support email, unless `MAIL_FROM_ADDRESS` is set.
+
+Emails sent (no amounts, balances or reasons ever travel by email; the member signs in for details):
+- Confirm your email address, Reset your password (worded to match; both use the layout).
+- Welcome (when the email is confirmed).
+- Security notices, always sent: password changed, password reset, contact details changed, account restricted, restriction removed, new sign-in.
+- ID or address document approved or rejected; business request received; business accounts open.
+- A transfer, deposit or wire put under review, approved, or not completed.
+- Card request and physical card decisions.
+- Loan application needs information, decision, approved; joint account notices; crypto status; support ticket reply; terms update.
+Activity emails follow the member's "Deposits, transfers and payments" email preference; security notices ignore it.
+
+Staff with site access can open Admin > Emails to preview the main emails with the current branding and send themselves a test. `php artisan mail:test someone@example.com` does the same from the command line.
+
+Sending uses SMTP2GO over plain SMTP (`MAIL_MAILER=smtp`, host `mail.smtp2go.com`, port 2525; see `.env.example`). The support email must be a verified sender in SMTP2GO. `APP_URL` must be the real public address so the logo and links work.

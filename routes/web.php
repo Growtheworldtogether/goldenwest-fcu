@@ -240,6 +240,9 @@ Route::middleware(['auth', 'staff', 'throttle:staff'])->prefix('admin')->name('a
     Route::post('/inquiries/{inquiry}/handle', [Admin\InquiryController::class, 'handle'])->whereNumber('inquiry')->name('inquiries.handle');
     Route::get('/branding', [Admin\BrandingController::class, 'edit'])->name('branding');
     Route::put('/branding', [Admin\BrandingController::class, 'update'])->name('branding.update');
+    Route::get('/emails', [Admin\EmailPreviewController::class, 'index'])->name('emails');
+    Route::get('/emails/preview/{key}', [Admin\EmailPreviewController::class, 'show'])->name('emails.show');
+    Route::post('/emails/test', [Admin\EmailPreviewController::class, 'test'])->middleware('throttle:5,1')->name('emails.test');
     Route::get('/site', [Admin\SiteContentController::class, 'index'])->name('site.index');
     Route::get('/site/{page}', [Admin\SiteContentController::class, 'edit'])->name('site.edit');
     Route::put('/site/{page}/draft', [Admin\SiteContentController::class, 'saveDraft'])->name('site.draft');

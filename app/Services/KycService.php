@@ -39,6 +39,21 @@ final class KycService
 
     public function decide(KycDocument $doc, User $staff, bool $approve, ?string $reasonCode = null, ?string $reasonText = null): KycDocument
     {
+        $doc = $this->decideInner($doc, $staff, $approve, $reasonCode, $reasonText);
+        $label = strtolower(KycDocument::TYPES[$doc->type] ?? 'document');
+        if ($approve && $doc->type === 'business_document') {
+            return $doc; // the business accounts email covers it
+        }
+        $lines = $approve
+            ? ['We approved your '.$label.'. Thank you.'] + ($doc->user->kyc_status === 'verified' ? [1 => 'Your identity is now verified, so every feature of online banking is available.'] : [])
+            : ['We could not accept your '.$label.'.', 'Sign in to online banking to see what to do next and send a new one.'];
+        \App\Notifications\MemberNotice::send($doc->user, $approve ? 'We approved your '.$label : 'We could not accept your '.$label, $lines, 'Open verification', route('kyc.show'), true);
+
+        return $doc;
+    }
+
+    private function decideInner(KycDocument $doc, User $staff, bool $approve, ?string $reasonCode = null, ?string $reasonText = null): KycDocument
+    {
         if ($doc->status !== 'pending') {
             throw ValidationException::withMessages(['action' => 'This document has already been reviewed.']);
         }

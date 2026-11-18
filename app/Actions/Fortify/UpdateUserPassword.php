@@ -19,5 +19,6 @@ class UpdateUserPassword implements UpdatesUserPasswords
 
         $user->forceFill(['password' => $input['password']])->save();
         Audit::record('password.changed', $user, null, null, $user->id);
+        \App\Notifications\MemberNotice::send($user, 'Your password was changed', ['The password for your online banking was just changed.', 'If you made this change, you do not need to do anything. If you did not, call Customer Care right away at '.brand('support_phone').'.'], null, null, true);
     }
 }

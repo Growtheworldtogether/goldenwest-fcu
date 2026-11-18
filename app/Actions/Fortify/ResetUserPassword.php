@@ -18,5 +18,6 @@ class ResetUserPassword implements ResetsUserPasswords
 
         $user->forceFill(['password' => $input['password']])->save();
         Audit::record('password.reset', $user, null, null, $user->id);
+        \App\Notifications\MemberNotice::send($user, 'Your password was reset', ['The password for your online banking was just reset.', 'If you made this change, you do not need to do anything. If you did not, call Customer Care right away at '.brand('support_phone').'.'], null, null, true);
     }
 }
