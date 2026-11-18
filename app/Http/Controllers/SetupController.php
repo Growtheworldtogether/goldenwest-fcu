@@ -6,7 +6,7 @@ use App\Services\Brand;
 use App\Support\Installer;
 use App\Support\Routing;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
@@ -68,17 +68,19 @@ class SetupController extends Controller
         if (! Installer::keyRequired($request)) {
             return null;
         }
-        $limit = 'setup-key:'.$request->ip();
-        if (RateLimiter::tooManyAttempts($limit, 5)) {
-            throw ValidationException::withMessages(['key' => 'Too many tries. Wait '.ceil(RateLimiter::availableIn($limit) / 60).' minutes, then try again.']);
+        // Counted in the file cache: there is no database yet while setup runs. (Tests use the default store.)
+        $cache = Cache::store(app()->runningUnitTests() ? null : 'file');
+        $limit = 'setup-key:'.sha1((string) $request->ip());
+        $tries = (int) $cache->get($limit, 0);
+        if ($tries >= 5) {
+            throw ValidationException::withMessages(['key' => 'Too many tries. Wait 15 minutes, then try again.']);
         }
         $request->validate(['key' => ['required', 'string']]);
         if (! hash_equals(Installer::key(), strtoupper(trim((string) $request->input('key'))))) {
-            RateLimiter::hit($limit, 900);
+            $cache->put($limit, $tries + 1, 900);
             throw ValidationException::withMessages(['key' => 'That is not the key in the file. Open the file on the server and copy it exactly.']);
         }
-
-        RateLimiter::clear($limit);
+        $cache->forget($limit);
 
         return null;
     }
