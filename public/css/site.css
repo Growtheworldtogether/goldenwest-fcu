@@ -950,3 +950,12 @@ details.more .filters { margin: .75rem 0 0; }
 @media (max-width: 420px) { .choice:has(> .choicecard) { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 340px) { .dtable th, .dtable td { padding: .7rem .4rem; } .dtable .num { font-size: .9375rem; } }
 @media (max-width: 340px) { .dtable.accts td.go, .dtable.accts th:last-child { display: none; } }
+
+/* Dashboard: cards in a row share top and bottom edges */
+.dashgrid { align-items: stretch; row-gap: 0; }
+.dashgrid .mcell { display: flex; flex-direction: column; min-width: 0; }
+.dashgrid .mcell > .panel-card { flex: 1; margin: 0; }
+.dashgrid .mcell > .table-title { margin-top: 2rem; }
+@media (max-width: 960px) { .dashgrid > .mcell:nth-child(2) { order: 3; margin-top: 1.25rem; } .dashgrid > .mcell:nth-child(4) { margin-top: 0; } }
+.dashgrid .table-title { min-height: 2.25rem; }
+@media (max-width: 960px) { .dashgrid > .mcell:nth-child(4) { order: 4; } }

@@ -545,3 +545,5 @@ Fixed from it:
 - Search rows (admin tickets) put the field on its own full-width line.
 - Header logo shrinks under 400 px so the Menu button is not cut off.
 - Deposits option cards and the dashboard accounts table fit 320 px screens.
+
+Dashboard cards now sit in shared grid rows (`.dashgrid` with `.mcell`): Deposit accounts beside Quick links, then Recent activity beside a Need help card. Cards in a row share top and bottom edges. On phones the order is accounts, activity, quick links, help.

@@ -41,8 +41,8 @@
     </div>
 @endforeach
 
-<div class="mgrid">
-<div class="mmain">
+<div class="mgrid dashgrid">
+<div class="mcell">
     <div class="panel-card flush">
         <div class="grouphead"><h2>Deposit accounts</h2><span>Total balance <b>{{ $total->format() }}</b></span></div>
         <table class="dtable accts">
@@ -59,7 +59,22 @@
             </tbody>
         </table>
     </div>
+</div>
 
+<div class="mcell">
+    <div class="panel-card flush">
+        <h2 class="railhead">Quick links</h2>
+        <ul class="qlinks">
+            <li><a href="{{ route('transfers.create') }}">Transfer money</a></li>
+            <li><a href="{{ route('accounts.create') }}">Open an account</a></li>
+            <li><a href="{{ route('activity') }}">Search and download activity</a></li>
+            <li><a href="{{ route('security.settings') }}">Security center</a></li>
+            <li><a href="{{ route('profile') }}">Profile and alerts</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="mcell">
     <div class="table-title"><h2>Recent activity</h2><a class="plink" href="{{ route('activity') }}">View all activity</a></div>
     <div class="panel-card flush">
         @if (count($recent))
@@ -82,20 +97,11 @@
     </div>
 </div>
 
-<aside class="mside">
-    <div class="panel-card flush">
-        <h2 class="railhead">Quick links</h2>
-        <ul class="qlinks">
-            <li><a href="{{ route('transfers.create') }}">Transfer money</a></li>
-            <li><a href="{{ route('accounts.create') }}">Open an account</a></li>
-            <li><a href="{{ route('activity') }}">Search and download activity</a></li>
-            <li><a href="{{ route('security.settings') }}">Security center</a></li>
-            <li><a href="{{ route('profile') }}">Profile and alerts</a></li>
-        </ul>
-    </div>
+<div class="mcell">
+    <div class="table-title"><h2>Need help?</h2></div>
     <div class="panel-card flush">
         <div class="railnote"><b>Customer Care</b>{{ brand('support_phone') }}<br>Mon-Fri 7am - 8pm PT<br>Sat 8am - 5pm PT</div>
     </div>
-</aside>
+</div>
 </div>
 @endsection
