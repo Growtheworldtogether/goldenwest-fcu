@@ -127,7 +127,7 @@ it('refuses a debit adjustment that would take an account below zero', function 
     expect($checking->refresh()->balance->cents)->toBe(1_000);
 });
 
-it('caps what a Manager can adjust and lets a Super Admin go further with a second approver', function () {
+it('caps what a Manager can adjust, and a Super Admin\'s adjustment goes straight through', function () {
     [$member, $checking] = verifiedMember();
     $payload = fn () => ['token' => (string) Str::ulid(), 'account_id' => $checking->id, 'direction' => 'credit', 'amount' => '6000.00', 'description' => 'Correction', 'reason_code' => 'error_correction', 'note' => 'n'];
 
@@ -136,13 +136,7 @@ it('caps what a Manager can adjust and lets a Super Admin go further with a seco
     $super = makeStaff('Super Admin', name: 'Alexandra Reyes');
     $this->actingAs($super)->post("/admin/members/{$member->id}/adjustments", $payload())->assertRedirect();
     $tx = Transaction::latest('id')->first();
-    expect($tx->status->value)->toBe('pending')->and($checking->refresh()->balance->cents)->toBe(0);
-
-    $this->actingAs($super)->post("/admin/queue/{$tx->reference}/approve");
-    expect($tx->refresh()->status->value)->toBe('pending');
-
-    $this->actingAs(makeStaff('Compliance', name: 'Rachel Kim'))->post("/admin/queue/{$tx->reference}/approve");
-    expect($tx->refresh()->status->value)->toBe('completed')->and($checking->refresh()->balance->cents)->toBe(600_000);
+    expect($tx->status->value)->toBe('completed')->and($checking->refresh()->balance->cents)->toBe(600_000);
 });
 
 it('shows audit entries with filters and has no way to change them', function () {

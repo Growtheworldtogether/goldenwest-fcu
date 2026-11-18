@@ -27,6 +27,17 @@ final class StaffDirectory
         app(PermissionRegistrar::class)->forgetCachedPermissions();
     }
 
+    /** A Super Admin's own actions, and actions taken while acting as a member, are never held for staff review. */
+    public static function isSuperAdmin(User|int|null $user): bool
+    {
+        if ($user === null) {
+            return false;
+        }
+        $user = $user instanceof User ? $user : User::find($user);
+
+        return $user !== null && $user->hasRole('Super Admin');
+    }
+
     public static function assign(User $user, string $title): void
     {
         self::sync();

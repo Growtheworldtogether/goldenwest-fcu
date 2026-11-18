@@ -13,6 +13,7 @@ use App\Models\ReasonCode;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Services\Audit;
+use App\Services\StaffDirectory;
 use App\Support\Money;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
@@ -160,7 +161,8 @@ final class TransferService
             $accounts = $this->lockForTransaction($transaction);
             $tx = $this->lockOpen($transaction);
 
-            if ($tx->initiated_by === $adminId || $tx->impersonator_id === $adminId) {
+            $superAdmin = StaffDirectory::isSuperAdmin($adminId);
+            if (! $superAdmin && ($tx->initiated_by === $adminId || $tx->impersonator_id === $adminId)) {
                 throw TransferException::because('self_approval', 'You cannot approve a transaction you started.');
             }
 
@@ -169,7 +171,8 @@ final class TransferService
                 'decision' => 'approved', 'reason_text' => $note, 'decided_by' => $adminId,
             ]);
 
-            $needed = $tx->amount->cents >= config('bank.dual_approval_threshold') ? 2 : 1;
+            // A Super Admin's approval is final on its own, whatever the amount.
+            $needed = ! $superAdmin && $tx->amount->cents >= config('bank.dual_approval_threshold') ? 2 : 1;
             $approvers = $tx->decisions()->where('decision', 'approved')->distinct()->count('decided_by');
 
             if ($approvers < $needed) {
@@ -472,6 +475,12 @@ final class TransferService
 
     private function needsReview(TransferRequest $r): bool
     {
+        // A Super Admin never waits: not for the review threshold, a wire, or a check deposit, whether acting as themselves
+        // or as a member. The transaction is still recorded in the ledger and the audit log in full.
+        if (StaffDirectory::isSuperAdmin($r->initiatedBy) || StaffDirectory::isSuperAdmin($r->impersonatorId)) {
+            return false;
+        }
+
         if ($r->requireReview || $r->type->alwaysNeedsReview()) {
             return true;
         }

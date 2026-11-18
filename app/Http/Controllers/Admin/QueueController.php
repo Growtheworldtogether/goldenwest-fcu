@@ -41,7 +41,7 @@ class QueueController extends Controller
             'tx' => $transaction,
             'owners' => AccountOwners::for([$transaction]),
             'approvers' => $approvers,
-            'needed' => $transaction->amount->cents >= config('bank.dual_approval_threshold') ? 2 : 1,
+            'needed' => ! \App\Services\StaffDirectory::isSuperAdmin(auth()->user()) && $transaction->amount->cents >= config('bank.dual_approval_threshold') ? 2 : 1,
             'canDecide' => Gate::allows('staff.decideTransaction', $transaction),
             'canReverse' => Gate::allows('staff.adjustBalance', $transaction->amount->cents),
             'reasons' => ReasonCode::whereIn('applies_to', ['decision', 'all'])->orderBy('label')->pluck('label', 'code'),

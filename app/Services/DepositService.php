@@ -107,7 +107,7 @@ final class DepositService
         }
 
         $holder = AccountHolder::where('account_id', $account->id)->where('status', 'active')->orderBy('id')->value('user_id');
-        $big = $amount->cents >= config('bank.cash_review_threshold');
+        $big = $amount->cents >= config('bank.cash_review_threshold') && ! StaffDirectory::isSuperAdmin($teller);
 
         $tx = $this->ledger->execute(new TransferRequest(
             type: TransactionType::Deposit,
