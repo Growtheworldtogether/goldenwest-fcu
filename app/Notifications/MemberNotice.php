@@ -26,7 +26,7 @@ class MemberNotice extends Notification
 
     public static function send(?User $member, string $subject, array $lines, ?string $actionText = null, ?string $actionUrl = null, bool $security = false): void
     {
-        if ($member && $member->email && $member->status !== 'deceased') {
+        if ($member && $member->email && ! in_array($member->status, ['deceased', 'closed'], true)) {
             $member->notify(new self($subject, $lines, $actionText, $actionUrl, $security));
         }
     }

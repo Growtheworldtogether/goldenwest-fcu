@@ -21,6 +21,7 @@
         @can('staff.canAdjust')<button type="button" class="btn-s plain" data-open="dlg-adjust">Adjust balance</button>@if ($emptyAccounts->isNotEmpty()) <button type="button" class="btn-s plain" data-open="dlg-history">Add account history</button>@endif @endcan
         @if ($member->status !== 'deceased')@can('staff.lockAccounts')<button type="button" class="btn-s plain" data-open="dlg-deceased">Mark as deceased</button>@endcan @endif
         @can('staff.lockAccounts')<button type="button" class="btn-s plain" data-open="dlg-lock">Lock</button>@endcan
+        @if ($member->status !== 'closed')@can('staff.manageAdmin')<button type="button" class="btn-s plain" data-open="dlg-remove">Delete member</button>@endcan @endif
     </div>
 </div>
 @endsection
@@ -252,6 +253,16 @@
         <label>Amount<input name="amount" inputmode="decimal" placeholder="0.00" required></label>
         <label>Note (optional)<input name="note" maxlength="200"></label>
         <button type="submit" class="gold">Record deposit</button>
+    </form></dialog>
+@endcan
+@can('staff.manageAdmin')
+@php($removePlan = app(\App\Services\MemberRemoval::class)->plan($member))
+<dialog id="dlg-remove"><div class="dh"><h3>Delete member</h3><button type="button" class="x" data-close aria-label="Close">&times;</button></div>
+    <form class="sform" method="post" action="{{ route('admin.members.remove', $member) }}">@csrf
+        <p class="fine" style="margin:0">@if ($removePlan === 'erase')This member has never used their account, so they and everything saved for them will be erased for good.@else This member has account history, so they will be closed instead: sign in off, personal details wiped, accounts closed. The money records stay under the name "Closed member {{ $member->member_number }}".@endif This cannot be undone. The balance must be zero and any loan paid off.</p>
+        <label>Why is this member being removed?<textarea name="reason" rows="2" maxlength="500" required></textarea></label>
+        <label>Type the member number, {{ $member->member_number }}, to confirm<input name="member_number" autocomplete="off" required></label>
+        <button type="submit">{{ $removePlan === 'erase' ? 'Erase member' : 'Close member' }}</button>
     </form></dialog>
 @endcan
 @can('staff.lockAccounts')

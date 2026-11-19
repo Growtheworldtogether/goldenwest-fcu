@@ -38,7 +38,7 @@ class FortifyServiceProvider extends ServiceProvider
         // The default check, plus: a member recorded as deceased can no longer sign in.
         Fortify::authenticateUsing(function (Request $request) {
             $user = \App\Models\User::where(Fortify::username(), $request->input(Fortify::username()))->first();
-            if ($user && \Illuminate\Support\Facades\Hash::check((string) $request->input('password'), $user->password) && $user->status !== 'deceased'
+            if ($user && \Illuminate\Support\Facades\Hash::check((string) $request->input('password'), $user->password) && ! in_array($user->status, ['deceased', 'closed'], true)
                 && ! $user->locked_until?->isFuture()) {
                 return $user;
             }

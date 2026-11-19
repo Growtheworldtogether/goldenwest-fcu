@@ -609,3 +609,11 @@ A transaction started by a Super Admin, or by a member while a Super Admin is ac
 - Existing members are asked to set their questions at their next sign in. Staff are never forced; if a staff member sets questions they are asked like a member.
 - A Super Admin turns the feature on or off in Admin > Settings. Off asks nothing and keeps saved answers. Members change their questions on the Security page after confirming their password.
 - Config: `config/security.php`. Tables: `user_security_answers`, `login_ips`; `users.security_last_question`.
+
+### 10af. Deleting a member
+
+- Super Admin only, from the member page (Delete member). Needs the password again, a reason, and the member number typed in.
+- A member who never used their account (no transactions, loans, cards, crypto, wires, deposits, bill payments, tickets or staff visits) is erased completely, with their accounts, profile and documents. Audit rows stay and only lose the link to the user (`audit_logs.actor_id` and `impersonator_id` are `nullOnDelete`).
+- Anyone else is closed: sign in off, personal details wiped, accounts closed, cards cancelled; the transaction records stay under "Closed member <number>".
+- Refused while an account has money or a hold, a loan is not paid off, a crypto wallet has a balance, a transaction awaits review, or an account is shared with another holder. Staff accounts are never removed here.
+- If an erase hits anything still linked to the member, it is rolled back and the member is closed instead.

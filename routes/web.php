@@ -229,6 +229,7 @@ Route::middleware(['auth', 'staff', 'throttle:staff'])->prefix('admin')->name('a
     Route::get('/joint', [Admin\JointController::class, 'index'])->name('joint.index');
     Route::post('/joint/{req:reference}/decide', [Admin\JointController::class, 'decide'])->name('joint.decide');
     Route::post('/members/{user}/joint/remove', [Admin\JointController::class, 'remove'])->whereNumber('user')->name('joint.remove');
+    Route::post('/members/{user}/remove', [Admin\MemberRemovalController::class, 'destroy'])->middleware(['password.confirm', 'throttle:5,1'])->whereNumber('user')->name('members.remove');
     Route::post('/members/{user}/deceased', [Admin\JointController::class, 'deceased'])->whereNumber('user')->name('deceased');
     Route::get('/crypto', [Admin\CryptoController::class, 'index'])->name('crypto.index');
     Route::post('/crypto/sends/{tx:reference}', [Admin\CryptoController::class, 'decideSend'])->name('crypto.send.decide');
