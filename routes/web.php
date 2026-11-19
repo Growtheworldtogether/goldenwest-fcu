@@ -182,6 +182,13 @@ Route::middleware(['auth', 'verified', 'member.area', 'throttle:portal'])->group
 
 // Private files: check images and identity documents. The controller decides who may see each one.
 Route::middleware('auth')->group(function () {
+    Route::get('/security-check', [Portal\SecurityQuestionController::class, 'check'])->name('security.check');
+    Route::post('/security-check', [Portal\SecurityQuestionController::class, 'verify'])->middleware('throttle:20,1')->name('security.check.verify');
+    Route::post('/security-check/resend', [Portal\SecurityQuestionController::class, 'resend'])->middleware('throttle:5,1')->name('security.check.resend');
+    Route::get('/security-questions/setup', [Portal\SecurityQuestionController::class, 'setup'])->name('security.questions.setup');
+    Route::post('/security-questions/setup', [Portal\SecurityQuestionController::class, 'save'])->middleware('throttle:10,1')->name('security.questions.setup.save');
+    Route::get('/security-questions', [Portal\SecurityQuestionController::class, 'setup'])->middleware('password.confirm')->name('security.questions.edit');
+    Route::post('/security-questions', [Portal\SecurityQuestionController::class, 'save'])->middleware(['password.confirm', 'throttle:10,1'])->name('security.questions.update');
     Route::get('/files/check/{deposit}/{side}', [FileController::class, 'check'])->whereNumber('deposit')->name('files.check');
     Route::get('/files/ticket/{attachment}', [FileController::class, 'ticket'])->whereNumber('attachment')->name('files.ticket');
     Route::get('/files/kyc/{document}', [FileController::class, 'kyc'])->whereNumber('document')->name('files.kyc');

@@ -600,3 +600,12 @@ A transaction started by a Super Admin, or by a member while a Super Admin is ac
 - A Super Admin's own decision is never blocked by the rule that stops staff deciding on a request they made or that involves them (crypto and joint accounts).
 - The member's Security page does not list a Super Admin's access. Other staff access is still listed. The staff audit log records every case.
 - Limits, balance checks and the audit trail are unchanged.
+
+### 10ae. Wire limits and security questions
+
+- **Wires:** an outgoing wire has no per-transaction cap and no daily limit, and it does not count toward the daily limit of other transfers. The balance check and the staff review and second-approver rules still apply.
+- **Security questions:** a member picks 3 of 15 questions at registration (answers stored hashed after lower-casing and dropping punctuation). After the password, one of the 3 is asked at random, never the one asked at the previous sign in. Five wrong answers pause the sign in for 15 minutes.
+- **Unusual sign in** (new device, new network, or 3 or more wrong passwords in the last hour) also needs a 6-digit code emailed to the member (valid 10 minutes). The first sign in ever is not unusual.
+- Existing members are asked to set their questions at their next sign in. Staff are never forced; if a staff member sets questions they are asked like a member.
+- A Super Admin turns the feature on or off in Admin > Settings. Off asks nothing and keeps saved answers. Members change their questions on the Security page after confirming their password.
+- Config: `config/security.php`. Tables: `user_security_answers`, `login_ips`; `users.security_last_question`.

@@ -52,6 +52,7 @@ class CreateNewUser implements CreatesNewUsers
             ...\App\Support\BusinessRules::rules('required_if:open_business,1'),
             'password' => ['required', 'confirmed', Password::min(12)->mixedCase()->numbers()],
             'terms' => ['accepted'],
+            ...$this->questionRules(),
         ], [
             'dob.before_or_equal' => 'You must be at least 18 to open an account.',
             'eligibility_state.required_unless' => 'Choose the state that connects you to '.brand('short_name').'.',
@@ -67,6 +68,8 @@ class CreateNewUser implements CreatesNewUsers
             'address_document.max' => 'The file must be 8 MB or smaller.',
             'id_document.uploaded' => 'That file could not be uploaded. Try a smaller one.',
             'address_document.uploaded' => 'That file could not be uploaded. Try a smaller one.',
+            'question_1.required' => 'Choose your security questions and answer each one.', 'question_2.required' => 'Choose your security questions and answer each one.', 'question_3.required' => 'Choose your security questions and answer each one.',
+            'answer_1.required' => 'Answer each security question.', 'answer_2.required' => 'Answer each security question.', 'answer_3.required' => 'Answer each security question.',
             'terms.accepted' => 'Please agree to the Terms of Use and Privacy notice.',
         ])->validate();
 
@@ -117,9 +120,33 @@ class CreateNewUser implements CreatesNewUsers
                 }
             }
 
+            if (\App\Services\SecurityQuestions::enabled()) {
+                $pairs = [];
+                foreach ([1, 2, 3] as $i) {
+                    $pairs[$input["question_$i"]] = $input["answer_$i"];
+                }
+                app(\App\Services\SecurityQuestions::class)->save($user, $pairs);
+            }
+
             Audit::record('member.registered', $user, null, ['member_number' => $user->member_number], $user->id);
 
             return $user;
         });
+    }
+
+    /** Three questions and answers, while the feature is on. */
+    private function questionRules(): array
+    {
+        if (! \App\Services\SecurityQuestions::enabled()) {
+            return [];
+        }
+        $keys = array_keys(\App\Services\SecurityQuestions::questions());
+        $rules = [];
+        foreach ([1, 2, 3] as $i) {
+            $rules["question_$i"] = ['required', Rule::in($keys)];
+            $rules["answer_$i"] = ['required', 'string', 'max:120'];
+        }
+
+        return $rules;
     }
 }

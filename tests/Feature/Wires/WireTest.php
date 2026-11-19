@@ -243,3 +243,19 @@ it('shows staff the wire details and keeps them from other members', function ()
     $this->actingAs(makeStaff('Manager'))->get("/admin/queue/{$tx->reference}")->assertOk()->assertSee('Wire details')->assertSee('100 Main St, Reno, NV 89501')->assertSee('021000021')->assertSee('ending 5544')->assertDontSee('998877665544')->assertSee('Harbor Bank');
     $this->actingAs($other)->get("/transactions/{$tx->reference}")->assertForbidden();
 });
+
+it('has no wire limit: a wire over the usual caps goes to review, and does not use up the daily limit', function () {
+    config(['bank.default_daily_limit' => 1_000_000, 'bank.per_transaction_limit' => 2_500_000]);
+    [$member, $checking] = wireMember(9_000_000);
+
+    sendWire($member, $checking, '40000.00')->assertSessionHasNoErrors();
+    expect(Transaction::where('type', 'wire_out')->count())->toBe(1);
+
+    // The wire does not count toward the daily limit of other transfers.
+    [, , $savings] = [null, null, $member->accounts()->where('accounts.id', '!=', $checking->id)->first()];
+    $r = app(App\Services\Ledger\TransferService::class)->execute(new App\Services\Ledger\TransferRequest(
+        type: App\Enums\TransactionType::Transfer, amount: Money::cents(500_000), idempotencyKey: 'x:'.uniqid(),
+        fromAccountId: $checking->id, toAccountId: $savings->id, initiatedBy: $member->id,
+    ));
+    expect($r->status->value)->not->toBe('failed');
+});

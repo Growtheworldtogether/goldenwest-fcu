@@ -13,6 +13,10 @@
         <label class="chk" style="display:flex;gap:.6rem;align-items:flex-start;font-weight:700;color:var(--navy)"><input type="checkbox" name="impersonation_allow_money_actions" value="1" @checked($moneyActions) style="margin-top:.3rem"><span>Allow money actions<small style="display:block;font-weight:400;color:var(--muted)">Staff acting as a member can move money. Each one still asks for the staff member's own two-step code or password.</small></span></label>
     </div>
     <div>
+        <h2 style="margin:0 0 .6rem">Security questions</h2>
+        <label class="chk" style="display:flex;gap:.6rem;align-items:flex-start;font-weight:700;color:var(--navy)"><input type="checkbox" name="security_questions" value="1" @checked($securityQuestions)> <span>Ask members a security question every time they sign in<small style="display:block;font-weight:400;color:var(--muted)">Members choose three questions when they join, and one is asked at random each sign in. A sign in from a new device or network also needs a code sent to their email. Turn off to stop asking; answers already saved are kept.</small></span></label>
+    </div>
+    <div>
         <h2 style="margin:0 0 .6rem">Branding and site content</h2>
         <label class="chk" style="display:flex;gap:.6rem;align-items:flex-start;font-weight:700;color:var(--navy)"><input type="checkbox" name="managers_edit_site" value="1" @checked($managersEditSite) style="margin-top:.3rem"><span>Managers can edit branding and public pages<small style="display:block;font-weight:400;color:var(--muted)">Super Admin can always do this. Turn this on to let Managers do it too.</small></span></label>
     </div>

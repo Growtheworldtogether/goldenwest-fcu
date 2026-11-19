@@ -134,6 +134,24 @@
             <li data-rule="match">Both entries match</li>
         </ul>
         <label class="check"><input type="checkbox" id="showpw"> <span>Show password</span></label>
+        @if (\App\Services\SecurityQuestions::enabled())
+        <p class="fine" style="margin:1rem 0 0"><strong>Security questions.</strong> Each time you sign in we ask one of these, so pick answers only you know. Answers are not case sensitive.</p>
+        @error('questions')<span class="err">{{ $message }}</span>@enderror
+        @foreach ([1, 2, 3] as $i)
+        <div class="row">
+            <label>Question {{ $i }}
+                <select name="question_{{ $i }}" required>
+                    <option value="">Choose a question</option>
+                    @foreach (\App\Services\SecurityQuestions::questions() as $key => $text)
+                    <option value="{{ $key }}" @selected(old('question_'.$i) === $key)>{{ $text }}</option>
+                    @endforeach
+                </select>
+                @error('question_'.$i)<span class="err">{{ $message }}</span>@enderror
+            </label>
+            <label>Your answer<input type="password" name="answer_{{ $i }}" required autocomplete="off">@error('answer_'.$i)<span class="err">{{ $message }}</span>@enderror</label>
+        </div>
+        @endforeach
+        @endif
     </fieldset>
 
     <fieldset class="step" data-step="7" data-title="Review">

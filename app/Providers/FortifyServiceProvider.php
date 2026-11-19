@@ -38,7 +38,8 @@ class FortifyServiceProvider extends ServiceProvider
         // The default check, plus: a member recorded as deceased can no longer sign in.
         Fortify::authenticateUsing(function (Request $request) {
             $user = \App\Models\User::where(Fortify::username(), $request->input(Fortify::username()))->first();
-            if ($user && \Illuminate\Support\Facades\Hash::check((string) $request->input('password'), $user->password) && $user->status !== 'deceased') {
+            if ($user && \Illuminate\Support\Facades\Hash::check((string) $request->input('password'), $user->password) && $user->status !== 'deceased'
+                && ! $user->locked_until?->isFuture()) {
                 return $user;
             }
 
@@ -58,9 +59,7 @@ class FortifyServiceProvider extends ServiceProvider
             }
             $e->user->forceFill(['last_login_at' => now()])->saveQuietly();
             Audit::record('login.success', $e->user, null, null, $e->user->id);
-            if (! $e->user->isAdmin()) {
-                \App\Services\DeviceWatch::seen($e->user, request());
-            }
+            $this->challenge($e->user);
         });
         Event::listen(Failed::class, fn (Failed $e) => $e->user ? Audit::record('login.failed', $e->user, null, null, $e->user->id) : null);
         Event::listen(TwoFactorAuthenticationConfirmed::class, fn ($e) => Audit::record('two_factor.enabled', $e->user, null, null, $e->user->id));
@@ -73,5 +72,26 @@ class FortifyServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('two-factor', fn (Request $request) => Limit::perMinute(5)->by($request->session()->get('login.id')));
+    }
+
+    /**
+     * After the password is right: members must answer a security question (or set their questions first). Staff are asked
+     * only if they chose to set questions. A sign in that looks unusual also needs an emailed code.
+     */
+    private function challenge(\App\Models\User $user): void
+    {
+        $sq = app(\App\Services\SecurityQuestions::class);
+        $suspicious = $user->isAdmin() ? false : $sq->suspicious($user, request());
+        if (! \App\Services\SecurityQuestions::enabled() || request()->routeIs('register')) {
+            return;
+        }
+        foreach (\App\Services\SecurityQuestions::SESSION as $k) {
+            session()->forget($k);
+        }
+        if ($sq->has($user)) {
+            session(['sq_pending' => 'challenge', 'sq_risky' => $suspicious]);
+        } elseif (! $user->isAdmin()) {
+            session(['sq_pending' => 'setup']);
+        }
     }
 }

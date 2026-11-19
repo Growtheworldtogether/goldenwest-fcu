@@ -39,6 +39,13 @@
                 <td>Set</td>
                 <td class="go"><button type="button" class="linkbtn" data-open="dlg-password">Change password</button></td>
             </tr>
+            @if (\App\Services\SecurityQuestions::enabled())
+            <tr>
+                <td><strong>Security questions</strong><small>One of your {{ config('security.questions_required') }} questions is asked each time you sign in.{{ $admin ? ' Optional for staff.' : '' }}</small></td>
+                <td>{{ app(\App\Services\SecurityQuestions::class)->has($user) ? 'Set' : 'Not set' }}</td>
+                <td class="go"><a class="plink" href="{{ route('security.questions.edit') }}">{{ app(\App\Services\SecurityQuestions::class)->has($user) ? 'Change questions' : 'Set questions' }}</a></td>
+            </tr>
+            @endif
             <tr>
                 <td><strong>Two-step verification</strong><small>A code from your authenticator app, asked for at sign in. Optional.</small></td>
                 <td>{{ $confirmed ? 'On' : ($enabled ? 'Not finished' : 'Off') }}</td>

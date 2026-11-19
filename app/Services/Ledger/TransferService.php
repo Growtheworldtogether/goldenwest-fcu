@@ -455,6 +455,12 @@ final class TransferService
 
     private function assertLimits(TransferRequest $r, Account $from): void
     {
+        // Outgoing wires have no cap of their own and no daily limit. They still need the balance and, above the
+        // review threshold, a staff review.
+        if ($r->type === TransactionType::WireOut) {
+            return;
+        }
+
         $need = $r->amount->add($r->feeOrZero());
 
         if ($need->cents > config('bank.per_transaction_limit')) {
@@ -463,7 +469,7 @@ final class TransferService
 
         $limit = $from->daily_limit?->cents ?? config('bank.default_daily_limit');
         $query = Transaction::where('from_account_id', $from->id)
-            ->whereIn('type', array_map(fn (TransactionType $t) => $t->value, array_filter(TransactionType::cases(), fn ($t) => $t->isLimited())))
+            ->whereIn('type', array_map(fn (TransactionType $t) => $t->value, array_filter(TransactionType::cases(), fn ($t) => $t->isLimited() && $t !== TransactionType::WireOut)))
             ->whereIn('status', [TransactionStatus::Pending->value, TransactionStatus::Held->value, TransactionStatus::Completed->value])
             ->whereDate('effective_date', $r->effectiveDate ?? now()->toDateString());
         $used = (int) $query->sum('amount') + (int) $query->sum('fee');

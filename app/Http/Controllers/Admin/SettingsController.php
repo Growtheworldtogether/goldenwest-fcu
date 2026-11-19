@@ -16,6 +16,7 @@ class SettingsController extends Controller
         Gate::authorize('staff.manageAdmin');
 
         return view('admin.settings', [
+            'securityQuestions' => \App\Services\SecurityQuestions::enabled(),
             'managersEditSite' => Setting::bool('managers_edit_site', false),
             'moneyActions' => Setting::bool('impersonation_allow_money_actions', config('admin.impersonation_allow_money_actions')),
             'wireFee' => \App\Services\WireService::fee()->cents / 100,
@@ -33,6 +34,13 @@ class SettingsController extends Controller
         $old = Setting::bool('impersonation_allow_money_actions', config('admin.impersonation_allow_money_actions'));
         Setting::put('impersonation_allow_money_actions', $new);
         Audit::record('setting.changed', null, ['impersonation_allow_money_actions' => $old], ['impersonation_allow_money_actions' => $new], $request->user()->id);
+
+        $oldSq = \App\Services\SecurityQuestions::enabled();
+        $newSq = $request->boolean('security_questions');
+        if ($oldSq !== $newSq) {
+            Setting::put('security_questions', $newSq);
+            Audit::record('setting.changed', null, ['security_questions' => $oldSq], ['security_questions' => $newSq], $request->user()->id);
+        }
 
         $oldSite = Setting::bool('managers_edit_site', false);
         $newSite = $request->boolean('managers_edit_site');
